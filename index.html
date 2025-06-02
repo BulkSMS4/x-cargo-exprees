@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>X-Cargo Express</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="assets/favicon.png">
+</head>
+<body>
+  <header>
+    <img src="assets/logo.png" alt="X-Cargo Logo" class="logo">
+    <h1>X-Cargo Express</h1>
+    <p>Your trusted global delivery partner</p>
+  </header>
+
+  <main>
+    <img src="assets/banner.jpg" alt="Banner" class="banner">
+    <h2>Track Your Package</h2>
+    <form id="trackingForm">
+      <input type="text" id="trackID" placeholder="Enter Tracking ID" required>
+      <button type="submit">Track</button>
+    </form>
+  </main>
+
+  <footer>
+    <p>© 2025 X-Cargo Express. All rights reserved.</p>
+  </footer>
+
+  <script>
+    document.getElementById('trackingForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const id = document.getElementById('trackID').value.trim();
+      window.location.href = `track.html?id=${id}`;
+    });
+  </script>
+</body>
+</html>

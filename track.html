@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tracking Result - X-Cargo Express</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="assets/favicon.png">
+</head>
+<body>
+  <header>
+    <img src="assets/logo.png" alt="X-Cargo Logo" class="logo">
+    <h1>Tracking Result</h1>
+  </header>
+
+  <main id="result">
+    <p>Loading tracking data...</p>
+  </main>
+
+  <footer>
+    <p>© 2025 X-Cargo Express</p>
+  </footer>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+
+    fetch("data.json")
+      .then(res => res.json())
+      .then(data => {
+        const resultDiv = document.getElementById("result");
+        if (!data[id]) {
+          resultDiv.innerHTML = `<h3>No record found for Tracking ID: <em>${id}</em></h3>`;
+          return;
+        }
+        const record = data[id];
+        resultDiv.innerHTML = `
+          <h2>Tracking ID: ${id}</h2>
+          <p><strong>Status:</strong> ${record.status}</p>
+          <p><strong>Current Location:</strong> ${record.location}</p>
+          <p><strong>Estimated Delivery:</strong> ${record.eta}</p>
+          <img src="${record.image}" alt="Package Image" class="package-img">
+        `;
+      })
+      .catch(() => {
+        document.getElementById("result").innerHTML = "<p>Unable to load tracking data.</p>";
+      });
+  </script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{
+  "XC123456": {
+    "status": "Out for Delivery",
+    "location": "Togo, Lome",
+    "eta": "June 3, 2025",
+    "image": "assets/package1.jpg"
+  },
+  "XC789101": {
+    "status": "In Transit",
+    "location": "New York, USA",
+    "eta": "June 5, 2025",
+    "image": "assets/package2.jpg"
+  },
+  "XC000111": {
+    "status": "Delivered",
+    "location": "Berlin, Germany",
+    "eta": "Delivered on May 30, 2025",
+    "image": "assets/package3.jpg"
+  }
+}
