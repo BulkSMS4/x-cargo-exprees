@@ -2,82 +2,78 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>X-Cargo Express - Track Your Package</title>
-  <link rel="icon" href="assets/favicon.png" type="image/png" />
+  <title>X-Cargo Express</title>
+  <link rel="icon" href="assets/favicon.png" type="image/png">
   <style>
     body {
       margin: 0;
       padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: Arial, sans-serif;
       background: url('assets/fedex-bg.jpg') no-repeat center center fixed;
       background-size: cover;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      color: #fff;
+      color: white;
       text-align: center;
     }
-    .overlay {
-      background-color: rgba(0, 0, 0, 0.7);
-      padding: 40px;
-      border-radius: 15px;
-      max-width: 500px;
-      width: 90%;
+    header {
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.6);
     }
     .logo {
-      width: 120px;
-      height: auto;
-      margin-bottom: 20px;
+      height: 60px;
     }
-    h1 {
-      margin-bottom: 10px;
-      font-size: 2em;
+    main {
+      margin-top: 80px;
+    }
+    .tracker-box {
+      background: rgba(0, 0, 0, 0.7);
+      padding: 30px;
+      border-radius: 15px;
+      display: inline-block;
+      max-width: 400px;
+      width: 90%;
     }
     input[type="text"] {
-      padding: 12px;
       width: 100%;
-      margin-top: 20px;
+      padding: 12px;
+      margin-bottom: 15px;
       border: none;
       border-radius: 8px;
     }
     button {
-      margin-top: 20px;
       padding: 12px 25px;
       background-color: #ff6600;
       color: white;
       border: none;
       border-radius: 8px;
       cursor: pointer;
+      font-size: 16px;
     }
-    button:hover {
-      background-color: #e55d00;
-    }
-    .admin-btn {
+    .admin-login {
+      position: absolute;
+      top: 20px;
+      right: 20px;
       display: none;
-      margin-top: 15px;
-      background-color: #333;
     }
   </style>
 </head>
 <body>
-  <div class="overlay">
-    <img src="assets/logo.png" alt="X-Cargo Logo" class="logo" />
+  <header>
+    <img src="assets/logo.png" alt="X-Cargo Logo" class="logo">
     <h1>X-Cargo Express</h1>
     <p>Your trusted global delivery partner</p>
-    <form action="track.html" method="get">
-      <input type="text" name="id" placeholder="Enter your Tracking Number" required />
-      <button type="submit">Track Package</button>
-    </form>
-    <button class="admin-btn" id="adminBtn" onclick="window.location.href='login.html'">Admin Login</button>
-  </div>
-  <script>
-    if (!localStorage.getItem('loggedIn')) {
-      document.getElementById('adminBtn').style.display = 'none';
-    } else {
-      document.getElementById('adminBtn').style.display = 'block';
+  </header>  <main>
+    <div class="tracker-box">
+      <h2>Track Your Package</h2>
+      <input type="text" id="trackingId" placeholder="Enter Tracking ID" />
+      <button onclick="trackNow()">Track Now</button>
+    </div>
+  </main>  <script>
+    function trackNow() {
+      const id = document.getElementById("trackingId").value.trim();
+      if (id) {
+        localStorage.setItem("lastTrackingId", id);
+        window.location.href = `track.html`;
+      }
     }
-  </script>
-</body>
+  </script></body>
 </html>
