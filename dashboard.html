@@ -1,104 +1,152 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>📦 Admin Dashboard - X Cargo Express</title>
+  <title>Admin Dashboard - X Cargo</title>
   <style>
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
       display: flex;
       height: 100vh;
-    }
+      background-color: #f0f2f5;
+    }.sidebar {
+  width: 260px;
+  background-color: #20293a;
+  color: white;
+  padding: 20px;
+}
 
-    .sidebar {
-      width: 260px;
-      background: #1e1e2f;
-      color: white;
-      padding: 20px;
-    }
+.sidebar h2 {
+  font-size: 22px;
+  margin-bottom: 30px;
+}
 
-    .sidebar h2 {
-      font-size: 22px;
-      margin-bottom: 30px;
-    }
+.sidebar a {
+  display: block;
+  font-size: 18px;
+  padding: 14px;
+  margin-bottom: 10px;
+  color: white;
+  background: #2d3b55;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: background 0.3s ease;
+}
 
-    .sidebar a {
-      display: block;
-      color: white;
-      text-decoration: none;
-      font-size: 18px;
-      margin: 12px 0;
-      padding: 12px 14px;
-      border-radius: 8px;
-      transition: background 0.3s;
-    }
+.sidebar a:hover {
+  background: #3c4a6e;
+}
 
-    .sidebar a:hover {
-      background-color: #2c2c44;
-    }
+.content {
+  flex-grow: 1;
+  padding: 30px;
+  overflow-y: auto;
+}
 
-    .content {
-      flex: 1;
-      padding: 25px;
-      background: #f3f6f9;
-      overflow-y: auto;
-    }
+.section {
+  display: none;
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
 
-    .section {
-      display: none;
-      background: white;
-      padding: 25px;
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.08);
-    }
+.section.active {
+  display: block;
+}
 
-    .section.active {
-      display: block;
-    }
+.section h3 {
+  margin-top: 0;
+}
 
-    .section h3 {
-      margin-top: 0;
-    }
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: bold;
+}
+
+.form-group input, .form-group select, .form-group textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
   </style>
 </head>
-<body>
-  <div class="sidebar">
-    <h2>⚙️ Admin Panel</h2>
+<body>  <div class="sidebar">
+    <h2>📋 Admin Menu</h2>
+    <a href="#" onclick="showSection('create')">📦 Create Package</a>
     <a href="#" onclick="showSection('customization')">🎨 Customization</a>
     <a href="#" onclick="showSection('branding')">🖼️ Branding</a>
     <a href="#" onclick="showSection('fonts')">🔤 Fonts</a>
     <a href="#" onclick="showSection('advanced')">🚀 Advanced Settings</a>
-  </div>
+  </div>  <div class="content">
+    <div id="create" class="section">
+      <h3>📦 Create Package</h3>
+      <form>
+        <div class="form-group">
+          <label for="receiver">Receiver Name</label>
+          <input type="text" id="receiver" placeholder="e.g. John Doe" />
+        </div>
+        <div class="form-group">
+          <label for="phone">Phone Number</label>
+          <input type="tel" id="phone" placeholder="e.g. +1234567890" />
+        </div>
+        <div class="form-group">
+          <label for="tracking">Tracking Number</label>
+          <input type="text" id="tracking" placeholder="e.g. XCARGO123456" />
+        </div>
+        <div class="form-group">
+          <label for="location">Current Location</label>
+          <input type="text" id="location" placeholder="e.g. Lagos, Nigeria" />
+        </div>
+        <div class="form-group">
+          <label for="status">Package Status</label>
+          <select id="status">
+            <option>In Transit</option>
+            <option>Pending</option>
+            <option>Out for Delivery</option>
+            <option>Delivered</option>
+            <option>On Hold</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="profile">Upload Profile Picture</label>
+          <input type="file" id="profile" accept="image/*" />
+        </div>
+      </form>
+    </div><div id="customization" class="section">
+  <h3>🎨 Customization</h3>
+  <p>Customize background type, color, gradient, or media.</p>
+</div>
 
-  <div class="content">
-    <div id="customization" class="section">
-      <h3>🎨 Customization</h3>
-      <p>Customize background type, colors, gradients, etc.</p>
-    </div>
+<div id="branding" class="section">
+  <h3>🖼️ Branding</h3>
+  <p>Set your platform name, logo, and link colors.</p>
+</div>
 
-    <div id="branding" class="section">
-      <h3>🖼️ Branding</h3>
-      <p>Set name, text color, link, and logo.</p>
-    </div>
+<div id="fonts" class="section">
+  <h3>🔤 Fonts</h3>
+  <p>Select font type and size for your tracking pages.</p>
+</div>
 
-    <div id="fonts" class="section">
-      <h3>🔤 Fonts</h3>
-      <p>Select font type and size for your page.</p>
-    </div>
+<div id="advanced" class="section">
+  <h3>🚀 Advanced Settings</h3>
+  <p>Project creation, Leap Link URL, and expert configurations.</p>
+</div>
 
-    <div id="advanced" class="section">
-      <h3>🚀 Advanced Settings</h3>
-      <p>Advanced project creation options like Leap Link URL.</p>
-    </div>
-  </div>
-
-  <script>
+  </div>  <script>
     function showSection(id) {
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.section').forEach(section => {
+        section.classList.remove('active');
+      });
       document.getElementById(id).classList.add('active');
     }
-  </script>
-</body>
+  </script></body>
 </html>
