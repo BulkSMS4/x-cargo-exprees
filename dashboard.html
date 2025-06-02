@@ -1,45 +1,123 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>⚙️ Admin Dashboard</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
-    nav {
-      background: #1e1e1e;
-      padding: 12px 20px;
+    * {
+      margin: 0; padding: 0; box-sizing: border-box;
     }
-    nav a {
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 220px;
+      background-color: #1e1e1e;
       color: white;
-      margin-right: 20px;
-      text-decoration: none;
-      font-weight: bold;
-    }
-    nav a:hover {
-      text-decoration: underline;
-    }
-    .container {
+      display: flex;
+      flex-direction: column;
       padding: 20px;
     }
-    h1 {
+
+    .sidebar h2 {
+      margin-bottom: 20px;
+      font-size: 22px;
+      color: #00c3ff;
+    }
+
+    .sidebar a {
+      color: white;
+      text-decoration: none;
+      margin-bottom: 15px;
+      display: block;
+      font-size: 15px;
+      padding: 8px;
+      border-radius: 5px;
+    }
+
+    .sidebar a:hover {
+      background-color: #333;
+    }
+
+    .main {
+      flex: 1;
+      padding: 30px;
+      background: #f4f4f4;
+    }
+
+    .main h1 {
+      font-size: 24px;
       margin-bottom: 20px;
     }
-    /* Add any additional admin-specific styling here */
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        flex-direction: row;
+        overflow-x: auto;
+      }
+
+      .sidebar a {
+        margin-right: 10px;
+        margin-bottom: 0;
+        white-space: nowrap;
+      }
+    }
   </style>
 </head>
 <body>
 
-  <!-- 🔗 Top Navigation Menu -->
-  <nav>
-    <a href="packages.html">📦 View Packages</a>
-    <a href="dashboard.html">⚙️ Admin Dashboard</a>
-  </nav>
+  <!-- Sidebar Menu -->
+  <div class="sidebar">
+    <h2>🚀 Admin</h2>
+    <a href="create.html">📦 Create Package</a>
+    <a href="#customization">🎨 Customization</a>
+    <a href="#branding">🖼️ Branding</a>
+    <a href="#fonts">🔤 Fonts</a>
+    <a href="#advanced">🚀 Advanced</a>
+    <a href="packages.html">🔗 View Packages</a>
+    <a href="admin.html">🔒 Logout</a>
+  </div>
 
-  <div class="container">
+  <!-- Main Content -->
+  <div class="main">
     <h1>⚙️ Admin Dashboard</h1>
-    <!-- Your existing admin controls, forms, and content go here -->
-    <p>Welcome to the admin control panel.</p>
-    <!-- Add branding settings, customization options, etc. below -->
+
+    <div id="customization" class="card">
+      <h2>🎨 Customization</h2>
+      <p>Customize background type, colors, gradients, etc.</p>
+    </div>
+
+    <div id="branding" class="card">
+      <h2>🖼️ Branding</h2>
+      <p>Set name, text color, link, and logo.</p>
+    </div>
+
+    <div id="fonts" class="card">
+      <h2>🔤 Fonts</h2>
+      <p>Select font type and size for your page.</p>
+    </div>
+
+    <div id="advanced" class="card">
+      <h2>🚀 Advanced Settings</h2>
+      <p>Advanced project creation options like Leap Link URL.</p>
+    </div>
   </div>
 
 </body>
