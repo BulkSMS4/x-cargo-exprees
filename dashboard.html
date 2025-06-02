@@ -24,14 +24,15 @@
 
 .sidebar a {
   display: block;
-  font-size: 18px;
-  padding: 14px;
-  margin-bottom: 10px;
+  font-size: 16px;
+  padding: 12px;
+  margin-bottom: 8px;
   color: white;
   background: #2d3b55;
   text-decoration: none;
-  border-radius: 8px;
+  border-radius: 6px;
   transition: background 0.3s ease;
+  cursor: pointer;
 }
 
 .sidebar a:hover {
@@ -81,11 +82,11 @@
 </head>
 <body>  <div class="sidebar">
     <h2>📋 Admin Menu</h2>
-    <a href="#" onclick="showSection('create')">📦 Create Package</a>
-    <a href="#" onclick="showSection('customization')">🎨 Customization</a>
-    <a href="#" onclick="showSection('branding')">🖼️ Branding</a>
-    <a href="#" onclick="showSection('fonts')">🔤 Fonts</a>
-    <a href="#" onclick="showSection('advanced')">🚀 Advanced Settings</a>
+    <a onclick="toggleSection('create')">📦 Create Package</a>
+    <a onclick="toggleSection('customization')">🎨 Customization</a>
+    <a onclick="toggleSection('branding')">🖼️ Branding</a>
+    <a onclick="toggleSection('fonts')">🔤 Fonts</a>
+    <a onclick="toggleSection('advanced')">🚀 Advanced Settings</a>
   </div>  <div class="content">
     <div id="create" class="section">
       <h3>📦 Create Package</h3>
@@ -142,8 +143,9 @@
 </div>
 
   </div>  <script>
-    function showSection(id) {
-      document.querySelectorAll('.section').forEach(section => {
+    function toggleSection(id) {
+      const sections = document.querySelectorAll('.section');
+      sections.forEach(section => {
         section.classList.remove('active');
       });
       document.getElementById(id).classList.add('active');
