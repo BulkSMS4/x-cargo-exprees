@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register | X-Cargo Express</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .register-container {
+      background: white;
+      padding: 20px;
+      max-width: 400px;
+      width: 90%;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .register-container img {
+      max-width: 100px;
+      display: block;
+      margin: 0 auto 20px;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #28a745;
+      color: white;
+      border: none;
+      margin-top: 10px;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    .links {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+    .links a {
+      font-size: 14px;
+      text-decoration: none;
+      color: #007bff;
+    }
+  </style>
+</head>
+<body>
+  <div class="register-container">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Font_Awesome_5_solid_shipping-fast.svg/1200px-Font_Awesome_5_solid_shipping-fast.svg.png" alt="Logo">
+    <h2>Create Account</h2>
+    <input type="text" id="name" placeholder="Enter your full name" />
+    <input type="email" id="email" placeholder="Enter your email" />
+    <input type="password" id="password" placeholder="Create a password" />
+    <button onclick="register()">Register</button>
+    <div class="links">
+      <a href="admin.html">Login</a>
+      <a href="forgot.html">Forgot Password?</a>
+    </div>
+  </div>
+
+  <!-- Firebase JS -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
+      authDomain: "x-cargo-exprees.firebaseapp.com",
+      databaseURL: "https://x-cargo-exprees-default-rtdb.firebaseio.com",
+      projectId: "x-cargo-exprees",
+      storageBucket: "x-cargo-exprees.appspot.com",
+      messagingSenderId: "1082201867958",
+      appId: "1:1082201867958:web:d6600fbc82085b0b62c817",
+      measurementId: "G-C3Y4PQC86V"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    function register() {
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      firebase.auth().createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          alert("Account created successfully!");
+          window.location.href = "dashboard.html";
+        })
+        .catch((error) => {
+          alert(error.message);
+        });
+    }
+  </script>
+</body>
+</html>
