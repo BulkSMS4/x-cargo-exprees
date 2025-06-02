@@ -2,123 +2,103 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>⚙️ Admin Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>📦 Admin Dashboard - X Cargo Express</title>
   <style>
-    * {
-      margin: 0; padding: 0; box-sizing: border-box;
-    }
-
     body {
+      margin: 0;
       font-family: 'Segoe UI', sans-serif;
       display: flex;
-      min-height: 100vh;
+      height: 100vh;
     }
 
     .sidebar {
-      width: 220px;
-      background-color: #1e1e1e;
+      width: 260px;
+      background: #1e1e2f;
       color: white;
-      display: flex;
-      flex-direction: column;
       padding: 20px;
     }
 
     .sidebar h2 {
-      margin-bottom: 20px;
       font-size: 22px;
-      color: #00c3ff;
+      margin-bottom: 30px;
     }
 
     .sidebar a {
+      display: block;
       color: white;
       text-decoration: none;
-      margin-bottom: 15px;
-      display: block;
-      font-size: 15px;
-      padding: 8px;
-      border-radius: 5px;
+      font-size: 18px;
+      margin: 12px 0;
+      padding: 12px 14px;
+      border-radius: 8px;
+      transition: background 0.3s;
     }
 
     .sidebar a:hover {
-      background-color: #333;
+      background-color: #2c2c44;
     }
 
-    .main {
+    .content {
       flex: 1;
-      padding: 30px;
-      background: #f4f4f4;
+      padding: 25px;
+      background: #f3f6f9;
+      overflow-y: auto;
     }
 
-    .main h1 {
-      font-size: 24px;
-      margin-bottom: 20px;
-    }
-
-    .card {
+    .section {
+      display: none;
       background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.08);
     }
 
-    @media (max-width: 768px) {
-      body {
-        flex-direction: column;
-      }
+    .section.active {
+      display: block;
+    }
 
-      .sidebar {
-        width: 100%;
-        flex-direction: row;
-        overflow-x: auto;
-      }
-
-      .sidebar a {
-        margin-right: 10px;
-        margin-bottom: 0;
-        white-space: nowrap;
-      }
+    .section h3 {
+      margin-top: 0;
     }
   </style>
 </head>
 <body>
-
-  <!-- Sidebar Menu -->
   <div class="sidebar">
-    <h2>🚀 Admin</h2>
-    <a href="create.html">📦 Create Package</a>
-    <a href="#customization">🎨 Customization</a>
-    <a href="#branding">🖼️ Branding</a>
-    <a href="#fonts">🔤 Fonts</a>
-    <a href="#advanced">🚀 Advanced</a>
-    <a href="packages.html">🔗 View Packages</a>
-    <a href="admin.html">🔒 Logout</a>
+    <h2>⚙️ Admin Panel</h2>
+    <a href="#" onclick="showSection('customization')">🎨 Customization</a>
+    <a href="#" onclick="showSection('branding')">🖼️ Branding</a>
+    <a href="#" onclick="showSection('fonts')">🔤 Fonts</a>
+    <a href="#" onclick="showSection('advanced')">🚀 Advanced Settings</a>
   </div>
 
-  <!-- Main Content -->
-  <div class="main">
-    <h1>⚙️ Admin Dashboard</h1>
-
-    <div id="customization" class="card">
-      <h2>🎨 Customization</h2>
+  <div class="content">
+    <div id="customization" class="section">
+      <h3>🎨 Customization</h3>
       <p>Customize background type, colors, gradients, etc.</p>
     </div>
 
-    <div id="branding" class="card">
-      <h2>🖼️ Branding</h2>
+    <div id="branding" class="section">
+      <h3>🖼️ Branding</h3>
       <p>Set name, text color, link, and logo.</p>
     </div>
 
-    <div id="fonts" class="card">
-      <h2>🔤 Fonts</h2>
+    <div id="fonts" class="section">
+      <h3>🔤 Fonts</h3>
       <p>Select font type and size for your page.</p>
     </div>
 
-    <div id="advanced" class="card">
-      <h2>🚀 Advanced Settings</h2>
+    <div id="advanced" class="section">
+      <h3>🚀 Advanced Settings</h3>
       <p>Advanced project creation options like Leap Link URL.</p>
     </div>
   </div>
 
+  <script>
+    function showSection(id) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+  </script>
 </body>
 </html>
