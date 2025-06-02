@@ -1,132 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dashboard</title>
+  <meta charset="UTF-8">
+  <title>⚙️ Admin Dashboard</title>
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      display: flex;
-      height: 100vh;
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+    nav {
+      background: #1e1e1e;
+      padding: 12px 20px;
     }
-
-    .sidebar {
-      width: 260px;
-      background-color: #1f2937;
+    nav a {
       color: white;
-      display: flex;
-      flex-direction: column;
-      padding: 20px 10px;
-      overflow-y: auto;
+      margin-right: 20px;
+      text-decoration: none;
+      font-weight: bold;
     }
-
-    .sidebar h2 {
-      font-size: 1.5em;
-      margin-bottom: 30px;
-      text-align: center;
+    nav a:hover {
+      text-decoration: underline;
     }
-
-    .sidebar-item {
-      margin: 10px 0;
-      cursor: pointer;
-      padding: 10px;
-      border-radius: 8px;
-      transition: background 0.3s;
-    }
-
-    .sidebar-item:hover {
-      background-color: #374151;
-    }
-
-    .nested {
-      display: none;
-      margin-left: 20px;
-      margin-top: 5px;
-      flex-direction: column;
-      gap: 5px;
-    }
-
-    .nested div {
-      padding: 6px 0;
-      cursor: pointer;
-    }
-
-    .content {
-      flex: 1;
+    .container {
       padding: 20px;
-      background-color: #f3f4f6;
     }
-
-    .profile-picture {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      background-color: #ccc;
-      margin: 0 auto 20px auto;
-      object-fit: cover;
+    h1 {
+      margin-bottom: 20px;
     }
+    /* Add any additional admin-specific styling here */
   </style>
-  <script>
-    function toggleNested(id) {
-      const el = document.getElementById(id);
-      el.style.display = el.style.display === 'block' ? 'none' : 'block';
-    }
-  </script>
 </head>
 <body>
-  <div class="sidebar">
-    <img src="profile.jpg" alt="Profile Picture" class="profile-picture" />
-    <h2>📦 Dashboard</h2>
 
-    <div class="sidebar-item">📦 Create Package</div>
+  <!-- 🔗 Top Navigation Menu -->
+  <nav>
+    <a href="packages.html">📦 View Packages</a>
+    <a href="dashboard.html">⚙️ Admin Dashboard</a>
+  </nav>
 
-    <div class="sidebar-item" onclick="toggleNested('settings')">⚙️ Settings</div>
-    <div class="nested" id="settings">
-      <div>🖌️ Customization</div>
-      <div>🔤 Branding</div>
-      <div>✒️ Fonts</div>
-      <div>🧑‍✈️ Advanced</div>
-    </div>
-
-    <div class="sidebar-item" onclick="toggleNested('addBlocks')">➕ Add Blocks</div>
-    <div class="nested" id="addBlocks">
-      <div>🔗 Link</div>
-      <div>H Heading</div>
-      <div>⚒️ Paragraph</div>
-      <div>🚹 Avatar</div>
-      <div>🖼️ Image</div>
-      <div>🧑‍🧒‍🧒 Socials</div>
-      <div>✉️ Email collector</div>
-      <div>☁️ SoundCloud</div>
-      <div>🏷️ Spotify</div>
-      <div>🎥 YouTube</div>
-      <div>💬 Twitch</div>
-      <div>V Vimeo</div>
-      <div>🔵 TikTok</div>
-      <div>📞 Phone collector</div>
-      <div>P Paypal</div>
-      <div>🗺️ Map</div>
-    </div>
-
-    <div class="sidebar-item" onclick="toggleNested('links')">🔗 Links</div>
-    <div class="nested" id="links">
-      <div>Tracking Numbers</div>
-    </div>
-
-    <div class="sidebar-item">🚪 Logout</div>
-    <div class="sidebar-item">📐 Layout</div>
+  <div class="container">
+    <h1>⚙️ Admin Dashboard</h1>
+    <!-- Your existing admin controls, forms, and content go here -->
+    <p>Welcome to the admin control panel.</p>
+    <!-- Add branding settings, customization options, etc. below -->
   </div>
 
-  <div class="content">
-    <h1>Welcome to your Dashboard</h1>
-    <p><strong>User Email:</strong> <span id="userEmail">Loading...</span></p>
-  </div>
-
-  <script>
-    // Load stored email from localStorage (for Firebase auth user email)
-    document.getElementById('userEmail').textContent = localStorage.getItem('userEmail') || 'Loading...';
-  </script>
 </body>
 </html>
