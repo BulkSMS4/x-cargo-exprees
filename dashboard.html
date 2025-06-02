@@ -8,6 +8,7 @@
       margin: 0;
       font-family: Arial, sans-serif;
       display: flex;
+      flex-direction: row;
     }
     aside {
       width: 250px;
@@ -15,6 +16,23 @@
       color: white;
       height: 100vh;
       padding: 20px;
+      transition: transform 0.3s ease;
+      position: fixed;
+      z-index: 1000;
+    }
+    aside.hidden {
+      transform: translateX(-100%);
+    }
+    #toggleBtn {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      background: #1e1e2f;
+      color: white;
+      border: none;
+      padding: 10px;
+      cursor: pointer;
+      z-index: 1100;
     }
     aside ul {
       list-style: none;
@@ -32,6 +50,11 @@
       flex: 1;
       padding: 20px;
       background: #f4f4f4;
+      margin-left: 250px;
+      transition: margin-left 0.3s ease;
+    }
+    main.sidebar-hidden {
+      margin-left: 0;
     }
     .section {
       display: none;
@@ -39,6 +62,8 @@
       padding: 20px;
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      max-width: 700px;
+      margin: auto;
     }
     .section.active {
       display: block;
@@ -50,10 +75,24 @@
       border: 1px solid #ccc;
       border-radius: 5px;
     }
+    @media (max-width: 768px) {
+      aside {
+        transform: translateX(-100%);
+      }
+      main {
+        margin-left: 0;
+        width: 100%;
+      }
+      .section {
+        max-width: 100%;
+        padding: 15px;
+      }
+    }
   </style>
 </head>
 <body>
-  <aside>
+  <button id="toggleBtn" onclick="toggleSidebar()">☰ Menu</button>
+  <aside id="sidebar" class="hidden">
     <ul>
       <li onclick="showSection('create')">📦 Create Package</li>
       <li onclick="showSection('customization')">🎨 Customization</li>
@@ -61,7 +100,7 @@
       <li onclick="showSection('fonts')">🔤 Fonts</li>
       <li onclick="showSection('advanced')">🚀 Advanced Settings</li>
     </ul>
-  </aside>  <main>
+  </aside>  <main id="main" class="sidebar-hidden">
     <div id="create" class="section active">
       <h3>📦 Create Package</h3>
       <input type="text" id="receiver" placeholder="Receiver Name" />
@@ -103,6 +142,16 @@
         section.classList.remove('active');
       });
       document.getElementById(id).classList.add('active');
+
+      document.getElementById('sidebar').classList.add('hidden');
+      document.getElementById('main').classList.add('sidebar-hidden');
+    }
+
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const main = document.getElementById('main');
+      sidebar.classList.toggle('hidden');
+      main.classList.toggle('sidebar-hidden');
     }
   </script></body>
 </html>
