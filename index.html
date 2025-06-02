@@ -1,53 +1,23 @@
-<!DOCTYPE html><html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>X-Cargo Express - Home</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      text-align: center;
-      background-color: #f4f4f4;
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X-Cargo Express</title>
+    <link rel="stylesheet" href="style.css">
+</head><body>
+    <h1>Welcome to X-Cargo Express</h1><div id="buttons">
+    <a href="create.html" id="createBtn" style="display: none;">
+        <button class="admin-btn">Admin: Create Package</button>
+    </a>
+    <a href="track.html">
+        <button class="customer-btn">Customer: Track Package</button>
+    </a>
+</div>
+
+<script>
+    // Show Admin button if logged in
+    if (localStorage.getItem('isAdmin') === 'true') {
+        document.getElementById('createBtn').style.display = 'block';
     }
-    header {
-      background-color: #003366;
-      color: white;
-      padding: 20px;
-    }
-    header img {
-      width: 100px;
-      height: auto;
-    }
-    main {
-      padding: 30px;
-    }
-    a.button {
-      display: inline-block;
-      margin: 20px;
-      padding: 15px 25px;
-      background-color: #007bff;
-      color: white;
-      text-decoration: none;
-      border-radius: 8px;
-      font-size: 18px;
-    }
-    a.button:hover {
-      background-color: #0056b3;
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <img src="assets/logo.png" alt="X-Cargo Logo" />
-    <h1>X-Cargo Express</h1>
-    <p>Your trusted global delivery partner</p>
-  </header>  <main>
-    <h2>Welcome to X-Cargo Express</h2>
-    <p>Select an option below:</p>
-    <a href="create.html" class="button">Admin: Create Package</a>
-    <a href="track.html" class="button">Customer: Track Package</a>
-  </main>
-</body>
-</html>
+</script>
+
+</body></html>
