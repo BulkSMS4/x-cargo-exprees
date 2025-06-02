@@ -2,55 +2,93 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Track Package - X-Cargo Express</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; }
-    img { max-width: 100%; height: auto; margin-top: 10px; }
-    .not-found { color: red; font-weight: bold; }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+    input, button {
+      padding: 10px;
+      width: 100%;
+      margin-bottom: 15px;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+      margin-top: 10px;
+    }
+    .not-found {
+      color: red;
+      font-weight: bold;
+    }
+    .success {
+      border: 1px solid #ccc;
+      padding: 15px;
+      border-radius: 10px;
+      background: #f9f9f9;
+    }
   </style>
 </head>
 <body>
   <h2>Track Your Package</h2>
+  <input type="text" id="trackingId" placeholder="Enter tracking ID e.g. XCARGO123456GH" />
+  <button onclick="trackPackage()">Track</button>
 
   <div id="trackingResult"></div>
 
-  <script>
-    function getTrackingIdFromURL() {
-      const params = new URLSearchParams(window.location.search);
-      return params.get("id");
-    }
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+    import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
 
-    function displayTrackingInfo() {
-      const trackingId = getTrackingIdFromURL();
-      const data = localStorage.getItem(trackingId);
+    const firebaseConfig = {
+      apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
+      authDomain: "x-cargo-exprees.firebaseapp.com",
+      databaseURL: "https://x-cargo-exprees-default-rtdb.firebaseio.com",
+      projectId: "x-cargo-exprees",
+      storageBucket: "x-cargo-exprees.firebasestorage.app",
+      messagingSenderId: "1082201867958",
+      appId: "1:1082201867958:web:d6600fbc82085b0b62c817",
+      measurementId: "G-C3Y4PQC86V"
+    };
 
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    window.trackPackage = function () {
+      const id = document.getElementById("trackingId").value.trim();
       const container = document.getElementById("trackingResult");
-
-      if (!trackingId) {
-        container.innerHTML = `<p class="not-found">No tracking ID provided. Use: ?id=XCARGO123456GH</p>`;
+      if (!id) {
+        container.innerHTML = `<p class="not-found">Please enter a tracking ID.</p>`;
         return;
       }
 
-      if (!data) {
-        container.innerHTML = `<p class="not-found">Tracking ID "${trackingId}" not found.</p>`;
-        return;
-      }
-
-      const packageData = JSON.parse(data);
-
-      container.innerHTML = `
-        <h3>Tracking ID: ${packageData.trackingId}</h3>
-        <p><strong>Receiver:</strong> ${packageData.receiver}</p>
-        <p><strong>Address:</strong> ${packageData.address}</p>
-        <p><strong>Phone:</strong> ${packageData.phone}</p>
-        <p><strong>Status:</strong> ${packageData.status}</p>
-        <p><strong>Current Location:</strong> ${packageData.location}</p>
-        <img src="${packageData.image}" alt="Package Image" />
-      `;
-    }
-
-    displayTrackingInfo();
+      const dbRef = ref(db);
+      get(child(dbRef, `packages/${id}`)).then((snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          container.innerHTML = `
+            <div class="success">
+              <h3>Tracking ID: ${data.trackingId}</h3>
+              <p><strong>Receiver:</strong> ${data.receiver}</p>
+              <p><strong>Address:</strong> ${data.address}</p>
+              <p><strong>Phone:</strong> ${data.phone}</p>
+              <p><strong>Status:</strong> ${data.status}</p>
+              <p><strong>Current Location:</strong> ${data.location}</p>
+              <img src="${data.image}" alt="Package Image" />
+            </div>
+          `;
+        } else {
+          container.innerHTML = `<p class="not-found">❌ Tracking ID "${id}" not found.</p>`;
+        }
+      }).catch((error) => {
+        container.innerHTML = `<p class="not-found">Error fetching data: ${error.message}</p>`;
+      });
+    };
   </script>
 </body>
 </html>
