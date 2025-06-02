@@ -1,49 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
-  <title>Tracking Result - X-Cargo Express</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="icon" href="assets/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>X-Cargo Express - Tracking Result</title>
+  <link rel="icon" href="images/favicon.png" type="image/png">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f7f7f7;
+      color: #333;
+    }
+
+    .header {
+      background-color: #0047AB;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .header img {
+      max-width: 100%;
+      height: auto;
+    }
+
+    .container {
+      padding: 20px;
+      max-width: 900px;
+      margin: auto;
+      background-color: white;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .result {
+      font-size: 1.2em;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 15px;
+      font-size: 0.9em;
+      color: #666;
+    }
+
+    .package-image {
+      width: 100%;
+      height: auto;
+      max-height: 500px;
+      object-fit: contain;
+    }
+
+    @media screen and (max-width: 768px) {
+      .header img, .package-image {
+        width: 100%;
+        height: auto;
+      }
+    }
+  </style>
 </head>
+
 <body>
-  <header>
-    <img src="assets/logo.png" alt="X-Cargo Logo" class="logo">
+  <div class="header">
+    <img src="images/banner.jpg" alt="X-Cargo Banner">
     <h1>Tracking Result</h1>
-  </header>
+  </div>
 
-  <main id="result">
-    <p>Loading tracking data...</p>
-  </main>
+  <div class="container">
+    <div class="result">
+      No record found for Tracking ID: <strong>XCARGO123456789GH</strong>
+    </div>
+    <br>
+    <img src="images/package.jpg" alt="Package" class="package-image">
+  </div>
 
-  <footer>
-    <p>© 2025 X-Cargo Express</p>
-  </footer>
-
-  <script>
-    const params = new URLSearchParams(window.location.search);
-    const id = params.get("id");
-
-    fetch("data.json")
-      .then(res => res.json())
-      .then(data => {
-        const resultDiv = document.getElementById("result");
-        if (!data[id]) {
-          resultDiv.innerHTML = `<h3>No record found for Tracking ID: <em>${id}</em></h3>`;
-          return;
-        }
-        const record = data[id];
-        resultDiv.innerHTML = `
-          <h2>Tracking ID: ${id}</h2>
-          <p><strong>Status:</strong> ${record.status}</p>
-          <p><strong>Current Location:</strong> ${record.location}</p>
-          <p><strong>Estimated Delivery:</strong> ${record.eta}</p>
-          <img src="${record.image}" alt="Package Image" class="package-img">
-        `;
-      })
-      .catch(() => {
-        document.getElementById("result").innerHTML = "<p>Unable to load tracking data.</p>";
-      });
-  </script>
+  <div class="footer">
+    © 2025 X-Cargo Express
+  </div>
 </body>
+
 </html>
