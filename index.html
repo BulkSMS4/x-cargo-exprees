@@ -1,97 +1,147 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>X-Cargo Express - Track Package</title>
-  <link rel="icon" href="assets/favicon.png" type="image/png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>X-Cargo Express - Track Your Package</title>
+  <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/7/7a/FedEx_Express_logo.svg">
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: url('assets/fedex-bg.jpg') no-repeat center center fixed;
-      background-size: cover;
+      background: linear-gradient(to bottom, #f5f5f5, #e0e0e0);
       margin: 0;
       padding: 0;
-      color: #fff;
+    }
+    .container {
+      max-width: 600px;
+      margin: 50px auto;
+      background: white;
+      padding: 30px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
       text-align: center;
     }
-    header {
-      background: rgba(0, 0, 0, 0.6);
-      padding: 20px;
-    }
-    header img {
-      width: 80px;
-      height: auto;
-    }
-    header h1 {
-      margin: 10px 0 5px;
-      font-size: 28px;
-      color: #fff;
-    }
-    header p {
-      margin: 0;
-      font-size: 16px;
-      color: #ccc;
-    }
-    .tracker-box {
-      background: rgba(255, 255, 255, 0.95);
-      color: #333;
-      max-width: 400px;
-      margin: 40px auto;
-      padding: 30px 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.3);
-    }
-    .tracker-box h2 {
+    h1 {
+      color: #4D148C; /* FedEx purple */
       margin-bottom: 20px;
     }
-    .tracker-box input {
-      width: 90%;
+    input[type="text"] {
       padding: 10px;
-      font-size: 16px;
-      margin-bottom: 15px;
+      width: 90%;
+      margin: 10px auto;
       border: 1px solid #ccc;
-      border-radius: 6px;
+      border-radius: 5px;
     }
-    .tracker-box button {
-      padding: 10px 25px;
-      font-size: 16px;
-      background: #4e2a84;
+    button {
+      padding: 10px 20px;
+      background-color: #FF6600; /* FedEx orange */
       color: white;
       border: none;
-      border-radius: 6px;
+      border-radius: 5px;
       cursor: pointer;
+      font-weight: bold;
     }
-    .tracker-box button:hover {
-      background: #341b5f;
+    button:hover {
+      background-color: #cc5200;
+    }
+    .result-box {
+      text-align: left;
+      margin-top: 30px;
+      background: #fafafa;
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+    .warning {
+      color: red;
+      font-weight: bold;
+    }
+    .tracking-value {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .cta-button {
+      margin-top: 20px;
+      display: inline-block;
+      background-color: #007bff;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 5px;
+      text-decoration: none;
     }
   </style>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+    import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";const firebaseConfig = {
+  apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
+  authDomain: "x-cargo-exprees.firebaseapp.com",
+  databaseURL: "https://x-cargo-exprees-default-rtdb.firebaseio.com",
+  projectId: "x-cargo-exprees",
+  storageBucket: "x-cargo-exprees.appspot.com",
+  messagingSenderId: "1082201867958",
+  appId: "1:1082201867958:web:d6600fbc82085b0b62c817",
+  measurementId: "G-C3Y4PQC86V"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+window.trackPackage = async function () {
+  const trackingInput = document.getElementById("trackingNumber").value.trim();
+  const resultBox = document.getElementById("resultBox");
+  resultBox.innerHTML = "Loading...";
+
+  if (!trackingInput) {
+    resultBox.innerHTML = "Please enter a tracking number.";
+    return;
+  }
+
+  const snapshot = await get(child(ref(db), `packages/${trackingInput}`));
+  if (!snapshot.exists()) {
+    resultBox.innerHTML = "Tracking number not found.";
+    return;
+  }
+
+  const data = snapshot.val();
+
+  if (data.status && data.status.toLowerCase().includes("suspend")) {
+    resultBox.innerHTML = `
+      <div class="warning">DELIVERY OF THE SUSPENDED PACKAGE!</div>
+      <img src="${data.image || 'https://via.placeholder.com/350x200?text=Package+Image'}" style="width: 100%; border-radius: 5px; margin: 10px 0" />
+      <div>Status: ${data.status}</div>
+      <div class="warning">A delivery fee may apply</div>
+      <div class="tracking-value">Tracking Code: ${data.trackingId}</div>
+      <a href="#" class="cta-button">Schedule Delivery Now</a>
+    `;
+  } else {
+    resultBox.innerHTML = `
+      <h3>Tracking Information</h3>
+      <p><strong>Status:</strong> ${data.status || 'N/A'}</p>
+      <p><strong>Receiver:</strong> ${data.receiver || 'N/A'}</p>
+      <p><strong>Phone:</strong> ${data.phone || 'N/A'}</p>
+      <p><strong>Address:</strong> ${data.address || 'N/A'}</p>
+      <p><strong>Location:</strong> ${data.location || 'N/A'}</p>
+      <p><strong>Weight:</strong> ${data.weight || 'N/A'}</p>
+      <p><strong>Description:</strong> ${data.description || 'N/A'}</p>
+      <p><strong>Quantity:</strong> ${data.quantity || 'N/A'}</p>
+      <p><strong>Shipment Date:</strong> ${data.shipmentDate || 'N/A'}</p>
+      <p><strong>Expected Delivery:</strong> ${data.expectedDate || 'N/A'}</p>
+      <p><strong>Last Updated:</strong> ${data.updateDate || 'N/A'}</p>
+      <p><strong>Sender:</strong> ${data.senderName || 'N/A'} (${data.senderAddress || ''})</p>
+      <div class="tracking-value">Tracking ID: ${data.trackingId}</div>
+    `;
+  }
+};
+
+  </script>
 </head>
 <body>
-  <header>
-    <img src="assets/favicon.png" alt="X-Cargo Express Icon" />
-    <h1>X-Cargo Express</h1>
-    <p>Your Trusted Global Delivery Partner</p>
-  </header>
+  <div class="container">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/FedEx_Express_logo.svg/2560px-FedEx_Express_logo.svg.png" alt="FedEx Logo" width="150" style="margin-bottom: 20px;">
+    <h1>Track Your Package</h1>
+    <input type="text" id="trackingNumber" placeholder="Enter your tracking number (e.g. XCARGO123456GH)">
+    <button onclick="trackPackage()">Track</button><div id="resultBox" class="result-box"></div>
 
-  <div class="tracker-box">
-    <h2>Track Your Package</h2>
-    <form onsubmit="event.preventDefault(); trackPackage();">
-      <input type="text" id="trackingId" placeholder="Enter Tracking Number" required />
-      <br>
-      <button type="submit">Track</button>
-    </form>
   </div>
-
-  <script>
-    function trackPackage() {
-      const trackingId = document.getElementById("trackingId").value.trim();
-      if (trackingId) {
-        window.location.href = `track.html?id=${trackingId}`;
-      } else {
-        alert("Please enter a valid tracking number.");
-      }
-    }
-  </script>
 </body>
 </html>
