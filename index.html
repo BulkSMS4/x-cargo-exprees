@@ -1,37 +1,53 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>X-Cargo Express</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="icon" href="assets/favicon.png">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>X-Cargo Express - Home</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+      background-color: #f4f4f4;
+    }
+    header {
+      background-color: #003366;
+      color: white;
+      padding: 20px;
+    }
+    header img {
+      width: 100px;
+      height: auto;
+    }
+    main {
+      padding: 30px;
+    }
+    a.button {
+      display: inline-block;
+      margin: 20px;
+      padding: 15px 25px;
+      background-color: #007bff;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 18px;
+    }
+    a.button:hover {
+      background-color: #0056b3;
+    }
+  </style>
 </head>
 <body>
   <header>
-    <img src="assets/logo.png" alt="X-Cargo Logo" class="logo">
+    <img src="assets/logo.png" alt="X-Cargo Logo" />
     <h1>X-Cargo Express</h1>
     <p>Your trusted global delivery partner</p>
-  </header>
-
-  <main>
-    <img src="assets/banner.jpg" alt="Banner" class="banner">
-    <h2>Track Your Package</h2>
-    <form id="trackingForm">
-      <input type="text" id="trackID" placeholder="Enter Tracking ID" required>
-      <button type="submit">Track</button>
-    </form>
+  </header>  <main>
+    <h2>Welcome to X-Cargo Express</h2>
+    <p>Select an option below:</p>
+    <a href="create.html" class="button">Admin: Create Package</a>
+    <a href="track.html" class="button">Customer: Track Package</a>
   </main>
-
-  <footer>
-    <p>© 2025 X-Cargo Express. All rights reserved.</p>
-  </footer>
-
-  <script>
-    document.getElementById('trackingForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const id = document.getElementById('trackID').value.trim();
-      window.location.href = `track.html?id=${id}`;
-    });
-  </script>
 </body>
 </html>
