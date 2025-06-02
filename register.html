@@ -2,108 +2,81 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Register | X-Cargo Express</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Register - x-cargo-exprees</title>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-    }
-    .register-container {
-      background: white;
-      padding: 20px;
-      max-width: 400px;
-      width: 90%;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-    .register-container img {
-      max-width: 100px;
-      display: block;
-      margin: 0 auto 20px;
-    }
-    h2 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    input {
-      width: 100%;
-      padding: 12px;
-      margin: 8px 0;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-    }
-    button {
-      width: 100%;
-      padding: 12px;
-      background: #28a745;
-      color: white;
-      border: none;
-      margin-top: 10px;
-      border-radius: 5px;
-      font-size: 16px;
-    }
-    .links {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 10px;
-    }
-    .links a {
-      font-size: 14px;
-      text-decoration: none;
-      color: #007bff;
-    }
+    body { font-family: Arial, sans-serif; max-width: 400px; margin: 40px auto; }
+    input, button { width: 100%; padding: 12px; margin: 8px 0; }
+    button { cursor: pointer; }
+    .error { color: red; }
   </style>
 </head>
 <body>
-  <div class="register-container">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Font_Awesome_5_solid_shipping-fast.svg/1200px-Font_Awesome_5_solid_shipping-fast.svg.png" alt="Logo">
-    <h2>Create Account</h2>
-    <input type="text" id="name" placeholder="Enter your full name" />
-    <input type="email" id="email" placeholder="Enter your email" />
-    <input type="password" id="password" placeholder="Create a password" />
-    <button onclick="register()">Register</button>
-    <div class="links">
-      <a href="admin.html">Login</a>
-      <a href="forgot.html">Forgot Password?</a>
-    </div>
-  </div>
 
-  <!-- Firebase JS -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <h1>Register</h1>
+  <input type="email" id="email" placeholder="Email" autocomplete="username" />
+  <input type="password" id="password" placeholder="Password" autocomplete="new-password" />
+  <input type="password" id="passwordConfirm" placeholder="Confirm Password" autocomplete="new-password" />
+  <button id="registerBtn">Register</button>
+  <p><a href="admin.html">Login</a></p>
+  <p class="error" id="errorMsg"></p>
+
   <script>
+    // Your Firebase config here
     const firebaseConfig = {
-      apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
+      apiKey: "YOUR_API_KEY",
       authDomain: "x-cargo-exprees.firebaseapp.com",
-      databaseURL: "https://x-cargo-exprees-default-rtdb.firebaseio.com",
       projectId: "x-cargo-exprees",
       storageBucket: "x-cargo-exprees.appspot.com",
-      messagingSenderId: "1082201867958",
-      appId: "1:1082201867958:web:d6600fbc82085b0b62c817",
-      measurementId: "G-C3Y4PQC86V"
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
     };
-    firebase.initializeApp(firebaseConfig);
 
-    function register() {
-      const name = document.getElementById('name').value;
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
 
-      firebase.auth().createUserWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-          alert("Account created successfully!");
-          window.location.href = "dashboard.html";
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const passwordConfirmInput = document.getElementById('passwordConfirm');
+    const registerBtn = document.getElementById('registerBtn');
+    const errorMsg = document.getElementById('errorMsg');
+
+    registerBtn.addEventListener('click', () => {
+      errorMsg.textContent = '';
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+      const passwordConfirm = passwordConfirmInput.value;
+
+      if (!email || !password || !passwordConfirm) {
+        errorMsg.textContent = 'Please fill in all fields.';
+        return;
+      }
+      if (password !== passwordConfirm) {
+        errorMsg.textContent = 'Passwords do not match.';
+        return;
+      }
+
+      auth.createUserWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          // Redirect to dashboard
+          window.location.href = 'dashboard.html';
         })
-        .catch((error) => {
-          alert(error.message);
+        .catch(error => {
+          errorMsg.textContent = error.message;
         });
-    }
+    });
+
+    // Auto redirect if already logged in
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        window.location.href = 'dashboard.html';
+      }
+    });
   </script>
+
 </body>
 </html>
