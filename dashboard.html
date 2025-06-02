@@ -1,0 +1,84 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>X-Cargo Express Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 700px; margin: auto; }
+    h1 { text-align: center; }
+    label { display: block; margin-top: 10px; }
+    input, textarea, select { width: 100%; padding: 8px; margin-top: 5px; }
+    button { margin-top: 15px; padding: 10px 20px; }
+    .preview { margin-top: 20px; border-top: 1px solid #ccc; padding-top: 10px; }
+    img { max-width: 100%; height: auto; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h1>X-Cargo Admin Dashboard</h1>  <form id="packageForm">
+    <label for="trackingId">Tracking ID</label>
+    <input type="text" id="trackingId" placeholder="e.g. XCARGO123456GH" required /><label for="receiver">Receiver's Name</label>
+<input type="text" id="receiver" required />
+
+<label for="address">Receiver's Address</label>
+<textarea id="address" rows="2" required></textarea>
+
+<label for="phone">Phone Number</label>
+<input type="text" id="phone" required />
+
+<label for="status">Delivery Status</label>
+<select id="status">
+  <option value="In Transit">In Transit</option>
+  <option value="At Customs">At Customs</option>
+  <option value="Out for Delivery">Out for Delivery</option>
+  <option value="Delivered">Delivered</option>
+</select>
+
+<label for="location">Current Location</label>
+<input type="text" id="location" required />
+
+<label for="image">Image URL of Package</label>
+<input type="text" id="image" placeholder="https://example.com/package.jpg" required />
+
+<button type="submit">Save Package</button>
+
+  </form>  <div class="preview" id="preview"></div>  <script>
+    const form = document.getElementById("packageForm");
+    const preview = document.getElementById("preview");
+
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const trackingId = document.getElementById("trackingId").value.trim();
+      const receiver = document.getElementById("receiver").value.trim();
+      const address = document.getElementById("address").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      const status = document.getElementById("status").value;
+      const location = document.getElementById("location").value.trim();
+      const image = document.getElementById("image").value.trim();
+
+      const packageData = {
+        trackingId,
+        receiver,
+        address,
+        phone,
+        status,
+        location,
+        image
+      };
+
+      localStorage.setItem(trackingId, JSON.stringify(packageData));
+
+      preview.innerHTML = `
+        <h2>Package Saved!</h2>
+        <p><strong>Tracking ID:</strong> ${trackingId}</p>
+        <p><strong>Status:</strong> ${status}</p>
+        <p><strong>Receiver:</strong> ${receiver}</p>
+        <p><strong>Location:</strong> ${location}</p>
+        <img src="${image}" alt="Package Preview" />
+        <p style="margin-top:10px;"><a href="track.html?id=${trackingId}">Click here to view tracking page</a></p>
+      `;
+
+      form.reset();
+    });
+  </script></body>
+</html>
