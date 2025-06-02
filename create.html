@@ -1,69 +1,154 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Create Package - X-Cargo Express</title>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";const firebaseConfig = {
-  apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
-  authDomain: "x-cargo-exprees.firebaseapp.com",
-  databaseURL: "https://x-cargo-exprees-default-rtdb.firebaseio.com",
-  projectId: "x-cargo-exprees",
-  storageBucket: "x-cargo-exprees.appspot.com",
-  messagingSenderId: "1082201867958",
-  appId: "1:1082201867958:web:d6600fbc82085b0b62c817",
-  measurementId: "G-C3Y4PQC86V"
-};
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+    const firebaseConfig = {
+      apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
+      authDomain: "x-cargo-exprees.firebaseapp.com",
+      databaseURL: "https://x-cargo-exprees-default-rtdb.firebaseio.com",
+      projectId: "x-cargo-exprees",
+      storageBucket: "x-cargo-exprees.appspot.com",
+      messagingSenderId: "1082201867958",
+      appId: "1:1082201867958:web:d6600fbc82085b0b62c817",
+      measurementId: "G-C3Y4PQC86V"
+    };
 
-window.createPackage = async function () {
-  const trackingId = document.getElementById("trackingId").value;
-  const receiver = document.getElementById("receiver").value;
-  const address = document.getElementById("address").value;
-  const phone = document.getElementById("phone").value;
-  const status = document.getElementById("status").value;
-  const location = document.getElementById("location").value;
-  const image = document.getElementById("image").value;
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
-  if (!trackingId || !receiver) {
-    alert("Tracking ID and Receiver are required");
-    return;
-  }
+    window.createPackage = async function () {
+      const data = {
+        trackingId: document.getElementById("trackingId").value,
+        sender: document.getElementById("sender").value,
+        senderAddress: document.getElementById("senderAddress").value,
+        receiver: document.getElementById("receiver").value,
+        email: document.getElementById("email").value,
+        phone: document.getElementById("phone").value,
+        address: document.getElementById("address").value,
+        status: document.getElementById("status").value,
+        location: document.getElementById("location").value,
+        shipmentDate: document.getElementById("shipmentDate").value,
+        updateDate: document.getElementById("updateDate").value,
+        expectedDate: document.getElementById("expectedDate").value,
+        weight: document.getElementById("weight").value,
+        description: document.getElementById("description").value,
+        quantity: document.getElementById("quantity").value,
+        remark: document.getElementById("remark").value,
+        image: document.getElementById("image").value,
+        scheduleDelivery: document.getElementById("scheduleDelivery").value,
+        isSuspended: document.getElementById("isSuspended").checked,
+        feeWarning: document.getElementById("feeWarning").checked
+      };
 
-  await set(ref(db, 'packages/' + trackingId), {
-    trackingId,
-    receiver,
-    address,
-    phone,
-    status,
-    location,
-    image
-  });
+      if (!data.trackingId || !data.receiver) {
+        alert("Tracking ID and Receiver name are required");
+        return;
+      }
 
-  alert("Package created successfully!");
-  document.getElementById("packageForm").reset();
-};
-
+      await set(ref(db, 'packages/' + data.trackingId), data);
+      alert("Package created successfully!");
+      document.getElementById("packageForm").reset();
+    };
   </script>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; }
-    input, textarea, button { display: block; width: 100%; padding: 10px; margin: 10px 0; }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 700px;
+      margin: auto;
+    }
+    label {
+      font-weight: bold;
+    }
+    input, textarea, button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin: 6px 0 16px;
+    }
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
   </style>
 </head>
 <body>
   <h2>Create New Package</h2>
   <form id="packageForm" onsubmit="event.preventDefault(); createPackage();">
-    <input type="text" id="trackingId" placeholder="Tracking ID (e.g. XCARGO123456GH)" required />
-    <input type="text" id="receiver" placeholder="Receiver Name" required />
-    <input type="text" id="address" placeholder="Delivery Address" />
-    <input type="text" id="phone" placeholder="Phone Number" />
-    <input type="text" id="status" placeholder="Status (e.g. In Transit)" />
-    <input type="text" id="location" placeholder="Current Location" />
-    <input type="text" id="image" placeholder="Image URL (e.g. https://example.com/image.jpg)" />
-    <button type="submit">Create Package</button>
+
+    <label>Tracking ID</label>
+    <input type="text" id="trackingId" placeholder="e.g. XCARGO123456GH" required />
+
+    <label>Sender Name</label>
+    <input type="text" id="sender" placeholder="e.g. Jane Smith" />
+
+    <label>Sender Address</label>
+    <input type="text" id="senderAddress" placeholder="e.g. 123 Sender Street, Kumasi" />
+
+    <label>Receiver Name</label>
+    <input type="text" id="receiver" placeholder="e.g. John Doe" required />
+
+    <label>Receiver Email</label>
+    <input type="email" id="email" placeholder="e.g. johndoe@example.com" />
+
+    <label>Phone Number</label>
+    <input type="text" id="phone" placeholder="e.g. +233245678901" />
+
+    <label>Delivery Address</label>
+    <input type="text" id="address" placeholder="e.g. 45 Airport Road, Accra" />
+
+    <label>Status</label>
+    <input type="text" id="status" placeholder="e.g. In Transit" />
+
+    <label>Current Location</label>
+    <input type="text" id="location" placeholder="e.g. Tema Distribution Hub" />
+
+    <label>Shipment Date</label>
+    <input type="date" id="shipmentDate" />
+
+    <label>Update Date</label>
+    <input type="date" id="updateDate" />
+
+    <label>Expected Delivery Date</label>
+    <input type="date" id="expectedDate" />
+
+    <label>Package Weight</label>
+    <input type="text" id="weight" placeholder="e.g. 2.5kg" />
+
+    <label>Package Description</label>
+    <input type="text" id="description" placeholder="e.g. Documents and clothing" />
+
+    <label>Package Quantity</label>
+    <input type="number" id="quantity" placeholder="e.g. 3" />
+
+    <label>Remarks</label>
+    <textarea id="remark" placeholder="e.g. Handle with care, fragile item"></textarea>
+
+    <label>Image URL</label>
+    <input type="text" id="image" placeholder="e.g. https://example.com/package.jpg" />
+
+    <label>Schedule Delivery Note</label>
+    <input type="text" id="scheduleDelivery" placeholder="e.g. Schedule delivery before 5PM" />
+
+    <div class="checkbox-group">
+      <input type="checkbox" id="isSuspended" />
+      <label for="isSuspended">Suspend this Package</label>
+    </div>
+
+    <div class="checkbox-group">
+      <input type="checkbox" id="feeWarning" />
+      <label for="feeWarning">Show “A delivery fee may apply” warning</label>
+    </div>
+
+    <button type="submit">CREATE SHIPMENT</button>
   </form>
 </body>
 </html>
