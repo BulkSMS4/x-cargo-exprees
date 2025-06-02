@@ -3,26 +3,88 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>X-Cargo Dashboard</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>Dashboard | X-Cargo Express</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #f9f9f9, #e6f7ff);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .dashboard-container {
+      background: white;
+      padding: 30px;
+      width: 90%;
+      max-width: 400px;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .dashboard-container img {
+      max-width: 80px;
+      margin-bottom: 20px;
+    }
+    h2 {
+      margin-bottom: 10px;
+    }
+    p {
+      color: #333;
+      margin-bottom: 20px;
+    }
+    button {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #c82333;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>X-Cargo Express</h1>
-    <p>Select an option below:</p>
-
-    <!-- Admin button (will be hidden for non-admin users) -->
-    <button id="adminBtn" style="display: none;" onclick="window.location.href='create.html'">Admin: Create Package</button>
-
-    <!-- Customer tracking -->
-    <button onclick="window.location.href='track.html'">Customer: Track Package</button>
+  <div class="dashboard-container">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Font_Awesome_5_solid_shipping-fast.svg/1200px-Font_Awesome_5_solid_shipping-fast.svg.png" alt="Logo">
+    <h2>Welcome to Your Dashboard</h2>
+    <p id="user-email">Loading...</p>
+    <button onclick="logout()">Logout</button>
   </div>
 
+  <!-- Firebase JS -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script>
-    // Show admin button if admin is logged in
-    const isAdmin = localStorage.getItem('isAdmin');
-    if (isAdmin === 'true') {
-      document.getElementById('adminBtn').style.display = 'block';
+    const firebaseConfig = {
+      apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
+      authDomain: "x-cargo-exprees.firebaseapp.com",
+      databaseURL: "https://x-cargo-exprees-default-rtdb.firebaseio.com",
+      projectId: "x-cargo-exprees",
+      storageBucket: "x-cargo-exprees.appspot.com",
+      messagingSenderId: "1082201867958",
+      appId: "1:1082201867958:web:d6600fbc82085b0b62c817",
+      measurementId: "G-C3Y4PQC86V"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        document.getElementById('user-email').innerText = `Logged in as: ${user.email}`;
+      } else {
+        // Redirect to login page if not logged in
+        window.location.href = "admin.html";
+      }
+    });
+
+    function logout() {
+      firebase.auth().signOut().then(() => {
+        window.location.href = "admin.html";
+      });
     }
   </script>
 </body>
