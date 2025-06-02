@@ -1,127 +1,82 @@
 <!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin Dashboard - X Cargo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard</title>
   <style>
     body {
       margin: 0;
-      font-family: 'Segoe UI', sans-serif;
+      font-family: Arial, sans-serif;
       display: flex;
+    }
+    aside {
+      width: 250px;
+      background: #1e1e2f;
+      color: white;
       height: 100vh;
-      background-color: #f0f2f5;
-    }.sidebar {
-  width: 260px;
-  background-color: #20293a;
-  color: white;
-  padding: 20px;
-}
-
-.sidebar h2 {
-  font-size: 22px;
-  margin-bottom: 30px;
-}
-
-.sidebar a {
-  display: block;
-  font-size: 16px;
-  padding: 12px;
-  margin-bottom: 8px;
-  color: white;
-  background: #2d3b55;
-  text-decoration: none;
-  border-radius: 6px;
-  transition: background 0.3s ease;
-  cursor: pointer;
-}
-
-.sidebar a:hover {
-  background: #3c4a6e;
-}
-
-.content {
-  flex-grow: 1;
-  padding: 30px;
-  overflow-y: auto;
-}
-
-.section {
-  display: none;
-  background: white;
-  padding: 25px;
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-
-.section.active {
-  display: block;
-}
-
-.section h3 {
-  margin-top: 0;
-}
-
-.form-group {
-  margin-bottom: 15px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 6px;
-  font-weight: bold;
-}
-
-.form-group input, .form-group select, .form-group textarea {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-}
-
+      padding: 20px;
+    }
+    aside ul {
+      list-style: none;
+      padding: 0;
+    }
+    aside li {
+      margin: 15px 0;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    aside li:hover {
+      color: #00ccff;
+    }
+    main {
+      flex: 1;
+      padding: 20px;
+      background: #f4f4f4;
+    }
+    .section {
+      display: none;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .section.active {
+      display: block;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
   </style>
 </head>
-<body>  <div class="sidebar">
-    <h2>📋 Admin Menu</h2>
-    <a onclick="toggleSection('create')">📦 Create Package</a>
-    <a onclick="toggleSection('customization')">🎨 Customization</a>
-    <a onclick="toggleSection('branding')">🖼️ Branding</a>
-    <a onclick="toggleSection('fonts')">🔤 Fonts</a>
-    <a onclick="toggleSection('advanced')">🚀 Advanced Settings</a>
-  </div>  <div class="content">
-    <div id="create" class="section">
+<body>
+  <aside>
+    <ul>
+      <li onclick="showSection('create')">📦 Create Package</li>
+      <li onclick="showSection('customization')">🎨 Customization</li>
+      <li onclick="showSection('branding')">🖼️ Branding</li>
+      <li onclick="showSection('fonts')">🔤 Fonts</li>
+      <li onclick="showSection('advanced')">🚀 Advanced Settings</li>
+    </ul>
+  </aside>  <main>
+    <div id="create" class="section active">
       <h3>📦 Create Package</h3>
-      <form>
-        <div class="form-group">
-          <label for="receiver">Receiver Name</label>
-          <input type="text" id="receiver" placeholder="e.g. John Doe" />
-        </div>
-        <div class="form-group">
-          <label for="phone">Phone Number</label>
-          <input type="tel" id="phone" placeholder="e.g. +1234567890" />
-        </div>
-        <div class="form-group">
-          <label for="tracking">Tracking Number</label>
-          <input type="text" id="tracking" placeholder="e.g. XCARGO123456" />
-        </div>
-        <div class="form-group">
-          <label for="location">Current Location</label>
-          <input type="text" id="location" placeholder="e.g. Lagos, Nigeria" />
-        </div>
-        <div class="form-group">
-          <label for="status">Package Status</label>
-          <select id="status">
-            <option>In Transit</option>
-            <option>Pending</option>
-            <option>Out for Delivery</option>
-            <option>Delivered</option>
-            <option>On Hold</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="profile">Upload Profile Picture</label>
-          <input type="file" id="profile" accept="image/*" />
-        </div>
-      </form>
+      <input type="text" id="receiver" placeholder="Receiver Name" />
+      <input type="text" id="phone" placeholder="Phone Number" />
+      <input type="text" id="tracking" placeholder="Tracking Number" />
+      <input type="text" id="location" placeholder="Current Location" />
+      <select id="status">
+        <option value="In Transit">In Transit</option>
+        <option value="Pending">Pending</option>
+        <option value="Out for Delivery">Out for Delivery</option>
+        <option value="Delivered">Delivered</option>
+        <option value="On Hold">On Hold</option>
+      </select>
+      <input type="file" id="profilePic" />
+      <button onclick="alert('Saved!')">Save Package</button>
     </div><div id="customization" class="section">
   <h3>🎨 Customization</h3>
   <p>Customize background type, color, gradient, or media.</p>
@@ -142,10 +97,9 @@
   <p>Project creation, Leap Link URL, and expert configurations.</p>
 </div>
 
-  </div>  <script>
-    function toggleSection(id) {
-      const sections = document.querySelectorAll('.section');
-      sections.forEach(section => {
+  </main>  <script>
+    function showSection(id) {
+      document.querySelectorAll('.section').forEach(section => {
         section.classList.remove('active');
       });
       document.getElementById(id).classList.add('active');
