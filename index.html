@@ -1,75 +1,97 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>X-Cargo Express</title>
-  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>X-Cargo Express - Track Package</title>
+  <link rel="icon" href="assets/favicon.png" type="image/png">
   <style>
     body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: url('assets/fedex-bg.jpg') no-repeat center center fixed;
+      background-size: cover;
       margin: 0;
       padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: url('assets/fedex-bg.jpg') no-repeat center center/cover;
       color: #fff;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
       text-align: center;
-      backdrop-filter: brightness(0.5);
     }
-    .logo-icon {
-      width: 100px;
+    header {
+      background: rgba(0, 0, 0, 0.6);
+      padding: 20px;
+    }
+    header img {
+      width: 80px;
       height: auto;
-      margin-bottom: 10px;
     }
-    .container {
-      background-color: rgba(0, 0, 0, 0.6);
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    header h1 {
+      margin: 10px 0 5px;
+      font-size: 28px;
+      color: #fff;
     }
-    input[type="text"] {
-      padding: 12px;
-      width: 80%;
+    header p {
+      margin: 0;
+      font-size: 16px;
+      color: #ccc;
+    }
+    .tracker-box {
+      background: rgba(255, 255, 255, 0.95);
+      color: #333;
       max-width: 400px;
-      font-size: 16px;
-      border-radius: 6px;
-      border: none;
-      margin-top: 10px;
+      margin: 40px auto;
+      padding: 30px 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
     }
-    button {
-      padding: 12px 25px;
-      margin-top: 15px;
+    .tracker-box h2 {
+      margin-bottom: 20px;
+    }
+    .tracker-box input {
+      width: 90%;
+      padding: 10px;
       font-size: 16px;
-      background-color: #ff6600;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    .tracker-box button {
+      padding: 10px 25px;
+      font-size: 16px;
+      background: #4e2a84;
       color: white;
       border: none;
       border-radius: 6px;
       cursor: pointer;
     }
-    button:hover {
-      background-color: #e55b00;
+    .tracker-box button:hover {
+      background: #341b5f;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <img src="assets/favicon.png" alt="X-Cargo Logo" class="logo-icon">
+  <header>
+    <img src="assets/favicon.png" alt="X-Cargo Express Icon" />
     <h1>X-Cargo Express</h1>
-    <p>Your trusted global delivery partner</p>
-    <input type="text" id="trackingInput" placeholder="Enter your tracking number...">
-    <br>
-    <button onclick="trackNow()">Track Now</button>
-  </div>  <script>
-    function trackNow() {
-      const trackingId = document.getElementById("trackingInput").value.trim();
+    <p>Your Trusted Global Delivery Partner</p>
+  </header>
+
+  <div class="tracker-box">
+    <h2>Track Your Package</h2>
+    <form onsubmit="event.preventDefault(); trackPackage();">
+      <input type="text" id="trackingId" placeholder="Enter Tracking Number" required />
+      <br>
+      <button type="submit">Track</button>
+    </form>
+  </div>
+
+  <script>
+    function trackPackage() {
+      const trackingId = document.getElementById("trackingId").value.trim();
       if (trackingId) {
         window.location.href = `track.html?id=${trackingId}`;
       } else {
-        alert("Please enter a tracking number.");
+        alert("Please enter a valid tracking number.");
       }
     }
-  </script></body>
+  </script>
+</body>
 </html>
