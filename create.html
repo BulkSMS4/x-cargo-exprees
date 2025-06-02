@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create Package - X-Cargo Express</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; }
+    input, textarea, button { width: 100%; padding: 10px; margin-bottom: 10px; }
+    img { max-width: 100%; height: auto; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h2>Create Package & Generate Tracking Number</h2>
+  
+  <input type="text" id="receiver" placeholder="Receiver Full Name" required />
+  <textarea id="address" placeholder="Receiver Address" required></textarea>
+  <input type="text" id="phone" placeholder="Receiver Phone Number" required />
+  <input type="file" id="packageImage" accept="image/*" />
+  
+  <button onclick="generateTracking()">Generate Tracking</button>
+
+  <div id="result"></div>
+
+  <script>
+    function generateTracking() {
+      const receiver = document.getElementById('receiver').value.trim();
+      const address = document.getElementById('address').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const imageInput = document.getElementById('packageImage');
+
+      if (!receiver || !address || !phone) {
+        alert("Please fill all fields.");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function () {
+        const imageData = reader.result;
+
+        const trackingId = 'XCARGO' + Math.floor(100000 + Math.random() * 900000) + 'GH';
+
+        const packageData = {
+          trackingId,
+          receiver,
+          address,
+          phone,
+          image: imageData,
+          status: "Package Registered",
+          location: "Warehouse"
+        };
+
+        // Save to localStorage
+        localStorage.setItem(trackingId, JSON.stringify(packageData));
+
+        document.getElementById('result').innerHTML = `
+          <h3>Tracking Created:</h3>
+          <p><strong>ID:</strong> ${trackingId}</p>
+          <p><strong>Name:</strong> ${receiver}</p>
+          <p><strong>Address:</strong> ${address}</p>
+          <p><strong>Phone:</strong> ${phone}</p>
+          <img src="${imageData}" alt="Package Image" />
+        `;
+      };
+
+      if (imageInput.files[0]) {
+        reader.readAsDataURL(imageInput.files[0]);
+      } else {
+        alert("Please select a package image.");
+      }
+    }
+  </script>
+</body>
+</html>
