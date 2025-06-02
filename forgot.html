@@ -1,145 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Reset Password - X Cargo Express</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Forgot Password - x-cargo-exprees</title>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      background: #f4f4f4;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    .container {
-      width: 100%;
-      max-width: 360px;
-      background: white;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
-    }
-    .logo {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    .logo img {
-      width: 100px;
-    }
-    h2 {
-      text-align: center;
-      margin-bottom: 10px;
-      color: #333;
-    }
-    p {
-      text-align: center;
-      font-size: 14px;
-      color: #777;
-    }
-    input {
-      width: 100%;
-      padding: 12px;
-      margin-top: 10px;
-      margin-bottom: 20px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 16px;
-    }
-    button {
-      width: 100%;
-      padding: 12px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
-    .message {
-      margin-top: 10px;
-      text-align: center;
-      font-size: 14px;
-    }
-    .success {
-      color: green;
-    }
-    .error {
-      color: red;
-    }
-    .links {
-      text-align: center;
-      margin-top: 15px;
-    }
-    .links a {
-      color: #007bff;
-      text-decoration: none;
-      font-size: 14px;
-    }
-    .links a:hover {
-      text-decoration: underline;
-    }
+    body { font-family: Arial, sans-serif; max-width: 400px; margin: 40px auto; }
+    input, button { width: 100%; padding: 12px; margin: 8px 0; }
+    button { cursor: pointer; }
+    .message { color: green; }
+    .error { color: red; }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <div class="logo">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/5/55/Logo_firebase_48dp.png" alt="Logo">
-    </div>
-    <h2>Reset Password</h2>
-    <p>Enter your email address to receive reset instructions.</p>
-    
-    <input type="email" id="email" placeholder="e.g. your@email.com" required />
-    <button onclick="resetPassword()">Send Reset Link</button>
-    
-    <div id="message" class="message"></div>
+  <h1>Forgot Password</h1>
+  <input type="email" id="email" placeholder="Enter your registered email" autocomplete="username" />
+  <button id="resetBtn">Send Password Reset Email</button>
+  <p><a href="admin.html">Back to Login</a></p>
+  <p class="message" id="message"></p>
+  <p class="error" id="errorMsg"></p>
 
-    <div class="links">
-      <a href="admin.html">Back to Login</a>
-    </div>
-  </div>
-
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script>
+    // Your Firebase config here
     const firebaseConfig = {
-      apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
+      apiKey: "YOUR_API_KEY",
       authDomain: "x-cargo-exprees.firebaseapp.com",
-      databaseURL: "https://x-cargo-exprees-default-rtdb.firebaseio.com",
       projectId: "x-cargo-exprees",
       storageBucket: "x-cargo-exprees.appspot.com",
-      messagingSenderId: "1082201867958",
-      appId: "1:1082201867958:web:d6600fbc82085b0b62c817",
-      measurementId: "G-C3Y4PQC86V"
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
     };
 
-    firebase.initializeApp(firebaseConfig);
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
 
-    function resetPassword() {
-      const email = document.getElementById('email').value;
-      const messageDiv = document.getElementById('message');
+    const emailInput = document.getElementById('email');
+    const resetBtn = document.getElementById('resetBtn');
+    const message = document.getElementById('message');
+    const errorMsg = document.getElementById('errorMsg');
 
+    resetBtn.addEventListener('click', () => {
+      message.textContent = '';
+      errorMsg.textContent = '';
+
+      const email = emailInput.value.trim();
       if (!email) {
-        messageDiv.innerHTML = '<span class="error">Please enter a valid email address.</span>';
+        errorMsg.textContent = 'Please enter your email.';
         return;
       }
 
       auth.sendPasswordResetEmail(email)
         .then(() => {
-          messageDiv.innerHTML = '<span class="success">Password reset email sent! Check your inbox.</span>';
+          message.textContent = 'Password reset email sent. Check your inbox.';
+          emailInput.value = '';
         })
         .catch(error => {
-          messageDiv.innerHTML = `<span class="error">${error.message}</span>`;
+          errorMsg.textContent = error.message;
         });
-    }
+    });
   </script>
 
 </body>
