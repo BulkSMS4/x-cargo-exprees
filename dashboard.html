@@ -2,75 +2,137 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Dashboard - x-cargo-exprees</title>
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard</title>
   <style>
     body {
+      margin: 0;
       font-family: Arial, sans-serif;
-      padding: 30px;
-      max-width: 600px;
-      margin: auto;
+      display: flex;
+      height: 100vh;
     }
-    h1 { color: #333; }
-    .info {
-      background: #f3f3f3;
-      padding: 15px;
-      margin: 20px 0;
-      border-radius: 5px;
-    }
-    button {
-      padding: 10px 15px;
-      background: crimson;
+    .sidebar {
+      width: 250px;
+      background-color: #1a1a1a;
       color: #fff;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+    }
+    .sidebar h2 {
+      margin-top: 0;
+    }
+    .sidebar button {
+      background: none;
       border: none;
-      border-radius: 4px;
+      color: white;
+      padding: 10px 0;
+      text-align: left;
       cursor: pointer;
+      width: 100%;
+    }
+    .sidebar button:hover {
+      background-color: #333;
+    }
+    .submenu {
+      padding-left: 15px;
+      font-size: 14px;
+    }
+    .submenu button {
+      padding: 5px 0;
+    }
+    .main {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    .section {
+      display: none;
+    }
+    .section.active {
+      display: block;
     }
   </style>
 </head>
 <body>
+  <div class="sidebar">
+    <h2>📦 Create Package</h2>
+    <button onclick="showSection('create')">Create Package</button>
 
-  <h1>Welcome to your Dashboard</h1>
-  <div class="info">
-    <p><strong>User Email:</strong> <span id="user-email">Loading...</span></p>
+    <h2>⚙️ Settings</h2>
+    <div class="submenu">
+      <button onclick="showSection('customization')">🖌️ Customization</button>
+      <button onclick="showSection('branding')">🏷️ Branding</button>
+      <button onclick="showSection('fonts')">✒️ Fonts</button>
+      <button onclick="showSection('advanced')">🧑‍✈️ Advanced</button>
+    </div>
+
+    <h2>➕ Add Block</h2>
+    <div class="submenu">
+      <button onclick="showSection('block-link')">🔗 Link</button>
+      <button onclick="showSection('block-heading')">H Heading</button>
+      <button onclick="showSection('block-paragraph')">⚒️ Paragraph</button>
+      <button onclick="showSection('block-avatar')">🚹 Avatar</button>
+      <button onclick="showSection('block-image')">🖼️ Image</button>
+      <button onclick="showSection('block-socials')">🧑‍🧒‍🧒 Socials</button>
+      <button onclick="showSection('block-email')">✉️ Email Collector</button>
+      <button onclick="showSection('block-soundcloud')">☁️ SoundCloud</button>
+      <button onclick="showSection('block-spotify')">🏷️ Spotify</button>
+      <button onclick="showSection('block-youtube')">🎥 YouTube</button>
+      <button onclick="showSection('block-twitch')">💬 Twitch</button>
+      <button onclick="showSection('block-vimeo')">V Vimeo</button>
+      <button onclick="showSection('block-tiktok')">🔵 TikTok</button>
+      <button onclick="showSection('block-phone')">📞 Phone Collector</button>
+      <button onclick="showSection('block-paypal')">💰 Paypal</button>
+      <button onclick="showSection('block-map')">🗺️ Map</button>
+    </div>
+
+    <h2>🔗 Links</h2>
+    <button onclick="showSection('links')">View Links</button>
+
+    <h2>🚪 Logout</h2>
+    <button onclick="logout()">Logout</button>
   </div>
-  <button onclick="logout()">Logout</button>
+
+  <div class="main">
+    <div id="create" class="section active"><h2>Create Package</h2><p>Package creation form will go here.</p></div>
+    <div id="customization" class="section"><h2>Customization</h2><p>Color and background customization options here.</p></div>
+    <div id="branding" class="section"><h2>Branding</h2><p>Branding settings form here.</p></div>
+    <div id="fonts" class="section"><h2>Fonts</h2><p>Font type and size selection form here.</p></div>
+    <div id="advanced" class="section"><h2>Advanced</h2><p>Project and Leap Link URL settings.</p></div>
+
+    <div id="block-link" class="section"><h2>🔗 Link</h2></div>
+    <div id="block-heading" class="section"><h2>Heading</h2></div>
+    <div id="block-paragraph" class="section"><h2>Paragraph</h2></div>
+    <div id="block-avatar" class="section"><h2>Avatar</h2></div>
+    <div id="block-image" class="section"><h2>Image</h2></div>
+    <div id="block-socials" class="section"><h2>Socials</h2></div>
+    <div id="block-email" class="section"><h2>Email Collector</h2></div>
+    <div id="block-soundcloud" class="section"><h2>SoundCloud</h2></div>
+    <div id="block-spotify" class="section"><h2>Spotify</h2></div>
+    <div id="block-youtube" class="section"><h2>YouTube</h2></div>
+    <div id="block-twitch" class="section"><h2>Twitch</h2></div>
+    <div id="block-vimeo" class="section"><h2>Vimeo</h2></div>
+    <div id="block-tiktok" class="section"><h2>TikTok</h2></div>
+    <div id="block-phone" class="section"><h2>Phone Collector</h2></div>
+    <div id="block-paypal" class="section"><h2>Paypal</h2></div>
+    <div id="block-map" class="section"><h2>Map</h2></div>
+
+    <div id="links" class="section"><h2>Tracked Links</h2><p>Here you’ll find your created packages and links.</p></div>
+  </div>
 
   <script>
-    // Firebase config
-    const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "x-cargo-exprees.firebaseapp.com",
-      projectId: "x-cargo-exprees",
-      storageBucket: "x-cargo-exprees.appspot.com",
-      messagingSenderId: "YOUR_SENDER_ID",
-      appId: "YOUR_APP_ID"
-    };
-
-    // Initialize Firebase
-    const app = firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-
-    // Auth state check
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        document.getElementById('user-email').textContent = user.email;
-      } else {
-        // Not logged in, redirect to login
-        window.location.href = 'admin.html';
-      }
-    });
-
-    // Logout
-    function logout() {
-      auth.signOut().then(() => {
-        window.location.href = 'admin.html';
+    function showSection(id) {
+      document.querySelectorAll('.section').forEach(section => {
+        section.classList.remove('active');
       });
+      document.getElementById(id).classList.add('active');
+    }
+
+    function logout() {
+      alert("Logging out...");
+      // Add Firebase sign-out logic here if connected
     }
   </script>
-
 </body>
 </html>
