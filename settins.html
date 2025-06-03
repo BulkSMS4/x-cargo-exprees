@@ -1,56 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Settings</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
       margin: 0;
       font-family: sans-serif;
-      display: flex;
       background: #f4f4f4;
+      display: flex;
     }
     .sidebar {
       width: 220px;
       background: #111;
-      color: #fff;
-      padding: 20px;
+      color: white;
       height: 100vh;
+      padding: 20px;
     }
-    .sidebar h3 {
-      margin-top: 0;
-    }
-    .sidebar a {
-      color: #ccc;
+    .sidebar a, .sidebar button {
       display: block;
+      background: none;
+      border: none;
+      color: #ccc;
+      text-align: left;
       padding: 10px 0;
       text-decoration: none;
+      font-size: 16px;
+      width: 100%;
+      cursor: pointer;
     }
-    .sidebar a:hover {
+    .sidebar a:hover, .sidebar button:hover {
       color: white;
     }
-    .content {
+    .main {
       flex: 1;
       padding: 30px;
     }
     .section {
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      margin-bottom: 20px;
+      margin-bottom: 30px;
     }
-    input, select {
+    h2, h3 {
+      margin-top: 0;
+    }
+    input, select, textarea {
+      display: block;
       width: 100%;
       padding: 8px;
-      margin: 10px 0;
-      font-size: 16px;
+      margin-top: 8px;
+      margin-bottom: 20px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
     }
     label {
       font-weight: bold;
-    }
-    h2 {
-      margin-top: 0;
     }
   </style>
 </head>
@@ -60,67 +63,93 @@
     <h3>⚙️ Settings</h3>
     <a href="dashboard.html">🏠 Dashboard</a>
     <a href="create.html">📦 Create Package</a>
-    <a href="settings.html#customization">⚙️ Customization</a>
-    <a href="settings.html#branding">🎨 Branding</a>
-    <a href="settings.html#fonts">🔤 Fonts</a>
-    <a href="settings.html#advanced">🧠 Advanced</a>
-    <a href="#">🔗 View Links</a>
+    <a href="settings.html">⚙️ Settings</a>
+    <a href="add-block.html">➕ Add Block</a>
+    <a href="links.html">🔗 View Links</a>
+    <button id="logoutBtn">🚪 Logout</button>
   </div>
 
-  <div class="content">
-    <div id="customization" class="section">
-      <h2>Customization</h2>
-      <label>Primary Color</label>
-      <input type="color" value="#4CAF50">
-      
+  <div class="main">
+    <h2>Project Settings</h2>
+
+    <div class="section">
+      <h3>🎨 Customization</h3>
       <label>Background Type</label>
       <select>
-        <option>Solid Color</option>
+        <option>Color</option>
         <option>Gradient</option>
         <option>Image</option>
         <option>Video</option>
       </select>
+
+      <label>Background Value</label>
+      <input type="text" placeholder="e.g. #ffffff or URL" />
     </div>
 
-    <div id="branding" class="section">
-      <h2>Branding</h2>
-      <label>Project Name</label>
-      <input type="text" placeholder="e.g., TrackBox">
-      
+    <div class="section">
+      <h3>🖼️ Branding</h3>
+      <label>Brand Name</label>
+      <input type="text" placeholder="e.g. MyLinkTools" />
+
       <label>Brand URL</label>
-      <input type="url" placeholder="e.g., https://yourbrand.com">
-      
+      <input type="text" placeholder="e.g. https://yourdomain.com" />
+
       <label>Text Color</label>
-      <input type="color" value="#000000">
+      <input type="text" placeholder="e.g. #000000" />
     </div>
 
-    <div id="fonts" class="section">
-      <h2>Fonts</h2>
+    <div class="section">
+      <h3>🅰️ Fonts</h3>
       <label>Font Type</label>
       <select>
+        <option>Arial</option>
+        <option>Roboto</option>
+        <option>Georgia</option>
         <option>Sans-serif</option>
-        <option>Serif</option>
-        <option>Monospace</option>
       </select>
 
       <label>Font Size</label>
-      <input type="number" value="16">
+      <input type="text" placeholder="e.g. 16px" />
     </div>
 
-    <div id="advanced" class="section">
-      <h2>Advanced</h2>
-      <label>Project Slug / Leap Link</label>
-      <input type="text" placeholder="e.g., my-project-001">
-      
-      <label>Tracking Category</label>
-      <select>
-        <option>Logistics</option>
-        <option>Bio Link</option>
-        <option>QR Generator</option>
-        <option>Custom Domain</option>
-      </select>
+    <div class="section">
+      <h3>🧠 Advanced</h3>
+      <label>Project Name</label>
+      <input type="text" placeholder="e.g. Delivery Alert" />
+
+      <label>Leap Link URL</label>
+      <input type="text" placeholder="e.g. https://leaplink.com/..." />
     </div>
   </div>
+
+  <!-- Firebase Logout Script -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+    import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
+      authDomain: "x-cargo-exprees.firebaseapp.com",
+      databaseURL: "https://x-cargo-exprees-default-rtdb.firebaseio.com",
+      projectId: "x-cargo-exprees",
+      storageBucket: "x-cargo-exprees.appspot.com",
+      messagingSenderId: "1082201867958",
+      appId: "1:1082201867958:web:d6600fbc82085b0b62c817",
+      measurementId: "G-C3Y4PQC86V"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      signOut(auth).then(() => {
+        alert("Logged out successfully.");
+        window.location.href = "admin.html";
+      }).catch((error) => {
+        alert("Logout failed: " + error.message);
+      });
+    });
+  </script>
 
 </body>
 </html>
