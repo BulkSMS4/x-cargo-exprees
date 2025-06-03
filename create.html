@@ -1,77 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Create Package</title>
+  <style>
+    body { font-family: sans-serif; margin: 0; display: flex; }
+    .sidebar {
+      width: 220px;
+      background: #111;
+      color: #fff;
+      padding: 20px;
+      height: 100vh;
+    }
+    .sidebar h3 { margin-top: 0; }
+    .sidebar a {
+      color: #ccc;
+      display: block;
+      padding: 8px 0;
+      text-decoration: none;
+    }
+    .sidebar a:hover {
+      color: #fff;
+    }
+    .content {
+      flex: 1;
+      padding: 20px;
+      background: #f2f2f2;
+    }
+    .phone-preview {
+      width: 300px;
+      height: 600px;
+      border: 1px solid #888;
+      background: #fff;
+      margin-top: 20px;
+      padding: 10px;
+      overflow-y: auto;
+    }
+    input, select, textarea {
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 8px;
+      font-size: 16px;
+    }
+    label { font-weight: bold; }
+  </style>
 </head>
 <body>
-  <h1>Create a Package</h1>
+  <div class="sidebar">
+    <h3>📦 Dashboard</h3>
+    <a href="create.html">📦 Create Package</a>
+    <a href="#">⚙️ Customization</a>
+    <a href="#">🎨 Branding</a>
+    <a href="#">🔤 Fonts</a>
+    <a href="#">🧠 Advanced</a>
+    <a href="#">🔗 View Links</a>
+  </div>
 
-  <form id="packageForm">
-    <input type="text" id="packageName" placeholder="Package Name" required />
-    <input type="text" id="packageDesc" placeholder="Description" required />
-    <input type="date" id="deliveryDate" required />
-    <button type="submit">Save Package</button>
-  </form>
+  <div class="content">
+    <h2>Create New Package</h2>
+    <form id="packageForm">
+      <label>Package Title</label>
+      <input type="text" id="title" placeholder="e.g., Urgent Package - DHL"/>
 
-  <div id="status" style="margin-top: 10px; color: green;"></div>
+      <label>Description</label>
+      <textarea id="desc" placeholder="e.g., DELIVERY OF THE SUSPENDED PACKAGE!"></textarea>
 
-  <!-- Modular Firebase SDK with ES Modules -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-analytics.js";
-    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+      <label>Phone Number</label>
+      <input type="text" id="phone" placeholder="e.g., +1 123 456 7890"/>
 
-    // Your Firebase config
-    const firebaseConfig = {
-      apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
-      authDomain: "x-cargo-exprees.firebaseapp.com",
-      databaseURL: "https://x-cargo-exprees-default-rtdb.firebaseio.com",
-      projectId: "x-cargo-exprees",
-      storageBucket: "x-cargo-exprees.firebasestorage.app",
-      messagingSenderId: "1082201867958",
-      appId: "1:1082201867958:web:d6600fbc82085b0b62c817",
-      measurementId: "G-C3Y4PQC86V"
-    };
+      <label>Delivery Status</label>
+      <select id="status">
+        <option>Pending</option>
+        <option>In Transit</option>
+        <option>Delivered</option>
+        <option>Suspended</option>
+      </select>
 
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-    const db = getFirestore(app);
+      <button type="submit">Create Package</button>
+    </form>
 
-    // Form handler
-    const packageForm = document.getElementById('packageForm');
-    const statusDiv = document.getElementById('status');
+    <h3>📱 Live Phone Preview</h3>
+    <div class="phone-preview" id="preview">
+      <h4 id="previewTitle">Package Title</h4>
+      <p id="previewDesc">Description will appear here.</p>
+      <p><strong>Phone:</strong> <span id="previewPhone"></span></p>
+      <p><strong>Status:</strong> <span id="previewStatus">Pending</span></p>
+    </div>
+  </div>
 
-    packageForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      const name = document.getElementById('packageName').value.trim();
-      const desc = document.getElementById('packageDesc').value.trim();
-      const deliveryDate = document.getElementById('deliveryDate').value;
-
-      if (!name || !desc || !deliveryDate) {
-        statusDiv.style.color = 'red';
-        statusDiv.textContent = 'Please fill all fields.';
-        return;
-      }
-
-      try {
-        await addDoc(collection(db, "packages"), {
-          name,
-          description: desc,
-          deliveryDate,
-          createdAt: serverTimestamp()
-        });
-
-        statusDiv.style.color = 'green';
-        statusDiv.textContent = '✅ Package saved successfully!';
-        packageForm.reset();
-
-      } catch (error) {
-        statusDiv.style.color = 'red';
-        statusDiv.textContent = '❌ Error: ' + error.message;
-      }
+  <script>
+    const form = document.getElementById('packageForm');
+    form.addEventListener('input', () => {
+      document.getElementById('previewTitle').innerText = form.title.value || 'Package Title';
+      document.getElementById('previewDesc').innerText = form.desc.value || 'Description will appear here.';
+      document.getElementById('previewPhone').innerText = form.phone.value || '+1 123 456 7890';
+      document.getElementById('previewStatus').innerText = form.status.value;
     });
   </script>
 </body>
