@@ -7,151 +7,195 @@
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      display: flex;
-      flex-direction: row;
+      background: #f4f4f4;
+      color: #333;
     }
-    aside {
-      width: 250px;
-      background: #1e1e2f;
-      color: white;
+    .sidebar {
       height: 100vh;
-      padding: 20px;
-      transition: transform 0.3s ease;
+      width: 250px;
+      background: #333;
+      color: white;
       position: fixed;
-      z-index: 1000;
+      left: 0;
+      top: 0;
+      padding-top: 1rem;
+      transition: transform 0.3s ease-in-out;
+      overflow-y: auto;
     }
-    aside.hidden {
+    .sidebar.hidden {
       transform: translateX(-100%);
     }
-    #toggleBtn {
-      position: fixed;
-      top: 10px;
-      left: 10px;
-      background: #1e1e2f;
-      color: white;
-      border: none;
-      padding: 10px;
-      cursor: pointer;
-      z-index: 1100;
+    .sidebar h2 {
+      text-align: center;
+      margin-bottom: 1rem;
     }
-    aside ul {
+    .sidebar ul {
       list-style: none;
       padding: 0;
     }
-    aside li {
-      margin: 15px 0;
+    .sidebar ul li {
+      padding: 0.8rem 1rem;
       cursor: pointer;
-      font-size: 16px;
     }
-    aside li:hover {
-      color: #00ccff;
+    .sidebar ul li:hover,
+    .sidebar ul li.active {
+      background: #555;
     }
-    main {
-      flex: 1;
-      padding: 20px;
-      background: #f4f4f4;
+    .main-content {
       margin-left: 250px;
-      transition: margin-left 0.3s ease;
+      padding: 1rem;
+      transition: margin-left 0.3s ease-in-out;
     }
-    main.sidebar-hidden {
+    .main-content.full {
       margin-left: 0;
+    }
+    .toggle-btn {
+      display: none;
+      background: #333;
+      color: white;
+      padding: 0.5rem;
+      cursor: pointer;
+      position: absolute;
+      left: 10px;
+      top: 10px;
+      z-index: 999;
+    }
+    @media (max-width: 768px) {
+      .toggle-btn {
+        display: block;
+      }
+      .main-content {
+        margin-left: 0;
+      }
     }
     .section {
       display: none;
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      max-width: 700px;
-      margin: auto;
     }
     .section.active {
       display: block;
     }
-    input, select {
+    input, select, textarea {
+      display: block;
+      margin: 0.5rem 0;
+      padding: 0.5rem;
       width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-    @media (max-width: 768px) {
-      aside {
-        transform: translateX(-100%);
-      }
-      main {
-        margin-left: 0;
-        width: 100%;
-      }
-      .section {
-        max-width: 100%;
-        padding: 15px;
-      }
+      max-width: 500px;
     }
   </style>
 </head>
 <body>
-  <button id="toggleBtn" onclick="toggleSidebar()">☰ Menu</button>
-  <aside id="sidebar" class="hidden">
+  <div class="toggle-btn" onclick="toggleSidebar()">☰ Menu</div>
+  <div class="sidebar hidden" id="sidebar">
+    <h2>📋 Admin Menu</h2>
     <ul>
-      <li onclick="showSection('create')">📦 Create Package</li>
+      <li onclick="showSection('create-package')">📦 Create Package</li>
       <li onclick="showSection('customization')">🎨 Customization</li>
       <li onclick="showSection('branding')">🖼️ Branding</li>
       <li onclick="showSection('fonts')">🔤 Fonts</li>
-      <li onclick="showSection('advanced')">🚀 Advanced Settings</li>
+      <li onclick="showSection('advanced')">🚀 Advanced</li>
+      <li onclick="showSection('add-block')">➕ Add Block</li>
     </ul>
-  </aside>  <main id="main" class="sidebar-hidden">
-    <div id="create" class="section active">
+  </div>
+  <div class="main-content full" id="main">
+    <div id="create-package" class="section">
       <h3>📦 Create Package</h3>
-      <input type="text" id="receiver" placeholder="Receiver Name" />
-      <input type="text" id="phone" placeholder="Phone Number" />
-      <input type="text" id="tracking" placeholder="Tracking Number" />
-      <input type="text" id="location" placeholder="Current Location" />
-      <select id="status">
-        <option value="In Transit">In Transit</option>
-        <option value="Pending">Pending</option>
-        <option value="Out for Delivery">Out for Delivery</option>
-        <option value="Delivered">Delivered</option>
-        <option value="On Hold">On Hold</option>
+      <input type="text" placeholder="Receiver Name">
+      <input type="text" placeholder="Phone Number">
+      <input type="text" placeholder="Tracking Number">
+      <input type="text" placeholder="Current Location">
+      <select>
+        <option value="">Package Status</option>
+        <option>In Transit</option>
+        <option>Pending</option>
+        <option>Out for Delivery</option>
+        <option>Delivered</option>
+        <option>On Hold</option>
       </select>
-      <input type="file" id="profilePic" />
-      <button onclick="alert('Saved!')">Save Package</button>
-    </div><div id="customization" class="section">
-  <h3>🎨 Customization</h3>
-  <p>Customize background type, color, gradient, or media.</p>
-</div>
-
-<div id="branding" class="section">
-  <h3>🖼️ Branding</h3>
-  <p>Set your platform name, logo, and link colors.</p>
-</div>
-
-<div id="fonts" class="section">
-  <h3>🔤 Fonts</h3>
-  <p>Select font type and size for your tracking pages.</p>
-</div>
-
-<div id="advanced" class="section">
-  <h3>🚀 Advanced Settings</h3>
-  <p>Project creation, Leap Link URL, and expert configurations.</p>
-</div>
-
-  </main>  <script>
-    function showSection(id) {
-      document.querySelectorAll('.section').forEach(section => {
-        section.classList.remove('active');
-      });
-      document.getElementById(id).classList.add('active');
-
-      document.getElementById('sidebar').classList.add('hidden');
-      document.getElementById('main').classList.add('sidebar-hidden');
-    }
-
+      <label>Upload Profile Picture:</label>
+      <input type="file">
+    </div>
+    <div id="customization" class="section">
+      <h3>🎨 Customization</h3>
+      <label>Theme Custom Color:</label>
+      <input type="color">
+      <label>Background Type:</label>
+      <select>
+        <option>Simple Gradient</option>
+        <option>Abstract Gradient</option>
+        <option>Custom Gradient</option>
+        <option>Custom Color</option>
+        <option>Custom Image/Video</option>
+      </select>
+      <input type="file">
+    </div>
+    <div id="branding" class="section">
+      <h3>🖼️ Branding</h3>
+      <label>Branding Name:</label>
+      <input type="text">
+      <label>Branding URL:</label>
+      <input type="url">
+      <label>Text Color:</label>
+      <input type="color" value="#ffffff">
+    </div>
+    <div id="fonts" class="section">
+      <h3>🔤 Fonts</h3>
+      <label>Font:</label>
+      <select>
+        <option>Arial</option>
+        <option>Verdana</option>
+        <option>Georgia</option>
+        <option>Courier New</option>
+      </select>
+      <label>Font Size (px):</label>
+      <input type="number" min="10" max="100">
+    </div>
+    <div id="advanced" class="section">
+      <h3>🚀 Advanced Settings</h3>
+      <label>Create Project:</label>
+      <input type="text">
+      <label>Leap Link URL:</label>
+      <input type="url">
+    </div>
+    <div id="add-block" class="section">
+      <h3>➕ Add Block</h3>
+      <label>Link Name:</label>
+      <input type="text">
+      <label>Destination URL:</label>
+      <input type="url">
+      <label>Heading Type:</label>
+      <select>
+        <option>H1</option>
+        <option>H2</option>
+        <option>H3</option>
+        <option>H4</option>
+        <option>H5</option>
+      </select>
+      <input type="text" placeholder="Heading Text">
+      <textarea placeholder="Paragraph Text"></textarea>
+      <input type="file" accept="image/*">
+      <input type="text" placeholder="Avatar URL">
+      <input type="text" placeholder="Social Link">
+      <input type="email" placeholder="Email Collector">
+      <input type="text" placeholder="SoundCloud Link">
+      <input type="text" placeholder="Spotify Link">
+      <input type="text" placeholder="YouTube Link">
+      <input type="text" placeholder="Twitch Link">
+      <input type="text" placeholder="Vimeo Link">
+      <input type="text" placeholder="TikTok Link">
+      <input type="text" placeholder="Paypal Link">
+      <input type="tel" placeholder="Phone Number">
+      <input type="text" placeholder="Map Embed URL">
+    </div>
+  </div>  <script>
+    const sidebar = document.getElementById("sidebar");
+    const main = document.getElementById("main");
     function toggleSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      const main = document.getElementById('main');
-      sidebar.classList.toggle('hidden');
-      main.classList.toggle('sidebar-hidden');
+      sidebar.classList.toggle("hidden");
+    }
+    function showSection(id) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      if (window.innerWidth < 768) sidebar.classList.add("hidden");
     }
   </script></body>
 </html>
