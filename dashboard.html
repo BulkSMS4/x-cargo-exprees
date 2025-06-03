@@ -2,260 +2,128 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Dashboard - X-Cargo Express</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <title>X-Cargo Dashboard</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
+      margin: 0;
       font-family: Arial, sans-serif;
-      display: flex;
-      min-height: 100vh;
-      flex-direction: column;
     }
     .sidebar {
       width: 220px;
-      background: #2c3e50;
-      color: #fff;
-      transition: transform 0.3s ease;
+      background-color: #333;
+      color: white;
       position: fixed;
-      height: 100%;
+      height: 100vh;
       overflow-y: auto;
+      transition: transform 0.3s ease-in-out;
+      z-index: 1000;
     }
-    .sidebar.hidden { transform: translateX(-100%); }
-    .sidebar h2 {
-      text-align: center;
-      padding: 20px 0;
-      border-bottom: 1px solid #34495e;
+    .sidebar.collapsed {
+      transform: translateX(-100%);
     }
-    .sidebar ul { list-style: none; }
+    .sidebar ul {
+      list-style-type: none;
+      padding: 0;
+    }
     .sidebar ul li {
-      padding: 12px 15px;
-      cursor: pointer;
-      border-bottom: 1px solid #34495e;
+      padding: 12px 20px;
+      border-bottom: 1px solid #444;
     }
-    .sidebar ul li:hover { background: #34495e; }
-    .content {
+    .sidebar ul li a {
+      color: white;
+      text-decoration: none;
+    }
+    .toggle-btn {
+      background-color: #333;
+      color: white;
+      padding: 10px;
+      cursor: pointer;
+      font-size: 18px;
+      position: fixed;
+      z-index: 1001;
+    }
+    .main {
       margin-left: 220px;
       padding: 20px;
-      background: #f4f4f4;
-      width: calc(100% - 220px);
-      transition: all 0.3s ease;
+      transition: margin-left 0.3s ease-in-out;
     }
-    .content.fullscreen {
+    .collapsed + .main {
       margin-left: 0;
-      width: 100%;
     }
-    .header {
-      background: #fff;
-      padding: 10px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    @media screen and (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      .sidebar.open {
+        transform: translateX(0);
+      }
+      .main {
+        margin-left: 0;
+      }
     }
-    .toggle-btn { font-size: 20px; cursor: pointer; }
     .section {
-      background: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      margin-top: 20px;
-      max-width: 1000px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    input, select, textarea, button {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-    }
-    .mobile-preview {
-      margin-top: 40px;
-      max-width: 400px;
-      background: #fff;
-      border-radius: 40px;
-      padding: 30px 20px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.2);
-      border: 4px solid #ccc;
-      overflow-y: auto;
-      max-height: 600px;
-    }
-    .mobile-preview h3,
-    .mobile-preview p,
-    .mobile-preview span,
-    .mobile-preview img,
-    .mobile-preview button {
       display: none;
     }
-    .mobile-preview .visible {
-      display: block !important;
-    }
-    .mobile-preview .red {
-      color: red;
-      font-weight: bold;
-    }
-    .saved-package {
-      padding: 10px;
-      border-bottom: 1px solid #ccc;
-      font-size: 14px;
-    }
-    .saved-package button {
-      margin-top: 5px;
-      width: auto;
-      padding: 5px 10px;
+    .section.active {
+      display: block;
     }
   </style>
 </head>
 <body>
+  <div class="toggle-btn" onclick="toggleSidebar()">☰</div>
   <div class="sidebar" id="sidebar">
-    <h2>☰ X-Cargo</h2>
     <ul>
-      <li onclick="showSection('create-package-form')">📦 Create Package</li>
-      <li onclick="showSection('saved-packages')">📁 Package Delivery Storage</li>
+      <li><a href="#" onclick="showSection('create')">📦 Create Package</a></li>
+      <li><a href="#" onclick="showSection('storage')">📁 Package Storage</a></li>
+      <li><a href="#" onclick="showSection('card')">💳 Credit Card Form</a></li>
+      <li><a href="#" onclick="showSection('colors')">🎨 Custom Colors</a></li>
+      <li><a href="#" onclick="showSection('settings')">⚙️ Settings</a></li>
+      <li><a href="#" onclick="showSection('profile')">👤 Profile Picture</a></li>
+      <li><a href="form-builder.html">🧱 Build Form Template</a></li>
+      <li><a href="#">🚪 Logout</a></li>
     </ul>
-    <div id="saved-packages" class="section" style="display:none;">
-      <h3>📁 Saved Packages</h3>
-      <div id="saved-list"></div>
+  </div>
+  <div class="main" id="main">
+    <h1>☰ Dashboard</h1>
+    <div id="create" class="section">
+      <h2>Create Package</h2>
+      <!-- Your Create Package Form Here -->
     </div>
-  </div>  <div class="content" id="main-content">
-    <div class="header">
-      <span class="toggle-btn" onclick="toggleSidebar()">☰</span>
-      <span>Click ☰ to toggle sidebar</span>
+    <div id="storage" class="section">
+      <h2>Saved Packages</h2>
+      <div id="packageList"></div>
     </div>
-    <form id="create-package-form" class="section" onsubmit="event.preventDefault(); savePackage();">
-      <h2>Create New Package</h2>
-      <label>Form Background Color:</label>
-      <input type="color" id="formColor" onchange="setBgColor('create-package-form', this.value)">
-      <label>Preview Background Color:</label>
-      <input type="color" id="previewColor" onchange="setBgColor('mobile-preview', this.value)">
-      <input type="text" id="mainHeading" placeholder="DELIVERY OF THE SUSPENDED PACKAGE!." oninput="updatePreview()">
-      <input type="file" id="imageFile" accept="image/*" onchange="handleImageUpload(event)">
-      <input type="text" id="status" placeholder="Status" oninput="updatePreview()">
-      <input type="text" id="feeNotice" placeholder="A delivery fee may apply" oninput="updatePreview()">
-      <input type="text" id="trackingCode" placeholder="Tracking Code" oninput="updatePreview()">
-      <input type="text" id="location" placeholder="Delivery Location" oninput="updatePreview()">
-      <input type="text" id="sender" placeholder="Sender Name" oninput="updatePreview()">
-      <input type="text" id="recipient" placeholder="Recipient Name" oninput="updatePreview()">
-      <input type="text" id="buttonText" placeholder="Schedule Delivery Now" oninput="updatePreview()">
-      <button type="submit">Submit Package</button>
-      <div class="mobile-preview" id="mobile-preview">
-        <h2 class="visible">Package Delivery</h2>
-        <h3 id="preview-heading"></h3>
-        <img id="preview-image" src="" alt="Preview">
-        <p id="preview-status"></p>
-        <p id="preview-fee" class="red"></p>
-        <p id="preview-code"></p>
-        <p id="preview-location"></p>
-        <p id="preview-sender"></p>
-        <p id="preview-recipient"></p>
-        <button id="preview-button"></button>
-      </div>
-    </form>
-  </div>  <script>
+    <div id="card" class="section">
+      <h2>Credit Card Form</h2>
+      <p>Coming soon or insert external link here.</p>
+    </div>
+    <div id="colors" class="section">
+      <h2>Custom Background Colors</h2>
+      <label>Form Background: <input type="color" onchange="document.querySelector('.section.active').style.background=this.value"></label>
+      <label>Preview Background: <input type="color" onchange="document.getElementById('mobile-preview')?.style.background=this.value"></label>
+    </div>
+    <div id="settings" class="section">
+      <h2>Settings</h2>
+      <p>Settings panel coming soon.</p>
+    </div>
+    <div id="profile" class="section">
+      <h2>Upload Profile Picture</h2>
+      <input type="file" accept="image/*">
+    </div>
+  </div>
+  <script>
     function toggleSidebar() {
       const sidebar = document.getElementById('sidebar');
-      const content = document.getElementById('main-content');
-      sidebar.classList.toggle('hidden');
-      content.classList.toggle('fullscreen');
+      sidebar.classList.toggle('open');
     }
-
     function showSection(id) {
-      const sidebar = document.getElementById('sidebar');
-      const content = document.getElementById('main-content');
-      sidebar.classList.add('hidden');
-      content.classList.add('fullscreen');
-      if (id === 'saved-packages') {
-        document.getElementById('saved-packages').style.display = 'block';
-        document.getElementById('create-package-form').style.display = 'none';
-        loadSavedPackages();
-      } else {
-        document.getElementById('saved-packages').style.display = 'none';
-        document.getElementById('create-package-form').style.display = 'block';
+      const sections = document.querySelectorAll('.section');
+      sections.forEach(section => section.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      if (window.innerWidth <= 768) {
+        document.getElementById('sidebar').classList.remove('open');
       }
     }
-
-    function updatePreview() {
-      const fields = ['mainHeading','status','feeNotice','trackingCode','location','sender','recipient','buttonText'];
-      fields.forEach(f => {
-        const val = document.getElementById(f).value;
-        const previewId = 'preview-' + f.replace('mainHeading','heading').replace('feeNotice','fee').replace('trackingCode','code').replace('buttonText','button');
-        document.getElementById(previewId).textContent = val ? (f==='status' ? 'Status: ' + val : (f==='trackingCode' ? 'Tracking Code: ' + val : f==='location' ? 'Delivery Location: ' + val : f==='sender' ? 'Sender: ' + val : f==='recipient' ? 'Recipient: ' + val : val)) : '';
-        toggleVisibility(previewId, val);
-      });
-    }
-
-    function toggleVisibility(id, value) {
-      const el = document.getElementById(id);
-      if (value) el.classList.add('visible');
-      else el.classList.remove('visible');
-    }
-
-    function handleImageUpload(event) {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          const img = document.getElementById('preview-image');
-          img.src = e.target.result;
-          img.classList.add('visible');
-        };
-        reader.readAsDataURL(file);
-      }
-    }
-
-    function setBgColor(id, color) {
-      document.getElementById(id).style.background = color;
-    }
-
-    function savePackage() {
-      const package = {
-        trackingCode: document.getElementById('trackingCode').value,
-        sender: document.getElementById('sender').value,
-        recipient: document.getElementById('recipient').value
-      };
-      if (!package.trackingCode) return alert('Tracking code required!');
-      let packages = JSON.parse(localStorage.getItem('packages') || '[]');
-      packages.push(package);
-      localStorage.setItem('packages', JSON.stringify(packages));
-      alert('Package saved! View it in Package Delivery Storage.');
-      loadSavedPackages();
-    }
-
-    function loadSavedPackages() {
-      const container = document.getElementById('saved-list');
-      container.innerHTML = '';
-      const packages = JSON.parse(localStorage.getItem('packages') || '[]');
-      packages.forEach((pkg, i) => {
-        const div = document.createElement('div');
-        div.className = 'saved-package';
-        div.innerHTML = `
-          <strong>${pkg.trackingCode}</strong><br>
-          Tracking Code: ${pkg.trackingCode}<br>
-          Sender: ${pkg.sender || 'N/A'}<br>
-          Recipient: ${pkg.recipient || 'N/A'}<br>
-          Track at: <a href="https://x-cargo-exprees.web.app?track=${pkg.trackingCode}" target="_blank">Link</a><br>
-          <button onclick="editPackage(${i})">Edit</button>
-          <button onclick="deletePackage(${i})">Delete</button>
-        `;
-        container.appendChild(div);
-      });
-    }
-
-    function deletePackage(index) {
-      let packages = JSON.parse(localStorage.getItem('packages') || '[]');
-      packages.splice(index, 1);
-      localStorage.setItem('packages', JSON.stringify(packages));
-      loadSavedPackages();
-    }
-
-    function editPackage(index) {
-      let packages = JSON.parse(localStorage.getItem('packages') || '[]');
-      const pkg = packages[index];
-      document.getElementById('trackingCode').value = pkg.trackingCode;
-      document.getElementById('sender').value = pkg.sender;
-      document.getElementById('recipient').value = pkg.recipient;
-      showSection('create-package-form');
-      updatePreview();
-    }
-  </script></body>
+  </script>
+</body>
 </html>
