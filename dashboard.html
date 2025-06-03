@@ -1,51 +1,62 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Admin Dashboard - X-Cargo Express</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: Arial, sans-serif;
       display: flex;
       min-height: 100vh;
-      flex-direction: column;
     }
+
     .sidebar {
-      width: 250px;
+      width: 70px;
       background: #2c3e50;
       color: #fff;
       transition: transform 0.3s ease;
       position: fixed;
       height: 100%;
+      z-index: 100;
     }
     .sidebar.hidden { transform: translateX(-100%); }
     .sidebar h2 {
+      font-size: 20px;
       text-align: center;
-      padding: 20px 0;
+      padding: 15px 0;
       border-bottom: 1px solid #34495e;
+      white-space: nowrap;
     }
     .sidebar ul {
       list-style: none;
+      padding: 0;
+      text-align: center;
     }
     .sidebar ul li {
-      padding: 15px 20px;
+      padding: 12px 0;
+      font-size: 20px;
       cursor: pointer;
       border-bottom: 1px solid #34495e;
     }
-    .sidebar ul li:hover { background: #34495e; }
+    .sidebar ul li:hover {
+      background: #34495e;
+    }
+
     .content {
-      margin-left: 250px;
+      margin-left: 70px;
       padding: 20px;
       background: #f4f4f4;
-      width: calc(100% - 250px);
-      transition: margin-left 0.3s ease, width 0.3s ease;
+      width: calc(100% - 70px);
+      transition: all 0.3s ease;
     }
     .content.fullscreen {
       margin-left: 0;
       width: 100%;
     }
+
     .header {
       background: #fff;
       padding: 10px 20px;
@@ -54,7 +65,16 @@
       justify-content: space-between;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
-    .toggle-btn { font-size: 24px; cursor: pointer; }
+
+    .toggle-btn {
+      font-size: 20px;
+      cursor: pointer;
+      background: #2c3e50;
+      color: white;
+      border-radius: 4px;
+      padding: 4px 10px;
+    }
+
     .section {
       background: #fff;
       padding: 20px;
@@ -65,14 +85,13 @@
       margin-left: auto;
       margin-right: auto;
     }
-    #create-package-form input,
-    #create-package-form select,
-    #create-package-form textarea,
-    #create-package-form button {
+
+    input, select, textarea, button {
       width: 100%;
       padding: 10px;
       margin: 8px 0;
     }
+
     .mobile-preview {
       margin-top: 40px;
       max-width: 400px;
@@ -81,126 +100,135 @@
       padding: 30px 20px;
       box-shadow: 0 0 20px rgba(0,0,0,0.2);
       border: 4px solid #ccc;
+      overflow-y: auto;
+      max-height: 600px;
     }
+
     .mobile-preview h3,
-    .mobile-preview h4 {
-      text-align: center;
-      margin-bottom: 10px;
+    .mobile-preview p,
+    .mobile-preview span,
+    .mobile-preview img,
+    .mobile-preview button {
+      display: none;
     }
-    .mobile-preview img {
-      max-width: 100%;
-      height: auto;
-      border-radius: 10px;
-      margin-bottom: 10px;
+
+    .mobile-preview .visible {
+      display: block !important;
     }
-    .info { margin-bottom: 10px; }
-    .preview-header {
-      text-align: center;
-      margin-bottom: 15px;
-    }
-    .preview-section-title {
-      font-size: 18px;
-      font-weight: bold;
-      text-transform: uppercase;
-      color: #555;
-    }
-    .editable-title {
-      width: 100%;
-      border: none;
-      font-size: 16px;
-      font-weight: bold;
-      color: #2c3e50;
-      text-align: center;
-      resize: none;
-      margin-top: 5px;
-      background: transparent;
-    }
-    .editable-title:focus {
-      outline: none;
-      border-bottom: 1px dashed #ccc;
-    }
-    .red {
+
+    .mobile-preview .red {
       color: red;
       font-weight: bold;
-    }
-    .cta-btn {
-      display: inline-block;
-      background-color: #2c3e50;
-      color: #fff;
-      padding: 12px 16px;
-      margin-top: 10px;
-      border: none;
-      border-radius: 25px;
-      width: 100%;
-      cursor: pointer;
-      font-size: 16px;
-    }
-    .cta-btn:hover {
-      background-color: #1a252f;
     }
   </style>
 </head>
 <body>
+
   <div class="sidebar" id="sidebar">
-    <h2>☰ X-Cargo</h2>
+    <h2>☰</h2>
     <ul>
-      <li onclick="openForm()">📦 Create Package</li>
+      <li onclick="showSection('create-package-form')">📦</li>
     </ul>
   </div>
+
   <div class="content" id="main-content">
     <div class="header">
       <span class="toggle-btn" onclick="toggleSidebar()">☰</span>
-      <span>Click ☰ to toggle sidebar</span>
+      <span>X-Cargo Admin Dashboard</span>
     </div>
+
     <form id="create-package-form" class="section" onsubmit="event.preventDefault();">
       <h2>Create New Package</h2>
-      <input type="text" id="packageName" placeholder="Example: Apple iPhone 14 Pro" oninput="updatePreview()" required />
-      <textarea id="description" placeholder="Example: Sealed new iPhone, 256GB, Midnight Black." oninput="updatePreview()"></textarea>
-      <input type="text" id="status" placeholder="Example: In Transit" oninput="updatePreview()" />
-      <input type="date" id="expectedDate" oninput="updatePreview()" />
-      <input type="text" id="trackingCode" placeholder="Tracking Code" oninput="updatePreview()" />
-      <input type="url" id="imageUrl" placeholder="Paste image URL here" oninput="updatePreview()" />
-      <input type="file" id="imageFile" accept="image/*" onchange="previewFile(this)" />
-      <button type="submit">Submit Package</button><div class="mobile-preview" id="mobile-preview">
-    <div class="preview-header">
-      <h4 class="preview-section-title">Package Delivery</h4>
-      <textarea id="preview-main-title" class="editable-title" oninput="updatePreview()">DELIVERY OF THE SUSPENDED PACKAGE!.</textarea>
-    </div>
-    <img id="preview-image" src="https://via.placeholder.com/300x200?text=Image" alt="Preview">
-    <p class="info"><strong>Status:</strong> <span id="preview-status">N/A</span></p>
-    <p class="info red" id="fee-warning" contenteditable="true">⚠️ A delivery fee may apply</p>
-    <p class="info"><strong>Your Tracking Code:</strong> <span id="preview-code">ABC123456</span></p>
-    <button class="cta-btn">Schedule Delivery Now</button>
-  </div>
-</form>
+      <input type="text" id="mainHeading" placeholder="DELIVERY OF THE SUSPENDED PACKAGE!." oninput="updatePreview()">
+      <input type="file" id="imageFile" accept="image/*" onchange="handleImageUpload(event)">
+      <input type="text" id="status" placeholder="Status" oninput="updatePreview()">
+      <input type="text" id="feeNotice" placeholder="A delivery fee may apply" oninput="updatePreview()">
+      <input type="text" id="trackingCode" placeholder="Tracking Code" oninput="updatePreview()">
+      <input type="text" id="location" placeholder="Delivery Location" oninput="updatePreview()">
+      <input type="text" id="sender" placeholder="Sender Name" oninput="updatePreview()">
+      <input type="text" id="recipient" placeholder="Recipient Name" oninput="updatePreview()">
+      <input type="text" id="buttonText" placeholder="Schedule Delivery Now" oninput="updatePreview()">
+      <button type="submit">Submit Package</button>
 
-  </div>  <script>
+      <div class="mobile-preview" id="mobile-preview">
+        <h2 class="visible">Package Delivery</h2>
+        <h3 id="preview-heading"></h3>
+        <img id="preview-image" src="" alt="Preview" style="max-width: 100%; border-radius: 10px; margin: 10px 0;" />
+        <p id="preview-status"></p>
+        <p id="preview-fee" class="red"></p>
+        <p id="preview-code"></p>
+        <p id="preview-location"></p>
+        <p id="preview-sender"></p>
+        <p id="preview-recipient"></p>
+        <button id="preview-button"></button>
+      </div>
+    </form>
+  </div>
+
+  <script>
     function toggleSidebar() {
-      document.getElementById('sidebar').classList.toggle('hidden');
+      const sidebar = document.getElementById('sidebar');
+      const content = document.getElementById('main-content');
+      sidebar.classList.toggle('hidden');
+      content.classList.toggle('fullscreen');
     }
 
-    function openForm() {
+    function showSection(id) {
       document.getElementById('sidebar').classList.add('hidden');
       document.getElementById('main-content').classList.add('fullscreen');
-      document.getElementById('create-package-form').scrollIntoView({ behavior: 'smooth' });
+      document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
     }
 
     function updatePreview() {
-      document.getElementById('preview-name').textContent = document.getElementById('packageName').value || 'Package Name';
-      document.getElementById('preview-description').textContent = document.getElementById('description').value || 'Package description will appear here...';
-      document.getElementById('preview-status').textContent = document.getElementById('status').value || 'N/A';
-      document.getElementById('preview-code').textContent = document.getElementById('trackingCode').value || 'ABC123456';
-      const img = document.getElementById('imageUrl').value;
-      if (img) document.getElementById('preview-image').src = img;
+      const heading = document.getElementById('mainHeading').value;
+      const status = document.getElementById('status').value;
+      const fee = document.getElementById('feeNotice').value;
+      const code = document.getElementById('trackingCode').value;
+      const location = document.getElementById('location').value;
+      const sender = document.getElementById('sender').value;
+      const recipient = document.getElementById('recipient').value;
+      const buttonText = document.getElementById('buttonText').value;
+
+      toggleVisibility('preview-heading', heading);
+      toggleVisibility('preview-status', status);
+      toggleVisibility('preview-fee', fee);
+      toggleVisibility('preview-code', code);
+      toggleVisibility('preview-location', location);
+      toggleVisibility('preview-sender', sender);
+      toggleVisibility('preview-recipient', recipient);
+      toggleVisibility('preview-button', buttonText);
+
+      document.getElementById('preview-heading').textContent = heading;
+      document.getElementById('preview-status').textContent = `Status: ${status}`;
+      document.getElementById('preview-fee').textContent = fee;
+      document.getElementById('preview-code').textContent = `Tracking Code: ${code}`;
+      document.getElementById('preview-location').textContent = `Delivery Location: ${location}`;
+      document.getElementById('preview-sender').textContent = `Sender: ${sender}`;
+      document.getElementById('preview-recipient').textContent = `Recipient: ${recipient}`;
+      document.getElementById('preview-button').textContent = buttonText;
     }
 
-    function previewFile(input) {
-      const file = input.files[0];
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        document.getElementById('preview-image').src = e.target.result;
-      };
-      if (file) reader.readAsDataURL(file);
+    function toggleVisibility(id, value) {
+      const el = document.getElementById(id);
+      if (value) {
+        el.classList.add('visible');
+      } else {
+        el.classList.remove('visible');
+      }
     }
-  </script></body>
+
+    function handleImageUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const img = document.getElementById('preview-image');
+          img.src = e.target.result;
+          img.classList.add('visible');
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+  </script>
+</body>
 </html>
