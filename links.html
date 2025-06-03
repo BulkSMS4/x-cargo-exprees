@@ -88,29 +88,60 @@
         </tr>
       </thead>
       <tbody id="linkTable">
-        <tr>
-          <td>TrackBox 01</td>
-          <td><a href="https://444.com/trackbox01" target="_blank">trackbox01</a></td>
-          <td>June 3, 2025</td>
-          <td>✅ Active</td>
-          <td class="actions">
-            <button>View</button>
-            <button class="delete">Delete</button>
-          </td>
-        </tr>
-        <tr>
-          <td>Leap Bio</td>
-          <td><a href="https://444.com/leapbio" target="_blank">leapbio</a></td>
-          <td>June 2, 2025</td>
-          <td>✅ Active</td>
-          <td class="actions">
-            <button>View</button>
-            <button class="delete">Delete</button>
-          </td>
-        </tr>
+        <!-- Dynamic rows will be inserted here -->
       </tbody>
     </table>
   </div>
+
+  <!-- Firebase Realtime Database Setup -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+    import { getDatabase, ref, push, set, onValue, remove } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
+      authDomain: "x-cargo-exprees.firebaseapp.com",
+      databaseURL: "https://x-cargo-exprees-default-rtdb.firebaseio.com",
+      projectId: "x-cargo-exprees",
+      storageBucket: "x-cargo-exprees.appspot.com",
+      messagingSenderId: "1082201867958",
+      appId: "1:1082201867958:web:d6600fbc82085b0b62c817",
+      measurementId: "G-C3Y4PQC86V"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    window.loadPackages = function () {
+      const table = document.getElementById("linkTable");
+      onValue(ref(db, "packages"), (snapshot) => {
+        table.innerHTML = "";
+        snapshot.forEach((child) => {
+          const data = child.val();
+          table.innerHTML += `
+            <tr>
+              <td>${data.title}</td>
+              <td><a href="${data.link}" target="_blank">${data.link}</a></td>
+              <td>${data.date}</td>
+              <td>✅ Active</td>
+              <td class="actions">
+                <button onclick="window.open('${data.link}')">View</button>
+                <button class="delete" onclick="deletePackage('${child.key}')">Delete</button>
+              </td>
+            </tr>
+          `;
+        });
+      });
+    }
+
+    window.deletePackage = function (key) {
+      remove(ref(db, "packages/" + key));
+    }
+
+    window.onload = function () {
+      loadPackages();
+    }
+  </script>
 
 </body>
 </html>
