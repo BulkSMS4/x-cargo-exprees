@@ -1,129 +1,182 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Login Page Builder</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Template Configuration</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f7f7f7;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin: 15px 0 5px;
+    }
+
+    input[type="text"],
+    input[type="file"],
+    input[type="color"] {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+
+    .inline-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .inline-group > div {
+      flex: 1;
+    }
+
+    .section-title {
+      font-weight: bold;
+      margin: 25px 0 10px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 5px;
+    }
+
+    .generate-button {
+      background-color: #0057ff;
+      color: white;
+      padding: 12px;
+      width: 100%;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    .generate-button:hover {
+      background-color: #0044cc;
+    }
+
+    .upload-header {
+      text-align: center;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .upload-icon {
+      display: block;
+      margin: 10px auto;
+      font-size: 40px;
+    }
+
+    .upload-note {
+      text-align: center;
+      font-size: 12px;
+      color: gray;
+    }
+
+    .image-preview {
+      background-color: #eee;
+      text-align: center;
+      padding: 10px;
+      font-weight: bold;
+      color: #555;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 text-black p-6">
-  <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-6"><!-- Builder Form -->
-<div class="bg-white p-6 rounded shadow space-y-4">
-  <h1 class="text-xl font-bold">🔧 Build Template</h1>
-
-  <div>
-    <label class="block font-medium text-sm">LOGO (PNG/JPG/JPEG/GIF)</label>
-    <input type="file" id="logoInput" accept="image/*" class="w-full" />
-  </div>
-
-  <div>
-    <label class="block font-medium text-sm">BANNER</label>
-    <input type="file" id="bannerInput" accept="image/*" class="w-full" />
-  </div>
-
-  <div class="grid grid-cols-2 gap-2">
-    <div>
-      <label class="block text-sm">LOGO SIZE</label>
-      <input type="text" id="logoSize" class="w-full border p-1 rounded" value="70px">
+<body>
+  <div class="container">
+    <div class="upload-header">
+      ✔️ IMAGE (UPLOAD)
     </div>
-    <div>
-      <label class="block text-sm">BANNER SIZE</label>
-      <input type="text" id="bannerSize" class="w-full border p-1 rounded" value="300px">
+    <div class="upload-icon">
+      ⬆️
     </div>
-  </div>
-
-  <div>
-    <label class="block text-sm">TEMPLATE NAME</label>
-    <input type="text" id="templateName" class="w-full border p-1 rounded" value="Login First">
-  </div>
-
-  <div class="grid grid-cols-3 gap-2">
-    <div>
-      <label class="block text-sm">BODY COLOR</label>
-      <input type="color" id="bodyColor" value="#505685" class="w-full">
+    <div class="upload-note">
+      (PNG / JPG / JPEG / GIF)
     </div>
-    <div>
-      <label class="block text-sm">BUTTON COLOR</label>
-      <input type="color" id="buttonColor" value="#0000ff" class="w-full">
+
+    <label>LOGO</label>
+    <div class="image-preview">NO IMAGE</div>
+    <label>LOGO SIZE</label>
+    <input type="text" value='width="70px" height="70px"' />
+
+    <label>BANNER</label>
+    <div class="image-preview">NO IMAGE</div>
+    <label>BANNER SIZE</label>
+    <input type="text" value='width="300px" height="50px"' />
+
+    <label>TEMPLATE NAME</label>
+    <input type="text" placeholder="NAME" />
+
+    <label>BODY COLOR</label>
+    <input type="color" value="#000000" />
+
+    <label>BUTTON COLOR</label>
+    <input type="color" value="#0057ff" />
+
+    <label>TEXT COLOR</label>
+    <input type="color" value="#000000" />
+
+    <div class="section-title">
+      ⚙️ INPUTs CONFIGURATION
     </div>
-    <div>
-      <label class="block text-sm">TEXT COLOR</label>
-      <input type="color" id="textColor" value="#ffffff" class="w-full">
+
+    <label>DESCRIPTION</label>
+    <input type="text" value="Blockchain Login" />
+
+    <div class="inline-group">
+      <div>
+        <label>EMAIL CONTENT</label>
+        <input type="text" value="Wallet ID or Username" />
+      </div>
+      <div>
+        <label>EMAIL LABEL</label>
+        <input type="text" value="SHOW" />
+      </div>
     </div>
-  </div>
 
-  <hr class="my-2">
-
-  <div>
-    <label class="block text-sm">EMAIL LABEL</label>
-    <input type="text" id="emailLabel" class="w-full border p-1 rounded" value="Email or Phone">
-  </div>
-  <div>
-    <label class="block text-sm">PASSWORD LABEL</label>
-    <input type="text" id="passwordLabel" class="w-full border p-1 rounded" value="Password">
-  </div>
-  <div>
-    <label class="block text-sm">BUTTON CONTENT</label>
-    <input type="text" id="buttonText" class="w-full border p-1 rounded" value="Log In">
-  </div>
-  <div>
-    <label class="block text-sm">BUTTON WIDTH</label>
-    <input type="text" id="buttonWidth" class="w-full border p-1 rounded" value="200px">
-  </div>
-
-  <button onclick="generateForm()" class="mt-4 w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700">Generate</button>
-</div>
-
-<!-- Output Preview -->
-<div>
-  <h2 class="text-lg font-bold mb-2">Live Preview</h2>
-  <iframe id="previewFrame" class="w-full h-[600px] border rounded bg-white"></iframe>
-</div>
-
-  </div>  <script>
-    function generateForm() {
-      const logoFile = document.getElementById("logoInput").files[0];
-      const bannerFile = document.getElementById("bannerInput").files[0];
-      const logoURL = logoFile ? URL.createObjectURL(logoFile) : '';
-      const bannerURL = bannerFile ? URL.createObjectURL(bannerFile) : '';
-
-      const logoSize = document.getElementById("logoSize").value;
-      const bannerSize = document.getElementById("bannerSize").value;
-      const bodyColor = document.getElementById("bodyColor").value;
-      const textColor = document.getElementById("textColor").value;
-      const buttonColor = document.getElementById("buttonColor").value;
-      const buttonWidth = document.getElementById("buttonWidth").value;
-      const templateName = document.getElementById("templateName").value;
-
-      const emailLabel = document.getElementById("emailLabel").value;
-      const passwordLabel = document.getElementById("passwordLabel").value;
-      const buttonText = document.getElementById("buttonText").value;
-
-      const html = `
-      <html>
-      <head>
-        <meta charset="UTF-8">
-        <title>${templateName}</title>
-        <script src="https://cdn.tailwindcss.com"></script></head>
-  <body style="background:${bodyColor}; color:${textColor};" class="min-h-screen flex justify-center items-center">
-    <div class="w-full max-w-md bg-white p-6 rounded shadow space-y-4 text-black">
-      ${bannerURL ? `<img src="${bannerURL}" alt="Banner" style="width:${bannerSize};">` : ''}
-      ${logoURL ? `<img src="${logoURL}" alt="Logo" style="width:${logoSize};" class="mx-auto">` : ''}
-      <h2 class="text-center font-bold text-xl">${templateName}</h2>
-      <form>
-        <label class="block mb-2">${emailLabel}</label>
-        <input type="text" class="w-full border p-2 rounded mb-4" placeholder="${emailLabel}">
-        <label class="block mb-2">${passwordLabel}</label>
-        <input type="password" class="w-full border p-2 rounded mb-4" placeholder="${passwordLabel}">
-        <button type="submit" style="background:${buttonColor}; width:${buttonWidth}" class="text-white font-semibold p-2 rounded w-full">${buttonText}</button>
-      </form>
+    <div class="inline-group">
+      <div>
+        <label>PASSWORD CONTENT</label>
+        <input type="text" value="Private Passphrase" />
+      </div>
+      <div>
+        <label>PASSWORD LABEL</label>
+        <input type="text" value="SHOW" />
+      </div>
     </div>
-  </body>
-  </html>
-  `;
 
-  const preview = document.getElementById("previewFrame");
-  preview.srcdoc = html;
-}
+    <div class="inline-group">
+      <div>
+        <label>BUTTON CONTENT</label>
+        <input type="text" value="Log In" />
+      </div>
+      <div>
+        <label>BUTTON WIDTH</label>
+        <input type="text" value="300px" />
+      </div>
+    </div>
 
-  </script>
+    <button class="generate-button">✨ GENERATE</button>
+  </div>
 </body>
 </html>
