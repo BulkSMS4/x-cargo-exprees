@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Your Links</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: #f4f4f4;
+      display: flex;
+    }
+    .sidebar {
+      width: 220px;
+      background: #111;
+      color: white;
+      height: 100vh;
+      padding: 20px;
+    }
+    .sidebar a {
+      color: #ccc;
+      display: block;
+      padding: 10px 0;
+      text-decoration: none;
+    }
+    .sidebar a:hover {
+      color: white;
+    }
+    .main {
+      flex: 1;
+      padding: 30px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 15px;
+      text-align: left;
+    }
+    th {
+      background: #333;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background: #f9f9f9;
+    }
+    .actions button {
+      margin-right: 10px;
+      padding: 6px 10px;
+      border: none;
+      border-radius: 4px;
+      background: #4CAF50;
+      color: white;
+      cursor: pointer;
+    }
+    .actions button.delete {
+      background: crimson;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar">
+    <h3>🔗 Links</h3>
+    <a href="dashboard.html">🏠 Dashboard</a>
+    <a href="create.html">📦 Create Package</a>
+    <a href="settings.html">⚙️ Settings</a>
+    <a href="add-block.html">➕ Add Block</a>
+    <a href="links.html">🔗 View Links</a>
+  </div>
+
+  <div class="main">
+    <h2>Your Created Links</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Project Name</th>
+          <th>URL</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="linkTable">
+        <tr>
+          <td>TrackBox 01</td>
+          <td><a href="https://444.com/trackbox01" target="_blank">trackbox01</a></td>
+          <td>June 3, 2025</td>
+          <td>✅ Active</td>
+          <td class="actions">
+            <button>View</button>
+            <button class="delete">Delete</button>
+          </td>
+        </tr>
+        <tr>
+          <td>Leap Bio</td>
+          <td><a href="https://444.com/leapbio" target="_blank">leapbio</a></td>
+          <td>June 2, 2025</td>
+          <td>✅ Active</td>
+          <td class="actions">
+            <button>View</button>
+            <button class="delete">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</body>
+</html>
