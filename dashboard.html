@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -72,7 +73,7 @@
 <body>
   <div class="toggle-btn" onclick="toggleSidebar()">☰</div>
   <div class="sidebar" id="sidebar">
-    <ul>
+    <ul id="mainMenu">
       <li><a href="#" onclick="showSection('create')">📦 Create Package</a></li>
       <li><a href="#" onclick="showSection('storage')">📁 Package Storage</a></li>
       <li><a href="#" onclick="showSection('card')">💳 Credit Card Form</a></li>
@@ -80,9 +81,14 @@
       <li><a href="#" onclick="showSection('settings')">⚙️ Settings</a></li>
       <li><a href="#" onclick="showSection('profile')">👤 Profile Picture</a></li>
       <li><a href="form-builder.html">🧱 Build Form Template</a></li>
+      <li><strong style="display: block; padding: 10px 20px;">📋 Saved Templates</strong></li>
+      <div id="templateListContainer">
+        <ul id="templateList"></ul>
+      </div>
       <li><a href="#">🚪 Logout</a></li>
     </ul>
   </div>
+
   <div class="main" id="main">
     <h1>☰ Dashboard</h1>
     <div id="create" class="section">
@@ -111,11 +117,13 @@
       <input type="file" accept="image/*">
     </div>
   </div>
+
   <script>
     function toggleSidebar() {
       const sidebar = document.getElementById('sidebar');
       sidebar.classList.toggle('open');
     }
+
     function showSection(id) {
       const sections = document.querySelectorAll('.section');
       sections.forEach(section => section.classList.remove('active'));
@@ -124,6 +132,16 @@
         document.getElementById('sidebar').classList.remove('open');
       }
     }
+
+    // Load saved form templates
+    const templates = JSON.parse(localStorage.getItem("sidebarTemplates") || "[]");
+    const list = document.getElementById("templateList");
+
+    templates.forEach((t) => {
+      const li = document.createElement("li");
+      li.innerHTML = `<a href="form-template.html?id=${t.id}" target="_blank">${t.name}</a>`;
+      list.appendChild(li);
+    });
   </script>
 </body>
 </html>
