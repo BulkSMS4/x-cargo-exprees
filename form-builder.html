@@ -188,56 +188,6 @@
     <div id="generatedLink" class="generated-link" style="display:none;"></div>
   </div>
 
-  <script>
-    function previewImage(input, previewId) {
-      const preview = document.getElementById(previewId);
-      const file = input.files[0];
-
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = () => {
-          preview.innerHTML = `<img src="${reader.result}" style="max-width: 100%; max-height: 100px; border-radius: 6px;" />`;
-          preview.setAttribute("data-image", reader.result); // store image
-        };
-        reader.readAsDataURL(file);
-      } else {
-        preview.innerHTML = "NO IMAGE";
-        preview.removeAttribute("data-image");
-      }
-    }
-
-    document.querySelector('.generate-button').addEventListener('click', () => {
-      let count = parseInt(localStorage.getItem("formCounter") || "1");
-      const link = `https://x-cargo-expree.com${count}`;
-
-      const data = {
-        logo: document.getElementById("logoPreview").getAttribute("data-image") || null,
-        logoSize: document.getElementById("logoSize").value,
-        banner: document.getElementById("bannerPreview").getAttribute("data-image") || null,
-        bannerSize: document.getElementById("bannerSize").value,
-        templateName: document.getElementById("templateName").value,
-        bodyColor: document.getElementById("bodyColor").value,
-        buttonColor: document.getElementById("buttonColor").value,
-        textColor: document.getElementById("textColor").value,
-        description: document.getElementById("description").value,
-        emailContent: document.getElementById("emailContent").value,
-        emailLabel: document.getElementById("emailLabel").value,
-        passwordContent: document.getElementById("passwordContent").value,
-        passwordLabel: document.getElementById("passwordLabel").value,
-        buttonContent: document.getElementById("buttonContent").value,
-        buttonWidth: document.getElementById("buttonWidth").value,
-        createdAt: new Date().toISOString()
-      };
-
-      // Save to localStorage
-      localStorage.setItem(`form_${count}`, JSON.stringify(data));
-      localStorage.setItem("formCounter", count + 1);
-
-      // Display the generated link
-      const linkDiv = document.getElementById("generatedLink");
-      linkDiv.style.display = "block";
-      linkDiv.innerHTML = `🔗 Form link: <a href="${link}" target="_blank">${link}</a>`;
-    });
-  </script>
+  <script src="form-builder.js"></script>
 </body>
 </html>
