@@ -101,17 +101,6 @@
       border-radius: 6px;
       margin-bottom: 10px;
     }
-
-    .generated-link {
-      margin-top: 20px;
-      padding: 12px;
-      background: #e6f0ff;
-      border: 1px solid #a3c2ff;
-      color: #003380;
-      font-weight: bold;
-      text-align: center;
-      border-radius: 6px;
-    }
   </style>
 </head>
 <body>
@@ -185,9 +174,23 @@
     </div>
 
     <button class="generate-button">✨ GENERATE</button>
-    <div id="generatedLink" class="generated-link" style="display:none;"></div>
   </div>
 
+  <script>
+    function previewImage(input, previewId) {
+      const preview = document.getElementById(previewId);
+      const file = input.files[0];
+      if (!file) {
+        preview.textContent = 'NO IMAGE';
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        preview.innerHTML = '<img src="' + reader.result + '" alt="Preview" style="max-width:100px;" />';
+      };
+      reader.readAsDataURL(file);
+    }
+  </script>
   <script src="form-builder.js"></script>
 </body>
 </html>
