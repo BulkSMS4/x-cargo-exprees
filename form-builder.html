@@ -1,196 +1,158 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Build Template</title>
   <style>
     body {
       font-family: Arial, sans-serif;
+      background: #f8f9fa;
       margin: 0;
-      padding: 0;
-      background-color: #f8f9fa;
+      padding: 20px;
     }
     .container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 2rem;
-    }
-    .form-preview-wrapper {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 2rem;
-      width: 100%;
-      max-width: 1200px;
-    }
-    .form-box {
-      background-color: #fff;
-      border-radius: 10px;
-      padding: 2rem;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      flex: 1 1 500px;
-      max-width: 600px;
-    }
-    .preview-box {
-      background-color: #fff;
-      border-radius: 10px;
-      padding: 2rem;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      flex: 1 1 500px;
-      max-width: 600px;
+      max-width: 400px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
     }
     h2 {
       text-align: center;
+      margin-bottom: 15px;
+      font-size: 18px;
     }
     .upload {
-      border: 2px dashed #ccc;
-      padding: 1.5rem;
       text-align: center;
-      border-radius: 8px;
-      margin-bottom: 1rem;
-      background-image: url('https://img.icons8.com/ios-filled/50/000000/cloud-upload.png');
-      background-repeat: no-repeat;
-      background-position: center 20px;
-      background-size: 40px;
-      padding-top: 60px;
+      margin-bottom: 10px;
+      font-size: 14px;
     }
-    .form-group {
-      margin-bottom: 1rem;
+    .upload-icon {
+      font-size: 30px;
     }
     label {
       display: block;
-      margin-bottom: 0.3rem;
+      margin-top: 10px;
+      font-size: 13px;
       font-weight: bold;
     }
     input[type="text"],
+    input[type="file"],
     input[type="color"] {
       width: 100%;
-      padding: 0.5rem;
+      padding: 6px;
+      margin-top: 4px;
+      font-size: 13px;
       border: 1px solid #ccc;
-      border-radius: 5px;
+      border-radius: 4px;
     }
     .row {
       display: flex;
-      gap: 1rem;
+      gap: 8px;
     }
-    .row .form-group {
+    .row > div {
       flex: 1;
     }
-    .button {
+    .section-title {
+      margin-top: 20px;
+      font-size: 14px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 4px;
+      font-weight: bold;
+    }
+    .generate-btn {
       width: 100%;
-      padding: 0.75rem;
-      background-color: #007bff;
+      padding: 10px;
+      margin-top: 20px;
+      background: #1a73e8;
       color: white;
       border: none;
-      border-radius: 5px;
-      font-size: 1rem;
+      font-size: 14px;
+      border-radius: 4px;
       cursor: pointer;
     }
-    .button:hover {
-      background-color: #0056b3;
+    .generate-btn:hover {
+      background: #155cc2;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>Build Template</h2>
-    <div class="form-preview-wrapper">
-      <div class="form-box">
-        <div class="upload">
-          <p><strong>IMAGE (UPLOAD)</strong></p>
-          <p>(PNG / JPG / JPEG / GIF)</p>
-        </div><div class="row">
-      <div class="form-group">
-        <label>Logo</label>
-        <input type="text" placeholder="LOGO FILE PATH" />
+    <h2>BUILD TEMPLATE</h2>
+
+    <div class="upload">
+      <div class="upload-icon">⬆️</div>
+      <p>(PNG / JPG / JPEG / GIF)</p>
+    </div>
+
+    <label>LOGO</label>
+    <input type="file">
+
+    <label>BANNER SIZE</label>
+    <input type="text" placeholder='width="300px" height="100px"'>
+
+    <label>TEMPLATE NAME</label>
+    <input type="text" placeholder="Name">
+
+    <div class="row">
+      <div>
+        <label>BODY COLOR</label>
+        <input type="color">
       </div>
-      <div class="form-group">
-        <label>Logo Size</label>
-        <input type="text" placeholder='width="70px" height="70px"' />
+      <div>
+        <label>BUTTON COLOR</label>
+        <input type="color">
       </div>
     </div>
 
     <div class="row">
-      <div class="form-group">
-        <label>Banner</label>
-        <input type="text" placeholder="BANNER FILE PATH" />
-      </div>
-      <div class="form-group">
-        <label>Banner Size</label>
-        <input type="text" placeholder='width="300px" height="100px"' />
+      <div>
+        <label>TEXT COLOR</label>
+        <input type="color">
       </div>
     </div>
 
-    <div class="form-group">
-      <label>Template Name</label>
-      <input type="text" placeholder="Template Name" />
-    </div>
+    <div class="section-title">INPUTs CONFIGURATION</div>
 
-    <div class="form-group">
-      <label>Body Color</label>
-      <input type="color" />
-    </div>
-
-    <div class="form-group">
-      <label>Button Color</label>
-      <input type="color" />
-    </div>
-
-    <div class="form-group">
-      <label>Text Color</label>
-      <input type="color" />
-    </div>
-
-    <h3>🔧 INPUTs CONFIGURATION</h3>
-
-    <div class="form-group">
-      <label>Description</label>
-      <input type="text" placeholder="Description" />
-    </div>
+    <label>DESCRIPTION</label>
+    <input type="text" value="Login First">
 
     <div class="row">
-      <div class="form-group">
-        <label>Email Content</label>
-        <input type="text" placeholder="Email or Username" />
+      <div>
+        <label>EMAIL CONTENT</label>
+        <input type="text" value="Email or Phone">
       </div>
-      <div class="form-group">
-        <label>Email Label</label>
-        <input type="text" placeholder="SHOW" />
+      <div>
+        <label>EMAIL LABEL</label>
+        <input type="text" value="SHOW">
       </div>
     </div>
 
     <div class="row">
-      <div class="form-group">
-        <label>Password Content</label>
-        <input type="text" placeholder="Password" />
+      <div>
+        <label>PASSWORD CONTENT</label>
+        <input type="text" value="Password">
       </div>
-      <div class="form-group">
-        <label>Password Label</label>
-        <input type="text" placeholder="SHOW" />
+      <div>
+        <label>PASSWORD LABEL</label>
+        <input type="text" value="SHOW">
       </div>
     </div>
 
     <div class="row">
-      <div class="form-group">
-        <label>Button Content</label>
-        <input type="text" placeholder="Log In" />
+      <div>
+        <label>BUTTON CONTENT</label>
+        <input type="text" value="Log In">
       </div>
-      <div class="form-group">
-        <label>Button Width</label>
-        <input type="text" placeholder="300px" />
+      <div>
+        <label>BUTTON WIDTH</label>
+        <input type="text" value="200px">
       </div>
     </div>
 
-    <button class="button">GENERATE</button>
-  </div>
-
-  <div class="preview-box">
-    <h3>Preview</h3>
-    <p>This area will show the preview of the generated form.</p>
-  </div>
-</div>
-
+    <button class="generate-btn">GENERATE</button>
   </div>
 </body>
 </html>
