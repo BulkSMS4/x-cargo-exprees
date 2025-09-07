@@ -81,30 +81,6 @@
       cursor: pointer;
     }
 
-    /* Add Block Widgets */
-    .widget {
-      border: 1px solid #ccc;
-      padding: 15px;
-      margin: 10px 0;
-      border-radius: 5px;
-      background: #fafafa;
-    }
-
-    /* Old Packages Table */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-    table th, table td {
-      padding: 8px;
-      border: 1px solid #ccc;
-      text-align: left;
-    }
-    table th {
-      background: #f0f0f0;
-    }
-
     /* Mobile Styles */
     @media (max-width: 768px) {
       body {
@@ -128,6 +104,7 @@
   </style>
 </head>
 <body>
+
   <!-- Sidebar -->
   <div class="sidebar" id="sidebar">
     <h2>My Dashboard</h2>
@@ -135,6 +112,7 @@
     <a data-page="addblock">➕ Add Block</a>
     <a data-page="formbuilder">📝 Form Builder</a>
     <a data-page="formtemplates">📑 Form Templates</a>
+    <a data-page="mypackages">📄 My Packages</a>
     <a href="index.html">🚪 Logout</a>
   </div>
 
@@ -145,64 +123,32 @@
       <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
     </header>
 
-    <!-- Pages -->
+    <!-- Pages with iframe content -->
     <div id="create" class="page active">
-      <h3>Create Package</h3>
       <iframe src="create-package.html" style="width:100%;height:80vh;border:none;"></iframe>
     </div>
 
     <div id="addblock" class="page">
-      <h3>Add Block Widgets</h3>
-      <div class="widget">
-        <label>Text Block:</label>
-        <textarea id="textBlock" placeholder="Enter text..." style="width:100%;padding:8px;"></textarea>
-        <button onclick="saveBlock('text')">Add Text Block</button>
-      </div>
-      <div class="widget">
-        <label>Image Block URL:</label>
-        <input type="text" id="imageBlock" placeholder="Enter image URL..." style="width:100%;padding:8px;"/>
-        <button onclick="saveBlock('image')">Add Image Block</button>
-      </div>
-      <div class="widget">
-        <label>Link Block:</label>
-        <input type="text" id="linkBlock" placeholder="Enter URL..." style="width:100%;padding:8px;"/>
-        <button onclick="saveBlock('link')">Add Link Block</button>
-      </div>
-      <h4>Saved Blocks:</h4>
-      <div id="savedBlocks"></div>
+      <iframe src="add-block.html" style="width:100%;height:80vh;border:none;"></iframe>
     </div>
 
     <div id="formbuilder" class="page">
-      <h3>Form Builder</h3>
       <iframe src="form-builder.html" style="width:100%;height:80vh;border:none;"></iframe>
     </div>
 
     <div id="formtemplates" class="page">
-      <h3>Form Templates</h3>
       <iframe src="form-templates.html" style="width:100%;height:80vh;border:none;"></iframe>
     </div>
 
     <div id="mypackages" class="page">
-      <h3>My Packages</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Tracking ID</th>
-            <th>Receiver</th>
-            <th>Status</th>
-            <th>Location</th>
-          </tr>
-        </thead>
-        <tbody id="packageTable"></tbody>
-      </table>
+      <iframe src="mypackages.html" style="width:100%;height:80vh;border:none;"></iframe>
     </div>
   </div>
 
   <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
-    import { getDatabase, ref, set, push, onValue } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
@@ -217,7 +163,6 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db = getDatabase(app);
 
     const sidebar = document.getElementById('sidebar');
     const links = document.querySelectorAll('.sidebar a[data-page]');
@@ -228,8 +173,6 @@
     onAuthStateChanged(auth, (user) => {
       if (user) {
         userEmail.textContent = user.email;
-        loadUserPackages(user.uid);
-        loadUserBlocks(user.uid);
       } else {
         window.location.href = 'index.html'; // redirect if not logged in
       }
@@ -243,39 +186,14 @@
         const target = link.getAttribute('data-page');
         pages.forEach(p => p.classList.remove('active'));
         document.getElementById(target).classList.add('active');
-        sidebar.classList.remove('active');
+        sidebar.classList.remove('active'); // close sidebar on mobile
       });
     });
 
     function toggleSidebar() {
       sidebar.classList.toggle('active');
     }
+  </script>
 
-    // ------------------- Add Block Functions -------------------
-    function saveBlock(type) {
-      const user = auth.currentUser;
-      if (!user) return alert("User not logged in");
-
-      let value;
-      if (type === 'text') value = document.getElementById('textBlock').value.trim();
-      if (type === 'image') value = document.getElementById('imageBlock').value.trim();
-      if (type === 'link') value = document.getElementById('linkBlock').value.trim();
-      if (!value) return alert("Cannot save empty block");
-
-      const newBlockRef = push(ref(db, `blocks/${user.uid}`));
-      set(newBlockRef, { type, value }).then(() => {
-        document.getElementById('textBlock').value = '';
-        document.getElementById('imageBlock').value = '';
-        document.getElementById('linkBlock').value = '';
-      });
-    }
-
-    function loadUserBlocks(uid) {
-      const blocksRef = ref(db, `blocks/${uid}`);
-      onValue(blocksRef, (snapshot) => {
-        const savedBlocks = document.getElementById('savedBlocks');
-        savedBlocks.innerHTML = '';
-        snapshot.forEach(child => {
-          const block = child.val();
-          let elem;
-          if (block.type ===
+</body>
+</html>
