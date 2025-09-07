@@ -12,6 +12,7 @@
       color: #333;
       display: flex;
       height: 100vh;
+      display: none; /* Hide until auth check */
     }
 
     /* Sidebar */
@@ -173,6 +174,7 @@
     onAuthStateChanged(auth, (user) => {
       if (user) {
         userEmail.textContent = user.email;
+        document.body.style.display = 'flex'; // show dashboard only if logged in
       } else {
         window.location.href = 'index.html'; // redirect if not logged in
       }
