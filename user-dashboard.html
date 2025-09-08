@@ -23,6 +23,8 @@
     padding-top: 20px;
     position: fixed;
     height: 100%;
+    transition: transform 0.3s ease;
+    z-index: 1000;
   }
 
   .sidebar h2 {
@@ -52,6 +54,7 @@
     flex: 1;
     padding: 20px;
     overflow-y: auto;
+    transition: margin-left 0.3s ease;
   }
 
   .page {
@@ -76,11 +79,48 @@
     margin-top: 10px;
     border-radius: 4px;
   }
+
+  /* Mobile toggle */
+  .menu-toggle {
+    display: none;
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 1100;
+    background: #111;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 18px;
+  }
+
+  @media (max-width: 768px) {
+    .sidebar {
+      transform: translateX(-100%);
+    }
+
+    .sidebar.active {
+      transform: translateX(0);
+    }
+
+    .content {
+      margin-left: 0;
+    }
+
+    .menu-toggle {
+      display: block;
+    }
+  }
 </style>
 </head>
 <body>
 
-<div class="sidebar">
+<!-- Mobile toggle button -->
+<button class="menu-toggle" id="menuToggle">☰ Menu</button>
+
+<div class="sidebar" id="sidebar">
   <h2>User Dashboard</h2>
   <a data-page="home" class="active">🏠 Home</a>
   <a data-page="profile">👤 My Profile</a>
@@ -128,69 +168,74 @@
 </div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
-  import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
-    authDomain: "x-cargo-exprees.firebaseapp.com",
-    databaseURL: "https://x-cargo-exprees-default-rtdb.firebaseio.com",
-    projectId: "x-cargo-exprees",
-    storageBucket: "x-cargo-exprees.appspot.com",
-    messagingSenderId: "1082201867958",
-    appId: "1:1082201867958:web:d6600fbc82085b0b62c817",
-    measurementId: "G-C3Y4PQC86V"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
+  authDomain: "x-cargo-exprees.firebaseapp.com",
+  databaseURL: "https://x-cargo-exprees-default-rtdb.firebaseio.com",
+  projectId: "x-cargo-exprees",
+  storageBucket: "x-cargo-exprees.appspot.com",
+  messagingSenderId: "1082201867958",
+  appId: "1:1082201867958:web:d6600fbc82085b0b62c817",
+  measurementId: "G-C3Y4PQC86V"
+};
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getDatabase(app);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
 
-  // Auth check
-  onAuthStateChanged(auth, (user) => {
-    if (!user) {
-      window.location.href = 'index.html';
+// Auth check
+onAuthStateChanged(auth, (user) => {
+  if (!user) window.location.href = 'index.html';
+});
+
+// Sidebar navigation
+const sidebar = document.getElementById('sidebar');
+const links = document.querySelectorAll('.sidebar a[data-page]');
+const pages = document.querySelectorAll('.page');
+const menuToggle = document.getElementById('menuToggle');
+
+// Mobile toggle
+menuToggle.addEventListener('click', () => sidebar.classList.toggle('active'));
+
+links.forEach(link => {
+  link.addEventListener('click', () => {
+    // Remove active class from all links
+    links.forEach(l => l.classList.remove('active'));
+    link.classList.add('active');
+
+    // Show only selected page
+    const target = link.getAttribute('data-page');
+    pages.forEach(p => p.classList.remove('active'));
+    document.getElementById(target).classList.add('active');
+
+    // Hide sidebar after click on mobile
+    if (window.innerWidth <= 768) sidebar.classList.remove('active');
+  });
+});
+
+// Emergency messages from Firebase
+const emergencyContainer = document.getElementById('emergencyContainer');
+const emergencyRef = ref(db, 'emergencyMessages');
+
+onValue(emergencyRef, snapshot => {
+  emergencyContainer.innerHTML = '';
+  snapshot.forEach(child => {
+    const msg = child.val();
+    const div = document.createElement('div');
+    div.classList.add('emergency');
+    div.innerHTML = `<strong>${msg.title}</strong><p>${msg.text}</p>`;
+    if(msg.image) {
+      const img = document.createElement('img');
+      img.src = msg.image;
+      div.appendChild(img);
     }
+    emergencyContainer.appendChild(div);
   });
-
-  // Sidebar navigation
-  const links = document.querySelectorAll('.sidebar a[data-page]');
-  const pages = document.querySelectorAll('.page');
-
-  links.forEach(link => {
-    link.addEventListener('click', () => {
-      // Remove active class from all links
-      links.forEach(l => l.classList.remove('active'));
-      link.classList.add('active');
-
-      // Show the selected page
-      const target = link.getAttribute('data-page');
-      pages.forEach(p => p.classList.remove('active'));
-      document.getElementById(target).classList.add('active');
-    });
-  });
-
-  // Emergency messages from Firebase
-  const emergencyContainer = document.getElementById('emergencyContainer');
-  const emergencyRef = ref(db, 'emergencyMessages');
-
-  onValue(emergencyRef, (snapshot) => {
-    emergencyContainer.innerHTML = '';
-    snapshot.forEach(child => {
-      const msg = child.val();
-      const div = document.createElement('div');
-      div.classList.add('emergency');
-      div.innerHTML = `<strong>${msg.title}</strong><p>${msg.text}</p>`;
-      if(msg.image) {
-        const img = document.createElement('img');
-        img.src = msg.image;
-        div.appendChild(img);
-      }
-      emergencyContainer.appendChild(div);
-    });
-  });
+});
 </script>
-
 </body>
 </html>
