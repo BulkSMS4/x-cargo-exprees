@@ -84,6 +84,7 @@
       <li onclick="openPage('formBuilder')">📝 Form Builder</li>
       <li onclick="openPage('createPackage')">📦 Create Package</li>
       <li onclick="openPage('links')">🔗 Links</li>
+      <li onclick="openPage('emergency')">⚠️ Emergency Post</li>
       <li onclick="logout()">🚪 Logout</li>
     </ul>
   </div>
@@ -117,19 +118,53 @@
     }
     window.toggleSidebar = toggleSidebar;
 
-    // Open page content inside iframe
+    // Open page content inside iframe and hide sidebar
     function openPage(pageId) {
       const frame = document.getElementById('contentFrame');
-      if (pageId === 'dashboard') {
-        frame.src = 'dashboard.html';
-      } else if (pageId === 'formBuilder') {
-        frame.src = 'form-builder.html';
-      } else if (pageId === 'createPackage') {
-        frame.src = 'create.html';
-      } else if (pageId === 'links') {
-        frame.src = 'links.html';
+
+      if(pageId === 'dashboard') frame.src = 'dashboard.html';
+      else if(pageId === 'formBuilder') frame.src = 'form-builder.html';
+      else if(pageId === 'createPackage') frame.src = 'create.html';
+      else if(pageId === 'links') frame.src = 'links.html';
+      else if(pageId === 'emergency') {
+        frame.srcdoc = `
+          <h2>Post Emergency Message</h2>
+          <div class="emergency-form">
+            <input type="text" id="title" placeholder="Title" required>
+            <textarea id="message" placeholder="Message" rows="4" required></textarea>
+            <input type="text" id="image" placeholder="Image URL (optional)">
+            <button onclick="postEmergency()">Post</button>
+          </div>
+          <script type="module">
+            import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+            const firebaseConfig = ${JSON.stringify(firebaseConfig)};
+            const app = initializeApp(firebaseConfig);
+            const db = getDatabase(app);
+
+            window.postEmergency = function() {
+              const title = document.getElementById('title').value;
+              const text = document.getElementById('message').value;
+              const image = document.getElementById('image').value;
+              if(!title || !text) { alert('Fill all required fields'); return; }
+              const emergencyRef = ref(db, 'emergencyMessages');
+              push(emergencyRef, { title, text, image });
+              alert('Emergency message posted!');
+              document.getElementById('title').value = '';
+              document.getElementById('message').value = '';
+              document.getElementById('image').value = '';
+            }
+          </script>
+        `;
       }
-      toggleSidebar(); // hide sidebar after click
+
+      // Hide sidebar after clicking any option
+      const sidebar = document.getElementById('sidebar');
+      const main = document.getElementById('mainContent');
+      if(!sidebar.classList.contains('hidden')) {
+        sidebar.classList.add('hidden');
+        main.classList.add('full');
+      }
     }
     window.openPage = openPage;
 
