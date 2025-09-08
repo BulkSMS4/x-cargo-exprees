@@ -82,7 +82,9 @@
 
 <div class="sidebar">
   <h2>User Dashboard</h2>
-  <a data-page="create" class="active">📦 Create Package</a>
+  <a data-page="home" class="active">🏠 Home</a>
+  <a data-page="profile">👤 My Profile</a>
+  <a data-page="create">📦 Create Package</a>
   <a data-page="formbuilder">📝 Form Builder</a>
   <a data-page="formtemplates">📑 Form Templates</a>
   <a data-page="mypackages">📄 My Packages</a>
@@ -90,19 +92,36 @@
 </div>
 
 <div class="content">
-  <!-- Emergency messages -->
-  <div id="emergencyContainer"></div>
+  <!-- Home Page -->
+  <div id="home" class="page active">
+    <h2>Welcome to X-Cargo Express</h2>
+    <div id="emergencyContainer">
+      <!-- Admin emergency messages will appear here -->
+    </div>
+  </div>
 
-  <!-- Pages -->
-  <div id="create" class="page active">
+  <!-- Profile Page -->
+  <div id="profile" class="page">
+    <h2>My Profile</h2>
+    <p>Profile information will appear here.</p>
+  </div>
+
+  <!-- Create Package Page -->
+  <div id="create" class="page">
     <iframe src="create-package.html" width="100%" height="1000px" style="border:none;"></iframe>
   </div>
+
+  <!-- Form Builder Page -->
   <div id="formbuilder" class="page">
     <iframe src="form-builder.html" width="100%" height="1000px" style="border:none;"></iframe>
   </div>
+
+  <!-- Form Templates Page -->
   <div id="formtemplates" class="page">
     <iframe src="form-templates.html" width="100%" height="1000px" style="border:none;"></iframe>
   </div>
+
+  <!-- My Packages Page -->
   <div id="mypackages" class="page">
     <iframe src="mypackages.html" width="100%" height="1000px" style="border:none;"></iframe>
   </div>
@@ -141,8 +160,11 @@
 
   links.forEach(link => {
     link.addEventListener('click', () => {
+      // Remove active class from all links
       links.forEach(l => l.classList.remove('active'));
       link.classList.add('active');
+
+      // Show the selected page
       const target = link.getAttribute('data-page');
       pages.forEach(p => p.classList.remove('active'));
       document.getElementById(target).classList.add('active');
