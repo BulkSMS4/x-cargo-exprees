@@ -1,44 +1,179 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>User Login - X-Cargo Express</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js"></script>
-  <script src="firebase.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>X-Cargo Express</title>
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #1a1a1a, #333);
+    color: #fff;
+  }
+
+  header {
+    text-align: center;
+    padding: 2rem 1rem;
+    background: #222;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  }
+
+  header h1 {
+    margin: 0;
+    font-size: 2.5rem;
+    color: #ffcc00;
+  }
+
+  header p {
+    margin-top: 0.5rem;
+    font-size: 1.2rem;
+    color: #ddd;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: 220px;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: #111;
+    padding-top: 2rem;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.5);
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar a {
+    display: block;
+    padding: 12px 20px;
+    color: #fff;
+    text-decoration: none;
+    font-size: 1.1rem;
+    transition: background 0.3s;
+  }
+
+  .sidebar a:hover {
+    background: #ffcc00;
+    color: #111;
+  }
+
+  .sidebar-toggle {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    font-size: 1.5rem;
+    background: #ffcc00;
+    color: #111;
+    border: none;
+    border-radius: 6px;
+    padding: 5px 10px;
+    cursor: pointer;
+    z-index: 1001;
+  }
+
+  .sidebar.hidden {
+    transform: translateX(-250px);
+  }
+
+  .content {
+    margin-left: 240px;
+    padding: 2rem;
+    transition: margin-left 0.3s ease;
+  }
+
+  .content.full {
+    margin-left: 0;
+  }
+
+  .btn {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 10px 20px;
+    background: #ffcc00;
+    color: #111;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    text-decoration: none;
+  }
+
+  .btn:hover {
+    background: #e6b800;
+  }
+
+  /* Image gallery */
+  .gallery {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 1rem;
+  }
+
+  .gallery img {
+    width: calc(33.33% - 10px);
+    border-radius: 8px;
+  }
+
+  @media (max-width: 768px) {
+    .gallery img {
+      width: calc(50% - 10px);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .gallery img {
+      width: 100%;
+    }
+  }
+</style>
 </head>
 <body>
-  <h1>User Login</h1>
-  <form id="login-form">
-    <input type="email" id="email" placeholder="Email" required><br>
-    <input type="password" id="password" placeholder="Password" required><br>
-    <button type="submit">Login</button>
-  </form>
-  <p><a href="forget.html">Forgot Password?</a></p>
-  <p>Don't have an account? <a href="register.html">Register here</a></p>
 
-  <script>
-    const loginForm = document.getElementById("login-form");
+<button class="sidebar-toggle" id="toggle-btn">☰ Menu</button>
 
-    loginForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
+<div class="sidebar" id="sidebar">
+  <a href="register.html">📝 Register</a>
+  <a href="login.html">🔑 Login</a>
+  <a href="forget.html">🔒 Forgot Password</a>
+</div>
 
-      firebase.auth().signInWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-          const user = userCredential.user;
-          // Redirect normal users
-          if(user.email === "admin@example.com"){
-            alert("Admins cannot login here! Use admin login page.");
-            return;
-          }
-          window.location.href = "user-dashboard.html";
-        })
-        .catch((error) => alert(error.message));
-    });
-  </script>
+<header>
+  <h1>Welcome to X-Cargo Express</h1>
+  <p>Fast, Reliable, and Secure Delivery Tracking System</p>
+</header>
+
+<div class="content" id="main-content">
+  <h2>About X-Cargo Express</h2>
+  <p>
+    X-Cargo Express is a leading delivery and logistics company, providing fast and reliable package tracking across the globe.
+    We ensure that your packages reach their destination safely and on time. Trust us for seamless logistics solutions.
+  </p>
+
+  <h3>Our Services</h3>
+  <p>We offer same-day delivery, nationwide logistics, and real-time tracking for all your packages.</p>
+
+  <h3>Gallery</h3>
+  <div class="gallery">
+    <img src="assets/package1.jpg" alt="Package 1">
+    <img src="assets/package2.jpg" alt="Package 2">
+    <img src="assets/package3.jpg" alt="Package 3">
+  </div>
+
+  <a class="btn" href="register.html">Create Your Account</a>
+</div>
+
+<script>
+  const toggleBtn = document.getElementById('toggle-btn');
+  const sidebar = document.getElementById('sidebar');
+  const content = document.getElementById('main-content');
+
+  toggleBtn.addEventListener('click', () => {
+    sidebar.classList.toggle('hidden');
+    content.classList.toggle('full');
+  });
+</script>
+
 </body>
 </html>
