@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Track Package - X-Cargo Express</title>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+    import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
+      authDomain: "x-cargo-exprees.firebaseapp.com",
+      databaseURL: "https://x-cargo-exprees-default-rtdb.firebaseio.com",
+      projectId: "x-cargo-exprees",
+      storageBucket: "x-cargo-exprees.appspot.com",
+      messagingSenderId: "1082201867958",
+      appId: "1:1082201867958:web:d6600fbc82085b0b62c817",
+      measurementId: "G-C3Y4PQC86V"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    window.trackPackage = async function () {
+      const trackingId = document.getElementById("trackingIdInput").value.trim();
+      const trackingInfoDiv = document.getElementById("trackingInfo");
+
+      if (!trackingId) {
+        alert("Please enter a tracking ID.");
+        return;
+      }
+
+      try {
+        const snapshot = await get(child(ref(db), 'packages/' + trackingId));
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          trackingInfoDiv.innerHTML = `
+            <h2>Tracking Details</h2>
+
+            ${data.image ? `<img src="${data.image}" alt="Package Image" style="max-width:100%; height:auto; margin-bottom: 15px;" />` : ''}
+
+            <p><strong>Tracking ID:</strong> ${data.trackingId}</p>
+            <p><strong>Package Description:</strong> ${data.description || 'N/A'}</p>
+            <p><strong>Status:</strong> ${data.status || 'N/A'}</p>
+            <p><strong>Location:</strong> ${data.location || 'N/A'}</p>
+            <p><strong>Shipment Date:</strong> ${data.shipmentDate || 'N/A'}</p>
+            <p><strong>Expected Delivery:</strong> ${data.expectedDate || 'N/A'}</p>
+            ${data.feeWarning ? `<p style="color:red;"><strong>Note:</strong> A delivery fee may apply.</p>` : ''}
+            <p><strong>Remarks:</strong> ${data.remark || 'N/A'}</p>
+            <p><strong>Schedule:</strong> ${data.scheduleDelivery || 'N/A'}</p>
+          `;
+        } else {
+          trackingInfoDiv.innerHTML = "<p style='color:red;'>No package found with that tracking ID.</p>";
+        }
+      } catch (error) {
+        console.error(error);
+        trackingInfoDiv.innerHTML = "<p style='color:red;'>Error retrieving package data. Please try again.</p>";
+      }
+    };
+  </script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 700px;
+      margin: auto;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 16px;
+    }
+    img {
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    #trackingInfo {
+      border-top: 1px solid #ddd;
+      padding-top: 20px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Track Your Package</h2>
+  <input type="text" id="trackingIdInput" placeholder="Enter your tracking ID..." />
+  <button onclick="trackPackage()">Track Package</button>
+
+  <div id="trackingInfo"></div>
+</body>
+</html>
