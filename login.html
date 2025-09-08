@@ -12,6 +12,7 @@
   button:hover { background:#e6b800; }
   a { color:#ffcc00; font-size:0.9rem; text-decoration:none; }
   a:hover { text-decoration:underline; }
+  #adminLink { display:none; margin-top:10px; text-align:center; }
 </style>
 </head>
 <body>
@@ -21,37 +22,56 @@
   <input type="password" id="password" placeholder="Password" required>
   <button id="loginBtn">Login</button>
   <p><a href="forget.html">Forgot Password?</a></p>
+  <div id="adminLink">
+    <a href="admin.html">Admin Login</a>
+  </div>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
   const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
+    apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
     authDomain: "x-cargo-exprees.firebaseapp.com",
+    databaseURL: "https://x-cargo-exprees-default-rtdb.firebaseio.com",
     projectId: "x-cargo-exprees",
-    storageBucket: "x-cargo-exprees.appspot.com",
-    messagingSenderId: "894387059883",
-    appId: "YOUR_APP_ID"
+    storageBucket: "x-cargo-exprees.firebasestorage.app",
+    messagingSenderId: "1082201867958",
+    appId: "1:1082201867958:web:d6600fbc82085b0b62c817",
+    measurementId: "G-C3Y4PQC86V"
   };
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
 
+  const adminEmail = "admin@x-cargo-exprees.com"; // Admin email
+
   const loginBtn = document.getElementById('loginBtn');
+  const adminLink = document.getElementById('adminLink');
+
   loginBtn.addEventListener('click', () => {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
 
     signInWithEmailAndPassword(auth, email, password)
       .then(userCredential => {
-        // Redirect user to dashboard
-        window.location.href = "user-dashboard.html";
+        if(email.toLowerCase() === adminEmail.toLowerCase()) {
+          window.location.href = "admin-dashboard.html"; // Admin dashboard
+        } else {
+          window.location.href = "user-dashboard.html"; // User dashboard
+        }
       })
       .catch(error => {
         alert(error.message);
       });
+  });
+
+  // Show admin link only if user is admin
+  onAuthStateChanged(auth, (user) => {
+    if(user && user.email.toLowerCase() === adminEmail.toLowerCase()) {
+      adminLink.style.display = "block";
+    }
   });
 </script>
 </body>
