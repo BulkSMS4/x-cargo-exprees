@@ -5,174 +5,181 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>X-Cargo Express</title>
 <style>
-  body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: linear-gradient(135deg, #1a1a1a, #333);
-    color: #fff;
-  }
-
-  header {
-    text-align: center;
-    padding: 2rem 1rem;
-    background: #222;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
-  }
-
-  header h1 {
-    margin: 0;
-    font-size: 2.5rem;
-    color: #ffcc00;
-  }
-
-  header p {
-    margin-top: 0.5rem;
-    font-size: 1.2rem;
-    color: #ddd;
-  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: Arial, sans-serif; background: #f0f0f0; }
 
   /* Sidebar */
   .sidebar {
-    width: 220px;
-    height: 100vh;
+    width: 250px;
     position: fixed;
     top: 0;
     left: 0;
+    height: 100vh;
     background: #111;
     padding-top: 2rem;
-    box-shadow: 2px 0 10px rgba(0,0,0,0.5);
+    z-index: 1000;
+    overflow-y: auto;
     transition: transform 0.3s ease;
   }
+  .sidebar.hide { transform: translateX(-260px); }
 
   .sidebar a {
     display: block;
-    padding: 12px 20px;
+    padding: 15px 25px;
     color: #fff;
     text-decoration: none;
     font-size: 1.1rem;
-    transition: background 0.3s;
-  }
-
-  .sidebar a:hover {
-    background: #ffcc00;
-    color: #111;
-  }
-
-  .sidebar-toggle {
-    position: fixed;
-    top: 15px;
-    left: 15px;
-    font-size: 1.5rem;
-    background: #ffcc00;
-    color: #111;
-    border: none;
-    border-radius: 6px;
-    padding: 5px 10px;
+    transition: 0.3s;
     cursor: pointer;
-    z-index: 1001;
   }
+  .sidebar a:hover { background: #ffcc00; color: #111; }
 
-  .sidebar.hidden {
-    transform: translateX(-250px);
-  }
-
-  .content {
-    margin-left: 240px;
+  /* Main content */
+  .main {
+    margin-left: 250px;
     padding: 2rem;
     transition: margin-left 0.3s ease;
   }
+  .main.full { margin-left: 0; }
 
-  .content.full {
-    margin-left: 0;
+  /* Header */
+  header {
+    text-align: center;
+    padding: 2rem 2rem;
+    background: #222;
+    color: #ffcc00;
   }
+  header img.logo { width: 120px; height: auto; margin-bottom: 1rem; }
+  header h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+  header p { font-size: 1rem; color: #ddd; }
 
-  .btn {
-    display: inline-block;
-    margin-top: 1rem;
-    padding: 10px 20px;
+  /* Sections */
+  .section { margin: 3rem 0; }
+  .section h2 { margin-bottom: 1rem; color: #222; font-size: 1.8rem; }
+
+  /* Gallery */
+  .gallery { display:flex; flex-wrap:wrap; gap:10px; }
+  .gallery-item { width: calc(33.33% - 10px); text-align:center; }
+  .gallery-item img { width:100%; border-radius:8px; object-fit:cover; }
+  .gallery-item p { margin-top:0.5rem; font-size:0.9rem; color:#555; }
+  @media(max-width:768px){ .gallery-item{width:calc(50%-10px);} }
+  @media(max-width:480px){ .gallery-item{width:100%;} }
+
+  /* Video container */
+  .video-container { display:flex; flex-wrap:wrap; gap:20px; margin-top:1rem; }
+  .video-container video { width:calc(50%-10px); border-radius:8px; }
+  @media(max-width:768px){ .video-container video{width:100%;} }
+
+  /* Toggle button */
+  .toggle-btn {
+    position: fixed;
+    top: 20px;
+    left: 260px;
     background: #ffcc00;
     color: #111;
-    border: none;
-    border-radius: 6px;
+    padding: 8px 15px;
     cursor: pointer;
     font-weight: bold;
-    text-decoration: none;
+    border-radius: 6px;
+    z-index: 1100;
+    transition: left 0.3s ease;
   }
-
-  .btn:hover {
-    background: #e6b800;
-  }
-
-  /* Image gallery */
-  .gallery {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    margin-top: 1rem;
-  }
-
-  .gallery img {
-    width: calc(33.33% - 10px);
-    border-radius: 8px;
-  }
-
-  @media (max-width: 768px) {
-    .gallery img {
-      width: calc(50% - 10px);
-    }
-  }
-
-  @media (max-width: 480px) {
-    .gallery img {
-      width: 100%;
-    }
-  }
+  .toggle-btn.hide { left: 10px; }
 </style>
 </head>
 <body>
 
-<button class="sidebar-toggle" id="toggle-btn">☰ Menu</button>
-
+<!-- Sidebar -->
 <div class="sidebar" id="sidebar">
-  <a href="register.html">📝 Register</a>
-  <a href="login.html">🔑 Login</a>
-  <a href="forget.html">🔒 Forgot Password</a>
+  <a onclick="scrollToSection('home'); toggleSidebar()">🏠 Home</a>
+  <a href="register.html" onclick="toggleSidebar()">📝 Register</a>
+  <a href="login.html" onclick="toggleSidebar()">🔑 Login</a>
 </div>
 
-<header>
-  <h1>Welcome to X-Cargo Express</h1>
-  <p>Fast, Reliable, and Secure Delivery Tracking System</p>
-</header>
+<!-- Toggle button -->
+<div class="toggle-btn" id="toggleBtn" onclick="toggleSidebar()">☰ Menu</div>
 
-<div class="content" id="main-content">
-  <h2>About X-Cargo Express</h2>
-  <p>
-    X-Cargo Express is a leading delivery and logistics company, providing fast and reliable package tracking across the globe.
-    We ensure that your packages reach their destination safely and on time. Trust us for seamless logistics solutions.
-  </p>
+<!-- Main Content -->
+<div class="main" id="mainContent">
 
-  <h3>Our Services</h3>
-  <p>We offer same-day delivery, nationwide logistics, and real-time tracking for all your packages.</p>
+  <!-- Home Header -->
+  <div class="section" id="home">
+    <header>
+      <img src="assets/assets/logo.png" alt="X-Cargo Express Logo" class="logo">
+      <h1>Welcome to X-Cargo Express</h1>
+      <p>Fast, Secure, and Reliable Delivery Tracking</p>
+    </header>
 
-  <h3>Gallery</h3>
-  <div class="gallery">
-    <img src="assets/package1.jpg" alt="Package 1">
-    <img src="assets/package2.jpg" alt="Package 2">
-    <img src="assets/package3.jpg" alt="Package 3">
+    <!-- Gallery -->
+    <div class="section" id="operations">
+      <h2>Our Operations</h2>
+      <div class="gallery">
+        <div class="gallery-item">
+          <img src="assets/assets/delivery1.jpg" alt="Delivery 1">
+          <p>Picking up packages from local hubs</p>
+        </div>
+        <div class="gallery-item">
+          <img src="assets/assets/delivery2.jpg" alt="Delivery 2">
+          <p>Sorting packages at central warehouse</p>
+        </div>
+        <div class="gallery-item">
+          <img src="assets/assets/fedex1.jpg" alt="FedEx Pickup">
+          <p>FedEx pickup ensuring smooth shipping</p>
+        </div>
+        <div class="gallery-item">
+          <img src="assets/assets/fedex2.jpg" alt="FedEx Delivery">
+          <p>FedEx delivery guaranteeing reliability</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Videos -->
+    <div class="section" id="videos">
+      <h2>Watch Our Process</h2>
+      <div class="video-container">
+        <video controls>
+          <source src="assets/assets/xcargo-promo.mp4" type="video/mp4">
+          Your browser does not support HTML5 video.
+        </video>
+        <video controls>
+          <source src="assets/assets/foster-promo.mp4" type="video/mp4">
+          Your browser does not support HTML5 video.
+        </video>
+      </div>
+    </div>
+
+    <!-- About Us -->
+    <div class="section" id="about-us">
+      <h2>About Us</h2>
+      <p>
+        X-Cargo Express provides reliable delivery solutions across the globe. 
+        We combine technology and logistics expertise to ensure packages reach safely and on time.
+        Our partnerships with major carriers, including FedEx and Foster, ensure every shipment is tracked and delivered with care.
+      </p>
+    </div>
   </div>
 
-  <a class="btn" href="register.html">Create Your Account</a>
 </div>
 
 <script>
-  const toggleBtn = document.getElementById('toggle-btn');
-  const sidebar = document.getElementById('sidebar');
-  const content = document.getElementById('main-content');
+  // Scroll to section
+  function scrollToSection(id){
+    const el = document.getElementById(id);
+    if(el){
+      el.scrollIntoView({behavior: "smooth"});
+    }
+  }
 
-  toggleBtn.addEventListener('click', () => {
-    sidebar.classList.toggle('hidden');
-    content.classList.toggle('full');
-  });
+  // Toggle sidebar
+  const sidebar = document.getElementById('sidebar');
+  const mainContent = document.getElementById('mainContent');
+  const toggleBtn = document.getElementById('toggleBtn');
+
+  function toggleSidebar(){
+    sidebar.classList.toggle('hide');
+    mainContent.classList.toggle('full');
+    toggleBtn.classList.toggle('hide');
+  }
 </script>
 
 </body>
