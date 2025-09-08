@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Login</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="firebase.js"></script>
+</head>
+<body>
+  <h1>Welcome to X-Cargo Express</h1>
+  <form id="login-form">
+    <input type="email" id="email" placeholder="Email" required><br>
+    <input type="password" id="password" placeholder="Password" required><br>
+    <button type="submit">Login</button>
+  </form>
+  <p><a href="forget.html">Forgot Password?</a></p>
+  <p>Not registered? <a href="register.html">Register here</a></p>
+
+  <script>
+    const loginForm = document.getElementById("login-form");
+
+    loginForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      firebase.auth().signInWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        // Prevent admin from logging here
+        if(user.email === "admin@example.com"){
+          alert("Admins cannot login here! Use admin login page.");
+          return;
+        }
+        // Redirect normal users to their dashboard
+        window.location.href = "user-dashboard.html";
+      })
+      .catch((error) => alert(error.message));
+    });
+  </script>
+</body>
+</html>
