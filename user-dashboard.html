@@ -128,33 +128,29 @@
       <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
     </header>
 
-    <!-- Pages with iframe content -->
+    <!-- Pages -->
     <div id="create" class="page active">
-      <iframe src="create-package.html"></iframe>
+      <iframe id="createIframe"></iframe>
     </div>
-
     <div id="addblock" class="page">
-      <iframe src="add-block.html"></iframe>
+      <iframe id="addblockIframe"></iframe>
     </div>
-
     <div id="formbuilder" class="page">
-      <iframe src="form-builder.html"></iframe>
+      <iframe id="formbuilderIframe"></iframe>
     </div>
-
     <div id="formtemplates" class="page">
-      <iframe src="form-templates.html"></iframe>
+      <iframe id="formtemplatesIframe"></iframe>
     </div>
-
     <div id="mypackages" class="page">
-      <iframe src="mypackages.html"></iframe>
+      <iframe id="mypackagesIframe"></iframe>
     </div>
   </div>
 
-  <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
 
+    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
       authDomain: "x-cargo-exprees.firebaseapp.com",
@@ -174,14 +170,31 @@
     const pages = document.querySelectorAll('.page');
     const userEmail = document.getElementById('userEmail');
 
-    // Auth check
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        userEmail.textContent = user.email;
-      } else {
-        window.location.href = 'index.html'; // redirect if not logged in
-      }
-    });
+    // Map pages to files
+    const pageMap = {
+      create: "create-package.html",
+      addblock: "add-block.html",
+      formbuilder: "form-builder.html",
+      formtemplates: "form-templates.html",
+      mypackages: "mypackages.html"
+    };
+
+    // Load iframe content and handle 404
+    function loadIframe(pageId) {
+      const iframe = document.getElementById(pageId + 'Iframe');
+      const src = pageMap[pageId];
+      fetch(src, { method: 'HEAD' })
+        .then(res => {
+          if(res.ok) iframe.src = src;
+          else iframe.srcdoc = `<div style="color:red; text-align:center; padding:20px;">File not found: ${src}</div>`;
+        })
+        .catch(() => {
+          iframe.srcdoc = `<div style="color:red; text-align:center; padding:20px;">File not found: ${src}</div>`;
+        });
+    }
+
+    // Initial load
+    Object.keys(pageMap).forEach(pageId => loadIframe(pageId));
 
     // Sidebar navigation
     links.forEach(link => {
@@ -198,6 +211,16 @@
     function toggleSidebar() {
       sidebar.classList.toggle('active');
     }
+
+    // Check authentication
+    onAuthStateChanged(auth, (user) => {
+      if(user) {
+        userEmail.textContent = user.email;
+      } else {
+        window.location.href = 'index.html';
+      }
+    });
+
   </script>
 
 </body>
