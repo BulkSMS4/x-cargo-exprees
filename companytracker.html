@@ -1,34 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Track Package - X-Cargo Express</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Track Your Package | X-Cargo Express</title>
   <link rel="stylesheet" href="style.css">
-  <script type="module" src="tracker.js"></script>
 </head>
 <body>
   <header>
-    <h1>📦 X-Cargo Express Tracking</h1>
+    <h1>X-Cargo Express</h1>
+    <p>Fast, Secure & Reliable Package Delivery Worldwide</p>
   </header>
 
-  <section class="banner">
-    <img src="banner.jpg" alt="Cargo Banner" />
-    <div class="overlay">
-      <h2>Real-Time Shipment Tracking</h2>
-      <p>Enter your tracking ID below to check the latest status of your shipment.</p>
-    </div>
-  </section>
+  <main>
+    <!-- Page Intro -->
+    <section class="intro">
+      <h2>Track Your Shipment</h2>
+      <p>
+        Enter your tracking number below to view the live status of your shipment.  
+        Stay updated with the latest delivery progress, locations, and estimated arrival time.
+      </p>
+    </section>
 
-  <main class="tracker">
-    <h2>Track Your Package</h2>
-    <input type="text" id="trackingIdInput" placeholder="Enter your tracking ID..." />
-    <button onclick="trackPackage()">Track Package</button>
-    <div id="trackingInfo"></div>
+    <!-- Tracking Form -->
+    <section class="tracking-section">
+      <input type="text" id="trackingId" placeholder="Enter your tracking number">
+      <button onclick="trackPackage()">Track Package</button>
+      <div id="trackingInfo"></div>
+    </section>
+
+    <!-- Extra Info Section -->
+    <section class="extra-info">
+      <h2>How Our Tracking Works</h2>
+      <p>
+        With our real-time tracking system, you can monitor your package from pickup to delivery.  
+        Each scan along the way updates our system so you always know where your shipment is.
+      </p>
+      <img src="images/delivery-truck.jpg" alt="Delivery Truck" width="100%">
+      <img src="images/warehouse.jpg" alt="Warehouse Handling" width="100%">
+
+      <!-- Example Video -->
+      <div class="video-container">
+        <h3>Watch How We Deliver</h3>
+        <iframe width="100%" height="315" src="https://www.youtube.com/embed/TUw3zJUJ1YI" 
+          title="YouTube video" frameborder="0" allowfullscreen></iframe>
+      </div>
+    </section>
   </main>
 
   <footer>
     <p>&copy; 2025 X-Cargo Express. All Rights Reserved.</p>
   </footer>
+
+  <script src="tracker.js"></script>
 </body>
 </html>
