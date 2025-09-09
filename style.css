@@ -1,59 +1,105 @@
-body {
-  font-family: Arial, sans-serif;
+/* Reset */
+body, h1, h2, h3, p, ul {
   margin: 0;
   padding: 0;
-  background: #f6f6f6;
+  box-sizing: border-box;
+}
+
+/* Global */
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f4f4;
   color: #333;
+  line-height: 1.6;
+}
+
+/* Header */
+header {
+  background: #003366;
+  color: #fff;
+  text-align: center;
+  padding: 20px;
+}
+header h1 {
+  margin-bottom: 5px;
+}
+header p {
+  font-size: 14px;
+}
+
+/* Sections */
+main {
+  max-width: 900px;
+  margin: 20px auto;
+  padding: 0 20px;
+}
+section {
+  margin-bottom: 30px;
+}
+.intro h2, .extra-info h2 {
+  color: #003366;
+  margin-bottom: 10px;
+}
+
+/* Tracking Form */
+.tracking-section {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   text-align: center;
 }
-
-header {
-  background-color: #005aa7;
-  color: white;
-  padding: 20px;
-}
-
-.logo {
-  height: 60px;
-}
-
-.banner {
-  width: 100%;
-  max-height: 300px;
-  object-fit: cover;
-}
-
-main {
-  padding: 20px;
-}
-
-form input {
+.tracking-section input {
+  width: 70%;
   padding: 10px;
-  width: 300px;
-  max-width: 90%;
-  margin-right: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
 }
-
-form button {
+.tracking-section button {
   padding: 10px 20px;
-  background: #005aa7;
-  color: white;
+  background: #003366;
+  color: #fff;
   border: none;
+  border-radius: 5px;
+  font-size: 16px;
   cursor: pointer;
+  transition: background 0.3s ease;
 }
-
-form button:hover {
-  background: #00457c;
+.tracking-section button:hover {
+  background: #0055aa;
 }
-
-.package-img {
-  max-width: 300px;
+#trackingInfo {
   margin-top: 20px;
-  border-radius: 8px;
+  text-align: left;
 }
 
+/* Extra Info */
+.extra-info img {
+  margin: 15px 0;
+  border-radius: 10px;
+  display: block;
+}
+.extra-info p {
+  margin: 10px 0;
+}
+
+/* Video */
+.video-container {
+  margin-top: 20px;
+}
+.video-container iframe {
+  border-radius: 10px;
+  border: none;
+}
+
+/* Footer */
 footer {
-  background: #eee;
-  padding: 10px;
-  margin-top: 40px;
+  background: #003366;
+  color: #fff;
+  text-align: center;
+  padding: 15px;
+  margin-top: 30px;
+  font-size: 14px;
 }
