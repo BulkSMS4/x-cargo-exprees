@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Track Package - X-Cargo Express</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="tracker.js"></script>
+</head>
+<body>
+  <header>
+    <h1>📦 X-Cargo Express Tracking</h1>
+  </header>
+
+  <section class="banner">
+    <img src="banner.jpg" alt="Cargo Banner" />
+    <div class="overlay">
+      <h2>Real-Time Shipment Tracking</h2>
+      <p>Enter your tracking ID below to check the latest status of your shipment.</p>
+    </div>
+  </section>
+
+  <main class="tracker">
+    <h2>Track Your Package</h2>
+    <input type="text" id="trackingIdInput" placeholder="Enter your tracking ID..." />
+    <button onclick="trackPackage()">Track Package</button>
+    <div id="trackingInfo"></div>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 X-Cargo Express. All Rights Reserved.</p>
+  </footer>
+</body>
+</html>
