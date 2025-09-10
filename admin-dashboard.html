@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Admin Dashboard</title>
   <style>
     body {
@@ -23,26 +23,24 @@
       padding: 20px;
       transition: transform 0.3s ease;
       z-index: 999;
-    }
-    .sidebar.hidden {
-      transform: translateX(-100%);
-    }
-    .sidebar h2 {
-      margin: 0 0 20px 0;
       text-align: center;
     }
-    .sidebar ul {
-      list-style: none;
-      padding: 0;
+    .sidebar.hidden { transform: translateX(-100%); }
+    .sidebar img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      margin-bottom: 10px;
+      border: 2px solid #fff;
     }
+    .sidebar h2 { margin: 10px 0 20px 0; }
+    .sidebar ul { list-style: none; padding: 0; text-align: left; }
     .sidebar ul li {
       padding: 12px;
       cursor: pointer;
       border-radius: 5px;
     }
-    .sidebar ul li:hover {
-      background: #444;
-    }
+    .sidebar ul li:hover { background: #444; }
     .main {
       flex-grow: 1;
       margin-left: 250px;
@@ -50,14 +48,8 @@
       width: 100%;
       height: 100vh;
     }
-    .main.full {
-      margin-left: 0;
-    }
-    iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
+    .main.full { margin-left: 0; }
+    iframe { width: 100%; height: 100%; border: none; }
     .toggle-btn {
       position: fixed;
       top: 15px;
@@ -78,6 +70,9 @@
   <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
 
   <div class="sidebar" id="sidebar">
+    <!-- ✅ Admin Picture -->
+    <img src="admin-logo.png" alt="Admin Logo">
+
     <h2>Admin Panel</h2>
     <ul>
       <li onclick="openPage('dashboard')">📊 Dashboard</li>
@@ -90,7 +85,7 @@
   </div>
 
   <div class="main" id="mainContent">
-    <iframe id="contentFrame" src=""></iframe>
+    <iframe id="contentFrame" src="dashboard.html"></iframe>
   </div>
 
   <script type="module">
@@ -111,60 +106,22 @@
 
     // Sidebar toggle
     function toggleSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      const main = document.getElementById('mainContent');
-      sidebar.classList.toggle('hidden');
-      main.classList.toggle('full');
+      document.getElementById('sidebar').classList.toggle('hidden');
+      document.getElementById('mainContent').classList.toggle('full');
     }
     window.toggleSidebar = toggleSidebar;
 
-    // Open page content inside iframe and hide sidebar
+    // Open iframe pages
     function openPage(pageId) {
       const frame = document.getElementById('contentFrame');
-
       if(pageId === 'dashboard') frame.src = 'dashboard.html';
       else if(pageId === 'formBuilder') frame.src = 'form-builder.html';
       else if(pageId === 'createPackage') frame.src = 'create.html';
       else if(pageId === 'links') frame.src = 'links.html';
-      else if(pageId === 'emergency') {
-        frame.srcdoc = `
-          <h2>Post Emergency Message</h2>
-          <div class="emergency-form">
-            <input type="text" id="title" placeholder="Title" required>
-            <textarea id="message" placeholder="Message" rows="4" required></textarea>
-            <input type="text" id="image" placeholder="Image URL (optional)">
-            <button onclick="postEmergency()">Post</button>
-          </div>
-          <script type="module">
-            import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
-            import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-            const firebaseConfig = ${JSON.stringify(firebaseConfig)};
-            const app = initializeApp(firebaseConfig);
-            const db = getDatabase(app);
+      else if(pageId === 'emergency') frame.src = 'emergency.html';
 
-            window.postEmergency = function() {
-              const title = document.getElementById('title').value;
-              const text = document.getElementById('message').value;
-              const image = document.getElementById('image').value;
-              if(!title || !text) { alert('Fill all required fields'); return; }
-              const emergencyRef = ref(db, 'emergencyMessages');
-              push(emergencyRef, { title, text, image });
-              alert('Emergency message posted!');
-              document.getElementById('title').value = '';
-              document.getElementById('message').value = '';
-              document.getElementById('image').value = '';
-            }
-          </script>
-        `;
-      }
-
-      // Hide sidebar after clicking any option
-      const sidebar = document.getElementById('sidebar');
-      const main = document.getElementById('mainContent');
-      if(!sidebar.classList.contains('hidden')) {
-        sidebar.classList.add('hidden');
-        main.classList.add('full');
-      }
+      document.getElementById('sidebar').classList.add('hidden');
+      document.getElementById('mainContent').classList.add('full');
     }
     window.openPage = openPage;
 
@@ -178,11 +135,6 @@
       });
     }
     window.logout = logout;
-
-    // Load dashboard by default
-    window.onload = () => {
-      document.getElementById('contentFrame').src = 'dashboard.html';
-    };
   </script>
 </body>
 </html>
