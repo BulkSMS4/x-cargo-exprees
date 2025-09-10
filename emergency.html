@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emergency Post</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+    input[type="file"] {
+      margin-bottom: 15px;
+    }
+    button {
+      background: #e63946;
+      color: white;
+      border: none;
+      padding: 12px 18px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 100%;
+    }
+    button:hover {
+      background: #d62828;
+    }
+    .preview {
+      margin-top: 15px;
+      text-align: center;
+    }
+    .preview img {
+      max-width: 100%;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🚨 Post Emergency Message</h2>
+    <textarea id="message" placeholder="Write your emergency message here..."></textarea>
+    <input type="file" id="imageInput" accept="image/*">
+    <button onclick="postEmergency()">Post Emergency</button>
+    <div class="preview" id="preview"></div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-storage.js";
+
+    // Firebase config (same as your project)
+    const firebaseConfig = {
+      apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
+      authDomain: "x-cargo-exprees.firebaseapp.com",
+      projectId: "x-cargo-exprees",
+      storageBucket: "x-cargo-exprees.appspot.com",
+      messagingSenderId: "1082201867958",
+      appId: "1:1082201867958:web:d6600fbc82085b0b62c817"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    async function postEmergency() {
+      const message = document.getElementById("message").value.trim();
+      const file = document.getElementById("imageInput").files[0];
+
+      if (!message) {
+        alert("Please enter a message!");
+        return;
+      }
+
+      let imageUrl = "";
+      if (file) {
+        const storageRef = ref(storage, "emergency_images/" + Date.now() + "-" + file.name);
+        await uploadBytes(storageRef, file);
+        imageUrl = await getDownloadURL(storageRef);
+      }
+
+      await addDoc(collection(db, "emergency_posts"), {
+        message: message,
+        imageUrl: imageUrl,
+        createdAt: serverTimestamp()
+      });
+
+      alert("🚨 Emergency post published successfully!");
+      document.getElementById("message").value = "";
+      document.getElementById("imageInput").value = "";
+      document.getElementById("preview").innerHTML = "";
+    }
+
+    // Preview image before upload
+    document.getElementById("imageInput").addEventListener("change", function() {
+      const file = this.files[0];
+      const previewDiv = document.getElementById("preview");
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          previewDiv.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+        };
+        reader.readAsDataURL(file);
+      } else {
+        previewDiv.innerHTML = "";
+      }
+    });
+
+    window.postEmergency = postEmergency;
+  </script>
+</body>
+  </html>
