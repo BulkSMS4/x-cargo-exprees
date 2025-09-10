@@ -3,71 +3,84 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin Login</title>
+  <title>Admin Dashboard</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
       margin: 0;
-      padding: 0;
+      font-family: Arial, sans-serif;
       display: flex;
-      justify-content: center;
-      align-items: center;
       height: 100vh;
+      overflow: hidden;
     }
-    .login-box {
-      background: white;
-      padding: 30px;
-      border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-      width: 300px;
+    .sidebar {
+      width: 250px;
+      background: #222;
+      color: white;
+      height: 100vh;
+      position: fixed;
+      left: 0;
+      top: 0;
+      padding: 20px;
+      transition: transform 0.3s ease;
+      z-index: 999;
     }
-    h2 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    input {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      border: 1px solid #ccc;
+    .sidebar.hidden { transform: translateX(-100%); }
+    .sidebar h2 { margin: 0 0 20px 0; text-align: center; }
+    .sidebar ul { list-style: none; padding: 0; }
+    .sidebar ul li {
+      padding: 12px;
+      cursor: pointer;
       border-radius: 5px;
     }
-    button {
+    .sidebar ul li:hover { background: #444; }
+    .main {
+      flex-grow: 1;
+      margin-left: 250px;
+      transition: margin-left 0.3s ease;
       width: 100%;
-      padding: 12px;
+      height: 100vh;
+    }
+    .main.full { margin-left: 0; }
+    iframe { width: 100%; height: 100%; border: none; }
+    .toggle-btn {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      font-size: 22px;
       background: #222;
       color: white;
       border: none;
-      border-radius: 5px;
+      padding: 10px 15px;
       cursor: pointer;
-      margin-top: 10px;
-    }
-    button:hover {
-      background: #444;
-    }
-    .error {
-      color: red;
-      font-size: 0.9em;
-      margin-top: 10px;
-      text-align: center;
+      border-radius: 5px;
+      z-index: 1000;
     }
   </style>
 </head>
 <body>
-  <div class="login-box">
-    <h2>Admin Login</h2>
-    <input type="email" id="email" placeholder="Email" required />
-    <input type="password" id="password" placeholder="Password" required />
-    <button id="loginBtn">Login</button>
-    <div class="error" id="errorMsg"></div>
+
+  <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+
+  <div class="sidebar" id="sidebar">
+    <h2>Admin Panel</h2>
+    <ul>
+      <li onclick="openPage('dashboard')">📊 Dashboard</li>
+      <li onclick="openPage('formBuilder')">📝 Form Builder</li>
+      <li onclick="openPage('createPackage')">📦 Create Package</li>
+      <li onclick="openPage('links')">🔗 Links</li>
+      <li onclick="openPage('emergency')">⚠️ Emergency Post</li>
+      <li onclick="logout()">🚪 Logout</li>
+    </ul>
+  </div>
+
+  <div class="main" id="mainContent">
+    <iframe id="contentFrame" src="dashboard.html"></iframe>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+    import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
 
-    // Your Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
       authDomain: "x-cargo-exprees.firebaseapp.com",
@@ -77,25 +90,40 @@
       appId: "1:1082201867958:web:d6600fbc82085b0b62c817"
     };
 
-    // Init Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    // Handle login
-    document.getElementById('loginBtn').addEventListener('click', () => {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      const errorMsg = document.getElementById('errorMsg');
+    // Sidebar toggle
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('hidden');
+      document.getElementById('mainContent').classList.toggle('full');
+    }
+    window.toggleSidebar = toggleSidebar;
 
-      signInWithEmailAndPassword(auth, email, password)
-        .then(() => {
-          // ✅ Redirect to dashboard after successful login
-          window.location.href = "admin-dashboard.html";
-        })
-        .catch((error) => {
-          errorMsg.textContent = error.message;
-        });
-    });
+    // Open iframe pages
+    function openPage(pageId) {
+      const frame = document.getElementById('contentFrame');
+      if(pageId === 'dashboard') frame.src = 'dashboard.html';
+      else if(pageId === 'formBuilder') frame.src = 'form-builder.html';
+      else if(pageId === 'createPackage') frame.src = 'create.html';
+      else if(pageId === 'links') frame.src = 'links.html';
+      else if(pageId === 'emergency') frame.src = 'emergency.html';
+
+      document.getElementById('sidebar').classList.add('hidden');
+      document.getElementById('mainContent').classList.add('full');
+    }
+    window.openPage = openPage;
+
+    // Logout
+    function logout() {
+      signOut(auth).then(() => {
+        alert('Logged out successfully.');
+        window.location.href = 'admin.html';
+      }).catch((error) => {
+        alert('Logout failed: ' + error.message);
+      });
+    }
+    window.logout = logout;
   </script>
 </body>
 </html>
