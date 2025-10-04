@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Create Package – X Cargo Express</title>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
+
+    // Your Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
+      authDomain: "x-cargo-exprees.firebaseapp.com",
+      databaseURL: "https://x-cargo-exprees-default-rtdb.firebaseio.com",
+      projectId: "x-cargo-exprees",
+      storageBucket: "x-cargo-exprees.appspot.com",
+      messagingSenderId: "1082201867958",
+      appId: "1:1082201867958:web:d6600fbc82085b0b62c817",
+      measurementId: "G-C3Y4PQC86V"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    window.createPackage = function() {
+      const trackingId = document.getElementById("trackingId").value.trim();
+      const status = document.getElementById("status").value.trim();
+      const estimatedDelivery = document.getElementById("estimatedDelivery").value.trim();
+      const logo = document.getElementById("logo").value.trim();
+      const packageImage = document.getElementById("packageImage").value.trim();
+
+      if (!trackingId) {
+        alert("Tracking number is required!");
+        return;
+      }
+
+      set(ref(db, "packages/" + trackingId), {
+        trackingNumber: trackingId,
+        status: status,
+        estimatedDelivery: estimatedDelivery,
+        logo: logo,
+        packageImage: packageImage
+      })
+      .then(() => {
+        alert("✅ Package created successfully!");
+        document.getElementById("packageForm").reset();
+      })
+      .catch((error) => {
+        console.error(error);
+        alert("❌ Error: " + error.message);
+      });
+    }
+  </script>
+</head>
+<body style="font-family: Arial; max-width: 600px; margin: auto; padding: 20px;">
+  <h2>Create New Package</h2>
+  <form id="packageForm" onsubmit="event.preventDefault(); createPackage();">
+    <label>Tracking Number:</label><br>
+    <input type="text" id="trackingId" placeholder="e.g. XCE12345678" required><br><br>
+
+    <label>Status:</label><br>
+    <input type="text" id="status" placeholder="e.g. In Transit"><br><br>
+
+    <label>Estimated Delivery:</label><br>
+    <input type="text" id="estimatedDelivery" placeholder="e.g. 3–5 Business Days"><br><br>
+
+    <label>Logo URL:</label><br>
+    <input type="text" id="logo" placeholder="https://...logo.png"><br><br>
+
+    <label>Package Image URL:</label><br>
+    <input type="text" id="packageImage" placeholder="https://...package.png"><br><br>
+
+    <button type="submit">Create Package</button>
+  </form>
+</body>
+</html>
