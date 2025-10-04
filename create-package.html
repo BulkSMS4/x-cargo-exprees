@@ -8,7 +8,7 @@
   body {
     font-family: Arial, sans-serif;
     padding: 20px;
-    max-width: 800px;
+    max-width: 900px;
     margin: auto;
     background: #fff;
     color: #333;
@@ -63,10 +63,46 @@
   button:hover {
     background: #0056b3;
   }
+  /* Receipt styling */
+  #receipt {
+    border: 1px solid #000;
+    padding: 20px;
+    border-radius: 10px;
+    background: #fff;
+    margin-top: 30px;
+  }
+  #receipt h2, #receipt h3 {
+    text-align: center;
+    margin: 0;
+  }
+  #receipt table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+  }
+  #receipt table, #receipt th, #receipt td {
+    border: 1px solid #000;
+  }
+  #receipt th, #receipt td {
+    padding: 8px;
+    text-align: left;
+  }
+  #printBtn {
+    margin-top: 10px;
+    padding: 10px 20px;
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  #printBtn:hover {
+    background: #218838;
+  }
 </style>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
+import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
@@ -102,7 +138,6 @@ function updatePreview(){
     if(!el) return;
     let value = el.type === "checkbox" ? el.checked : el.value.trim();
 
-    // Exclude styling and background fields from live preview
     if(["isSuspended","suspendedColor","themeColor","backgroundType","brandingTextColor","fontFamily","feeWarning","suspendedNotice"].includes(f)) return;
 
     if(value){
@@ -111,7 +146,6 @@ function updatePreview(){
     }
   });
 
-  // Show suspended message only if checked
   if(isSuspended){
     const color = document.getElementById("suspendedColor").value || "#ff0000";
     const desc = document.getElementById("suspendedDescription").value || "Suspended Package";
@@ -119,6 +153,26 @@ function updatePreview(){
   }
 
   preview.innerHTML = html;
+}
+
+// Update receipt with saved data
+function updateReceipt(data){
+  const r = document.getElementById("receiptContent");
+  r.innerHTML = `
+    <table>
+      <tr><th>Tracking ID</th><td>${data.trackingId || '-'}</td></tr>
+      <tr><th>Sender</th><td>${data.sender || '-'}</td></tr>
+      <tr><th>Receiver</th><td>${data.receiver || '-'}</td></tr>
+      <tr><th>Delivery Address</th><td>${data.address || '-'}</td></tr>
+      <tr><th>Status</th><td>${data.status || '-'}</td></tr>
+      <tr><th>Shipment Date</th><td>${data.shipmentDate || '-'}</td></tr>
+      <tr><th>Expected Delivery</th><td>${data.expectedDate || '-'}</td></tr>
+      <tr><th>Weight</th><td>${data.weight || '-'}</td></tr>
+      <tr><th>Description</th><td>${data.description || '-'}</td></tr>
+      <tr><th>Quantity</th><td>${data.quantity || '-'}</td></tr>
+    </table>
+    <p style="margin-top:15px; text-align:center;">Thank you for shipping with X-Cargo Express!</p>
+  `;
 }
 
 // Create package function
@@ -137,6 +191,14 @@ window.createPackage = async function(){
   }
 
   await set(ref(db, 'packages/' + data.trackingId), data);
+
+  const snapshot = await get(child(ref(db), 'packages/' + data.trackingId));
+  if(snapshot.exists()){
+    const saved = snapshot.val();
+    updatePreview();
+    updateReceipt(saved); // update receipt
+  }
+
   alert("Package created successfully!");
   document.getElementById("packageForm").reset();
   updatePreview();
@@ -153,6 +215,16 @@ fields.forEach(f=>{
 document.getElementById("suspendedColor")?.addEventListener("input", updatePreview);
 document.getElementById("suspendedDescription")?.addEventListener("input", updatePreview);
 
+// Print function
+window.printReceipt = function(){
+  const printContents = document.getElementById("receipt").innerHTML;
+  const win = window.open('', '', 'width=800,height=700');
+  win.document.write('<html><head><title>Shipment Receipt</title></head><body>');
+  win.document.write(printContents);
+  win.document.write('</body></html>');
+  win.document.close();
+  win.print();
+}
 </script>
 </head>
 <body>
@@ -263,5 +335,15 @@ document.getElementById("suspendedDescription")?.addEventListener("input", updat
 <h3>Live Preview</h3>
 <div id="preview"></div>
 
+<h3>📄 Receipt</h3>
+<div id="receipt">
+  <h2>X-Cargo Express</h2>
+  <h3>Shipment Receipt</h3>
+  <div id="receiptContent">
+    <p>Receipt will be generated after creating a package.</p>
+  </div>
+</div>
+<button id="printBtn" onclick="printReceipt()">🖨️ Print Receipt</button>
+
 </body>
-    </html>
+</html>
