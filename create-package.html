@@ -71,7 +71,6 @@
   <label>Warning Color</label>
   <input type="color" id="warningColor" value="#ff0000">
 
-  <!-- Generate button -->
   <div style="text-align:center;">
     <button type="button" onclick="generateReceipt()">✅ Generate Receipt</button>
   </div>
@@ -101,19 +100,50 @@
   </div>
 </div>
 
-<!-- Action buttons -->
 <div class="action-buttons">
   <button onclick="printReceipt()">🖨️ Print</button>
   <button onclick="downloadPDF()">📄 Download PDF</button>
   <button onclick="saveImage()">🖼️ Save to Gallery</button>
 </div>
 
-<script>
+<script type="module">
+// ✅ IMPORT FIREBASE
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
+
+// ✅ FIREBASE CONFIG
+const firebaseConfig = {
+  apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
+  authDomain: "x-cargo-exprees.firebaseapp.com",
+  databaseURL: "https://x-cargo-exprees-default-rtdb.firebaseio.com",
+  projectId: "x-cargo-exprees",
+  storageBucket: "x-cargo-exprees.appspot.com",
+  messagingSenderId: "1082201867958",
+  appId: "1:1082201867958:web:d6600fbc82085b0b62c817"
+};
+
+// ✅ Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
 // Today's date
 document.getElementById("todayDate").innerText = new Date().toLocaleDateString();
 
-// Generate Receipt function
-function generateReceipt(){
+// ✅ Save package to Firebase
+function savePackageToFirebase(data) {
+  const packageRef = ref(db, "packages/" + data.trackingId);
+  set(packageRef, data)
+    .then(() => {
+      alert("✅ Package saved successfully to Firebase!");
+    })
+    .catch((err) => {
+      console.error("❌ Error saving:", err);
+      alert("Error saving package. Check console for details.");
+    });
+}
+
+// ✅ Generate Receipt
+function generateReceipt() {
   const data = {
     trackingId: document.getElementById("trackingId").value,
     sender: document.getElementById("sender").value,
@@ -127,7 +157,7 @@ function generateReceipt(){
     quantity: document.getElementById("quantity").value,
   };
 
-  // Fill receipt table
+  // Fill receipt
   const r = document.getElementById("receiptContent");
   r.innerHTML = `
     <tr><td><strong>Tracking ID</strong></td><td>${data.trackingId}</td></tr>
@@ -142,9 +172,9 @@ function generateReceipt(){
     <tr><td><strong>Quantity</strong></td><td>${data.quantity}</td></tr>
   `;
 
-  // Warning
+  // Warning box
   const warningBox = document.getElementById("receiptWarning");
-  if(document.getElementById("showWarning").checked && document.getElementById("warningText").value.trim() !== ""){
+  if (document.getElementById("showWarning").checked && document.getElementById("warningText").value.trim() !== "") {
     warningBox.innerHTML = `<div class="warning-box" style="color:${document.getElementById("warningColor").value}; text-align:center;">
       ${document.getElementById("warningText").value}
     </div>`;
@@ -152,16 +182,21 @@ function generateReceipt(){
     warningBox.innerHTML = "";
   }
 
-  // Show receipt
   document.getElementById("receipt").style.display = "block";
+
+  if (data.trackingId.trim() !== "") {
+    savePackageToFirebase(data);
+  } else {
+    alert("⚠️ Please enter a Tracking ID before saving!");
+  }
 }
 
-// Handle package image
-document.getElementById("packageImage").addEventListener("change", function(){
+// ✅ Handle Images
+document.getElementById("packageImage").addEventListener("change", function() {
   const file = this.files[0];
-  if(file){
+  if (file) {
     const reader = new FileReader();
-    reader.onload = e=>{
+    reader.onload = e => {
       document.getElementById("receiptImage").src = e.target.result;
       document.getElementById("receiptImage").style.display = "block";
     };
@@ -169,12 +204,11 @@ document.getElementById("packageImage").addEventListener("change", function(){
   }
 });
 
-// Handle logo upload
-document.getElementById("logoUpload").addEventListener("change", function(){
+document.getElementById("logoUpload").addEventListener("change", function() {
   const file = this.files[0];
-  if(file){
+  if (file) {
     const reader = new FileReader();
-    reader.onload = e=>{
+    reader.onload = e => {
       document.getElementById("receiptLogo").src = e.target.result;
       document.getElementById("receiptLogo").style.display = "block";
       document.getElementById("receiptLogoText").style.display = "none";
@@ -183,19 +217,19 @@ document.getElementById("logoUpload").addEventListener("change", function(){
   }
 });
 
-// Print
-function printReceipt(){
+// ✅ Print
+function printReceipt() {
   const printContents = document.getElementById("receipt").innerHTML;
-  const win = window.open('', '', 'width=700,height=600');
-  win.document.write('<html><head><title>Print Receipt</title></head><body>');
+  const win = window.open("", "", "width=700,height=600");
+  win.document.write("<html><head><title>Print Receipt</title></head><body>");
   win.document.write(printContents);
-  win.document.write('</body></html>');
+  win.document.write("</body></html>");
   win.document.close();
   win.print();
 }
 
-// Download PDF
-async function downloadPDF(){
+// ✅ PDF
+async function downloadPDF() {
   const { jsPDF } = window.jspdf;
   const receipt = document.getElementById("receipt");
   const canvas = await html2canvas(receipt);
@@ -208,8 +242,8 @@ async function downloadPDF(){
   pdf.save("shipment_receipt.pdf");
 }
 
-// Save to Gallery (download as image)
-async function saveImage(){
+// ✅ Save as Image
+async function saveImage() {
   const receipt = document.getElementById("receipt");
   const canvas = await html2canvas(receipt);
   const link = document.createElement("a");
@@ -217,6 +251,12 @@ async function saveImage(){
   link.href = canvas.toDataURL("image/png");
   link.click();
 }
+
+// Expose functions to global scope
+window.generateReceipt = generateReceipt;
+window.printReceipt = printReceipt;
+window.downloadPDF = downloadPDF;
+window.saveImage = saveImage;
 </script>
 </body>
 </html>
