@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>📦 My Packages - X-Cargo Express</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; background:#f4f4f9; }
+    h2 { text-align:center; color:#333; }
+    .package-container {
+      max-width: 900px;
+      margin: 30px auto;
+      background:#fff;
+      padding:20px;
+      border-radius:10px;
+      box-shadow:0 2px 8px rgba(0,0,0,0.1);
+    }
+    table {
+      width:100%;
+      border-collapse:collapse;
+      margin-top:10px;
+    }
+    th, td {
+      border:1px solid #ccc;
+      padding:10px;
+      text-align:left;
+      font-size:14px;
+    }
+    th {
+      background:#007bff;
+      color:white;
+      text-transform:uppercase;
+    }
+    tr:nth-child(even) {
+      background:#f9f9f9;
+    }
+    .not-found {
+      text-align:center;
+      font-weight:bold;
+      color:red;
+      margin-top:20px;
+    }
+    .header {
+      text-align:center;
+      margin-bottom:20px;
+    }
+    .header img {
+      max-width:120px;
+      display:block;
+      margin:10px auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Package_icon.svg/512px-Package_icon.svg.png" alt="Logo">
+    <h2>📦 My Saved Packages</h2>
+    <p>Below is a list of all packages saved in your Firebase database.</p>
+  </div>
+
+  <div class="package-container" id="packageContainer">
+    <p style="text-align:center;">Loading packages...</p>
+  </div>
+
+  <script type="module">
+    // ✅ Import Firebase
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+    import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
+
+    // ✅ Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
+      authDomain: "x-cargo-exprees.firebaseapp.com",
+      databaseURL: "https://x-cargo-exprees-default-rtdb.firebaseio.com",
+      projectId: "x-cargo-exprees",
+      storageBucket: "x-cargo-exprees.appspot.com",
+      messagingSenderId: "1082201867958",
+      appId: "1:1082201867958:web:d6600fbc82085b0b62c817"
+    };
+
+    // ✅ Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const container = document.getElementById("packageContainer");
+
+    // ✅ Load packages
+    async function loadPackages() {
+      try {
+        const snapshot = await get(child(ref(db), "packages"));
+        if (!snapshot.exists()) {
+          container.innerHTML = `<p class="not-found">No packages found.</p>`;
+          return;
+        }
+
+        const data = snapshot.val();
+        const packages = Object.values(data);
+
+        let html = `
+          <table>
+            <thead>
+              <tr>
+                <th>Tracking ID</th>
+                <th>Sender</th>
+                <th>Receiver</th>
+                <th>Status</th>
+                <th>Weight</th>
+                <th>Shipment Date</th>
+                <th>Expected Delivery</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+
+        packages.forEach(pkg => {
+          html += `
+            <tr>
+              <td>${pkg.trackingId || "-"}</td>
+              <td>${pkg.sender || "-"}</td>
+              <td>${pkg.receiver || "-"}</td>
+              <td>${pkg.status || "Pending"}</td>
+              <td>${pkg.weight || "-"}</td>
+              <td>${pkg.shipmentDate || "-"}</td>
+              <td>${pkg.expectedDate || "-"}</td>
+            </tr>
+          `;
+        });
+
+        html += "</tbody></table>";
+        container.innerHTML = html;
+
+      } catch (error) {
+        console.error("Error loading packages:", error);
+        container.innerHTML = `<p class="not-found">Error loading packages: ${error.message}</p>`;
+      }
+    }
+
+    loadPackages();
+  </script>
+</body>
+</html>
