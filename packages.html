@@ -2,12 +2,76 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Package List – X Cargo Express</title>
+  <title>📋 X-Cargo Express - Package List</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f9;
+      margin: 20px;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background: #007bff;
+      color: #fff;
+    }
+    tr:nth-child(even) {
+      background: #f9f9f9;
+    }
+    button {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .edit-btn {
+      background: #28a745;
+      color: white;
+    }
+    .delete-btn {
+      background: #dc3545;
+      color: white;
+    }
+    .edit-btn:hover {
+      background: #218838;
+    }
+    .delete-btn:hover {
+      background: #c82333;
+    }
+    img {
+      border-radius: 6px;
+    }
+    .actions {
+      display: flex;
+      gap: 5px;
+    }
+  </style>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
     import { getDatabase, ref, onValue, remove, update } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
 
-    // Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
       authDomain: "x-cargo-exprees.firebaseapp.com",
@@ -29,18 +93,25 @@
 
       onValue(dbRef, (snapshot) => {
         packageList.innerHTML = "";
+        if (!snapshot.exists()) {
+          packageList.innerHTML = `<tr><td colspan="7" style="text-align:center;">No packages found</td></tr>`;
+          return;
+        }
+
         snapshot.forEach((childSnapshot) => {
           const pkg = childSnapshot.val();
 
           let row = document.createElement("tr");
           row.innerHTML = `
-            <td>${pkg.trackingNumber}</td>
-            <td>${pkg.status}</td>
-            <td>${pkg.estimatedDelivery}</td>
-            <td><img src="${pkg.packageImage || ''}" width="60"></td>
-            <td>
-              <button onclick="editPackage('${pkg.trackingNumber}')">✏️ Edit</button>
-              <button onclick="deletePackage('${pkg.trackingNumber}')">🗑 Delete</button>
+            <td>${pkg.trackingId || "-"}</td>
+            <td>${pkg.sender || "-"}</td>
+            <td>${pkg.receiver || "-"}</td>
+            <td>${pkg.status || "-"}</td>
+            <td>${pkg.expectedDate || "-"}</td>
+            <td><img src="${pkg.packageImage || ''}" width="60" height="60"></td>
+            <td class="actions">
+              <button class="edit-btn" onclick="editPackage('${pkg.trackingId}')">✏️ Edit</button>
+              <button class="delete-btn" onclick="deletePackage('${pkg.trackingId}')">🗑 Delete</button>
             </td>
           `;
           packageList.appendChild(row);
@@ -52,39 +123,44 @@
     window.deletePackage = function(trackingId) {
       if (confirm("Are you sure you want to delete this package?")) {
         remove(ref(db, "packages/" + trackingId))
-          .then(() => alert("Package deleted successfully ✅"))
+          .then(() => alert("✅ Package deleted successfully"))
           .catch((err) => alert("Error: " + err.message));
       }
     }
 
-    // Edit package (simple prompt example)
+    // Edit package (update status)
     window.editPackage = function(trackingId) {
-      const newStatus = prompt("Enter new status:");
+      const newStatus = prompt("Enter new package status:");
       if (!newStatus) return;
-
       update(ref(db, "packages/" + trackingId), {
         status: newStatus
       })
-      .then(() => alert("Package updated ✅"))
+      .then(() => alert("✅ Status updated successfully"))
       .catch((err) => alert("Error: " + err.message));
     }
   </script>
 </head>
-<body style="font-family: Arial; max-width: 900px; margin: auto; padding: 20px;">
-  <h2>📦 Package List</h2>
-  <table border="1" cellpadding="10" cellspacing="0" width="100%">
-    <thead>
-      <tr>
-        <th>Tracking Number</th>
-        <th>Status</th>
-        <th>Estimated Delivery</th>
-        <th>Image</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody id="packageList">
-      <tr><td colspan="5">Loading packages...</td></tr>
-    </tbody>
-  </table>
+<body>
+
+  <h2>📋 Package List</h2>
+  <div class="container">
+    <table>
+      <thead>
+        <tr>
+          <th>Tracking ID</th>
+          <th>Sender</th>
+          <th>Receiver</th>
+          <th>Status</th>
+          <th>Expected Delivery</th>
+          <th>Package Image</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="packageList">
+        <tr><td colspan="7" style="text-align:center;">Loading packages...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
 </body>
 </html>
