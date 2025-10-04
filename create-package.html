@@ -1,349 +1,198 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Create Package - X-Cargo Express</title>
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    padding: 20px;
-    max-width: 900px;
-    margin: auto;
-    background: #fff;
-    color: #333;
-  }
-  label {
-    font-weight: bold;
-  }
-  input, textarea, select, button {
-    display: block;
-    width: 100%;
-    padding: 10px;
-    margin: 6px 0 16px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-  }
-  .checkbox-group {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 16px;
-  }
-  h3 {
-    margin-top: 40px;
-    border-bottom: 1px solid #ccc;
-    padding-bottom: 4px;
-  }
-  #preview {
-    margin-top: 30px;
-    border: 1px solid #ccc;
-    padding: 15px;
-    border-radius: 10px;
-    background: #f9f9f9;
-    min-height: 50px;
-  }
-  #preview img {
-    max-width: 100%;
-    height: auto;
-    margin-top: 10px;
-  }
-  .suspended {
-    font-weight: bold;
-    padding: 5px;
-    margin-top: 10px;
-    display: inline-block;
-  }
-  button {
-    background: #007bff;
-    color: white;
-    border: none;
-    cursor: pointer;
-  }
-  button:hover {
-    background: #0056b3;
-  }
-  /* Receipt styling */
-  #receipt {
-    border: 1px solid #000;
-    padding: 20px;
-    border-radius: 10px;
-    background: #fff;
-    margin-top: 30px;
-  }
-  #receipt h2, #receipt h3 {
-    text-align: center;
-    margin: 0;
-  }
-  #receipt table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
-  }
-  #receipt table, #receipt th, #receipt td {
-    border: 1px solid #000;
-  }
-  #receipt th, #receipt td {
-    padding: 8px;
-    text-align: left;
-  }
-  #printBtn {
-    margin-top: 10px;
-    padding: 10px 20px;
-    background: #28a745;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  #printBtn:hover {
-    background: #218838;
-  }
-</style>
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
+  <meta charset="UTF-8">
+  <title>📦 X-Cargo Express - Create Package</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; background:#f4f4f9; }
+    h2 { text-align:center; }
+    form { max-width: 650px; margin: auto; background:#fff; padding:20px; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+    label { display:block; margin-top:10px; font-weight:bold; }
+    input, textarea, select { width:100%; padding:8px; margin-top:5px; border-radius:5px; border:1px solid #ccc; }
+    .preview, .receipt { max-width:650px; margin:20px auto; padding:20px; border-radius:10px; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+    .warning-box { font-weight:bold; padding:10px; border-radius:5px; margin-top:10px; }
+    .package-img, .logo-img { max-width:200px; margin:10px auto; display:block; }
+    button { padding:10px 15px; margin-top:15px; border:none; background:#007bff; color:#fff; border-radius:5px; cursor:pointer; }
+    button:hover { background:#0056b3; }
+    table { width:100%; border-collapse: collapse; margin-top:10px; }
+    table td, table th { border:1px solid #ccc; padding:8px; text-align:left; }
+    .receipt-header { text-align:center; margin-bottom:15px; }
+    .signature { margin-top:40px; text-align:center; }
+  </style>
+</head>
+<body>
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
-  authDomain: "x-cargo-exprees.firebaseapp.com",
-  databaseURL: "https://x-cargo-exprees-default-rtdb.firebaseio.com",
-  projectId: "x-cargo-exprees",
-  storageBucket: "x-cargo-exprees.appspot.com",
-  messagingSenderId: "1082201867958",
-  appId: "1:1082201867958:web:d6600fbc82085b0b62c817",
-  measurementId: "G-C3Y4PQC86V"
-};
+<h2>📦 Create New Package</h2>
+<form id="packageForm">
+  <label>Tracking ID</label>
+  <input type="text" id="trackingId" placeholder="e.g. XCE123456789">
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+  <label>Sender</label>
+  <input type="text" id="sender" placeholder="e.g. John Smith, New York">
 
-// All fields including checkboxes and customization fields
-const fields = [
-  "trackingId","sender","senderAddress","receiver","email","phone","address","status","location",
-  "shipmentDate","updateDate","expectedDate","weight","description","quantity","remark","image",
-  "scheduleDelivery","isSuspended","suspendedDescription","feeWarning","suspendedNotice",
-  "suspendedColor","themeColor","backgroundType","backgroundValue","brandingName","brandingUrl",
-  "brandingTextColor","fontFamily","fontSize","projectName","leapUrl"
-];
+  <label>Receiver</label>
+  <input type="text" id="receiver" placeholder="e.g. Mary Johnson, London">
 
-// Update preview function
-function updatePreview(){
-  const preview = document.getElementById("preview");
-  let html = '';
-  const isSuspended = document.getElementById("isSuspended").checked;
+  <label>Delivery Address</label>
+  <textarea id="address" placeholder="e.g. 221B Baker Street, London"></textarea>
 
-  fields.forEach(f => {
-    const el = document.getElementById(f);
-    if(!el) return;
-    let value = el.type === "checkbox" ? el.checked : el.value.trim();
+  <label>Status</label>
+  <input type="text" id="status" placeholder="e.g. In Transit">
 
-    if(["isSuspended","suspendedColor","themeColor","backgroundType","brandingTextColor","fontFamily","feeWarning","suspendedNotice"].includes(f)) return;
+  <label>Shipment Date</label>
+  <input type="date" id="shipmentDate">
 
-    if(value){
-      if(f==="image") html += `<img src="${value}" />`;
-      else html += `<p><strong>${f}:</strong> ${value}</p>`;
-    }
-  });
+  <label>Expected Delivery</label>
+  <input type="date" id="expectedDate">
 
-  if(isSuspended){
-    const color = document.getElementById("suspendedColor").value || "#ff0000";
-    const desc = document.getElementById("suspendedDescription").value || "Suspended Package";
-    html += `<p class="suspended" style="color:${color}">${desc}</p>`;
-  }
+  <label>Weight</label>
+  <input type="text" id="weight" placeholder="e.g. 12kg">
 
-  preview.innerHTML = html;
-}
+  <label>Description</label>
+  <textarea id="description" placeholder="e.g. Fragile glass items"></textarea>
 
-// Update receipt with saved data
-function updateReceipt(data){
+  <label>Quantity</label>
+  <input type="number" id="quantity" placeholder="e.g. 3">
+
+  <label>Upload Package Picture</label>
+  <input type="file" id="packageImage" accept="image/*">
+
+  <label>Upload Company Logo</label>
+  <input type="file" id="logoUpload" accept="image/*">
+
+  <h3>⚠️ Warning Message</h3>
+  <textarea id="warningText" placeholder="e.g. ⚠️ Fragile! Handle with care"></textarea>
+  <label><input type="checkbox" id="showWarning"> Show Warning on Receipt</label>
+  <label>Warning Color</label>
+  <input type="color" id="warningColor" value="#ff0000">
+</form>
+
+<!-- Receipt -->
+<div class="receipt" id="receipt">
+  <div class="receipt-header">
+    <img id="receiptLogo" class="logo-img" style="display:none;">
+    <h2 id="receiptLogoText">X-Cargo Express</h2>
+    <p><strong>Date:</strong> <span id="todayDate"></span></p>
+    <h3>Shipment Receipt</h3>
+  </div>
+  
+  <table>
+    <tbody id="receiptContent">
+      <tr><td><strong>Tracking ID</strong></td><td>-</td></tr>
+      <tr><td><strong>Sender</strong></td><td>-</td></tr>
+      <tr><td><strong>Receiver</strong></td><td>-</td></tr>
+      <tr><td><strong>Delivery Address</strong></td><td>-</td></tr>
+      <tr><td><strong>Status</strong></td><td>-</td></tr>
+      <tr><td><strong>Shipment Date</strong></td><td>-</td></tr>
+      <tr><td><strong>Expected Delivery</strong></td><td>-</td></tr>
+      <tr><td><strong>Weight</strong></td><td>-</td></tr>
+      <tr><td><strong>Description</strong></td><td>-</td></tr>
+      <tr><td><strong>Quantity</strong></td><td>-</td></tr>
+    </tbody>
+  </table>
+
+  <div id="receiptWarning"></div>
+
+  <h4 style="text-align:center; margin-top:20px;">📦 Package Image</h4>
+  <img id="receiptImage" class="package-img" style="display:none;">
+
+  <div class="signature">
+    <p>__________________________</p>
+    <p>Authorized Signature</p>
+  </div>
+</div>
+
+<div style="text-align:center;">
+  <button onclick="printReceipt()">🖨️ Print Receipt</button>
+</div>
+
+<script>
+// Today's date
+document.getElementById("todayDate").innerText = new Date().toLocaleDateString();
+
+// Live update function
+function updateLive(){
+  const data = {
+    trackingId: document.getElementById("trackingId").value,
+    sender: document.getElementById("sender").value,
+    receiver: document.getElementById("receiver").value,
+    address: document.getElementById("address").value,
+    status: document.getElementById("status").value,
+    shipmentDate: document.getElementById("shipmentDate").value,
+    expectedDate: document.getElementById("expectedDate").value,
+    weight: document.getElementById("weight").value,
+    description: document.getElementById("description").value,
+    quantity: document.getElementById("quantity").value,
+  };
+
+  // Receipt Table
   const r = document.getElementById("receiptContent");
   r.innerHTML = `
-    <table>
-      <tr><th>Tracking ID</th><td>${data.trackingId || '-'}</td></tr>
-      <tr><th>Sender</th><td>${data.sender || '-'}</td></tr>
-      <tr><th>Receiver</th><td>${data.receiver || '-'}</td></tr>
-      <tr><th>Delivery Address</th><td>${data.address || '-'}</td></tr>
-      <tr><th>Status</th><td>${data.status || '-'}</td></tr>
-      <tr><th>Shipment Date</th><td>${data.shipmentDate || '-'}</td></tr>
-      <tr><th>Expected Delivery</th><td>${data.expectedDate || '-'}</td></tr>
-      <tr><th>Weight</th><td>${data.weight || '-'}</td></tr>
-      <tr><th>Description</th><td>${data.description || '-'}</td></tr>
-      <tr><th>Quantity</th><td>${data.quantity || '-'}</td></tr>
-    </table>
-    <p style="margin-top:15px; text-align:center;">Thank you for shipping with X-Cargo Express!</p>
+    <tr><td><strong>Tracking ID</strong></td><td>${data.trackingId}</td></tr>
+    <tr><td><strong>Sender</strong></td><td>${data.sender}</td></tr>
+    <tr><td><strong>Receiver</strong></td><td>${data.receiver}</td></tr>
+    <tr><td><strong>Delivery Address</strong></td><td>${data.address}</td></tr>
+    <tr><td><strong>Status</strong></td><td>${data.status}</td></tr>
+    <tr><td><strong>Shipment Date</strong></td><td>${data.shipmentDate}</td></tr>
+    <tr><td><strong>Expected Delivery</strong></td><td>${data.expectedDate}</td></tr>
+    <tr><td><strong>Weight</strong></td><td>${data.weight}</td></tr>
+    <tr><td><strong>Description</strong></td><td>${data.description}</td></tr>
+    <tr><td><strong>Quantity</strong></td><td>${data.quantity}</td></tr>
   `;
+
+  // Warning
+  const warningBox = document.getElementById("receiptWarning");
+  if(document.getElementById("showWarning").checked && document.getElementById("warningText").value.trim() !== ""){
+    warningBox.innerHTML = `<div class="warning-box" style="color:${document.getElementById("warningColor").value}; text-align:center;">
+      ${document.getElementById("warningText").value}
+    </div>`;
+  } else {
+    warningBox.innerHTML = "";
+  }
 }
 
-// Create package function
-window.createPackage = async function(){
-  const data = {};
-  fields.forEach(f => {
-    const el = document.getElementById(f);
-    if(!el) return;
-    if(el.type === "checkbox") data[f] = el.checked;
-    else data[f] = el.value;
-  });
+// Watch inputs
+document.querySelectorAll("#packageForm input, #packageForm textarea").forEach(el=>{
+  el.addEventListener("input", updateLive);
+});
 
-  if(!data.trackingId || !data.receiver){
-    alert("Tracking ID and Receiver name are required");
-    return;
-  }
-
-  await set(ref(db, 'packages/' + data.trackingId), data);
-
-  const snapshot = await get(child(ref(db), 'packages/' + data.trackingId));
-  if(snapshot.exists()){
-    const saved = snapshot.val();
-    updatePreview();
-    updateReceipt(saved); // update receipt
-  }
-
-  alert("Package created successfully!");
-  document.getElementById("packageForm").reset();
-  updatePreview();
-}
-
-// Attach live preview listeners
-fields.forEach(f=>{
-  const el = document.getElementById(f);
-  if(el){
-    el.addEventListener("input", updatePreview);
-    if(el.type==="checkbox") el.addEventListener("change", updatePreview);
+// Handle package image
+document.getElementById("packageImage").addEventListener("change", function(){
+  const file = this.files[0];
+  if(file){
+    const reader = new FileReader();
+    reader.onload = e=>{
+      document.getElementById("receiptImage").src = e.target.result;
+      document.getElementById("receiptImage").style.display = "block";
+    };
+    reader.readAsDataURL(file);
   }
 });
-document.getElementById("suspendedColor")?.addEventListener("input", updatePreview);
-document.getElementById("suspendedDescription")?.addEventListener("input", updatePreview);
+
+// Handle logo upload
+document.getElementById("logoUpload").addEventListener("change", function(){
+  const file = this.files[0];
+  if(file){
+    const reader = new FileReader();
+    reader.onload = e=>{
+      document.getElementById("receiptLogo").src = e.target.result;
+      document.getElementById("receiptLogo").style.display = "block";
+      document.getElementById("receiptLogoText").style.display = "none";
+    };
+    reader.readAsDataURL(file);
+  }
+});
 
 // Print function
-window.printReceipt = function(){
+function printReceipt(){
   const printContents = document.getElementById("receipt").innerHTML;
-  const win = window.open('', '', 'width=800,height=700');
-  win.document.write('<html><head><title>Shipment Receipt</title></head><body>');
+  const win = window.open('', '', 'width=700,height=600');
+  win.document.write('<html><head><title>Print Receipt</title></head><body>');
   win.document.write(printContents);
   win.document.write('</body></html>');
   win.document.close();
   win.print();
 }
 </script>
-</head>
-<body>
-<h2>Create New Package</h2>
-<form id="packageForm" onsubmit="event.preventDefault(); createPackage();">
-
-<h3>📦 Package Details</h3>
-<label>Tracking ID</label>
-<input type="text" id="trackingId" placeholder="e.g. XCE001122" required />
-<label>Sender Name</label>
-<input type="text" id="sender" placeholder="e.g. X-Cargo Logistics" />
-<label>Sender Address</label>
-<input type="text" id="senderAddress" placeholder="e.g. 123 Warehouse Rd, Accra" />
-<label>Receiver Name</label>
-<input type="text" id="receiver" placeholder="e.g. John Doe" required />
-<label>Receiver Email</label>
-<input type="email" id="email" placeholder="e.g. example@email.com" />
-<label>Phone Number</label>
-<input type="text" id="phone" placeholder="e.g. +233 123 456 7890" />
-<label>Delivery Address</label>
-<input type="text" id="address" placeholder="e.g. 456 Main St, Kumasi" />
-<label>Status</label>
-<input type="text" id="status" placeholder="e.g. In Transit" />
-<label>Current Location</label>
-<input type="text" id="location" placeholder="e.g. Tema Port" />
-<label>Shipment Date</label>
-<input type="date" id="shipmentDate" />
-<label>Update Date</label>
-<input type="date" id="updateDate" />
-<label>Expected Delivery Date</label>
-<input type="date" id="expectedDate" />
-<label>Package Weight</label>
-<input type="text" id="weight" placeholder="e.g. 12kg" />
-<label>Description</label>
-<input type="text" id="description" placeholder="e.g. Electronics - Phones" />
-<label>Quantity</label>
-<input type="number" id="quantity" placeholder="e.g. 3" />
-<label>Remarks</label>
-<textarea id="remark" placeholder="e.g. Handle with care"></textarea>
-<label>Image URL</label>
-<input type="text" id="image" placeholder="e.g. https://example.com/image.jpg" />
-<label>Schedule Delivery Note</label>
-<input type="text" id="scheduleDelivery" placeholder="e.g. Deliver before 5 PM" />
-
-<div class="checkbox-group">
-  <input type="checkbox" id="isSuspended" />
-  <label for="isSuspended">Suspend this Package</label>
-</div>
-
-<label>Suspending Description</label>
-<input type="text" id="suspendedDescription" placeholder="Type what appears when suspended" />
-
-<div class="checkbox-group">
-  <input type="checkbox" id="feeWarning" />
-  <label for="feeWarning">Show “A delivery fee may apply”</label>
-</div>
-<div class="checkbox-group">
-  <input type="checkbox" id="suspendedNotice" />
-  <label for="suspendedNotice">Mark "DELIVERY OF THE SUSPENDED PACKAGE!"</label>
-</div>
-<label>SUSPENDED Text Color</label>
-<input type="color" id="suspendedColor" />
-
-<h3>🖌️ Customization</h3>
-<label>🎨 Theme Custom Color</label>
-<input type="color" id="themeColor" />
-<label>🖼️ Background Type</label>
-<select id="backgroundType">
-  <option value="simple">Simple Gradient</option>
-  <option value="abstract">Abstract Gradient</option>
-  <option value="customGradient">Custom Gradient</option>
-  <option value="color">Custom Color</option>
-  <option value="image">Image</option>
-  <option value="video">Video</option>
-</select>
-<label>Background Value</label>
-<input type="text" id="backgroundValue" placeholder="e.g. #ffffff or https://..." />
-
-<h3>🏷️ Branding</h3>
-<label>Branding Name</label>
-<input type="text" id="brandingName" placeholder="e.g. X-Cargo Express" />
-<label>Branding URL</label>
-<input type="url" id="brandingUrl" placeholder="e.g. https://x-cargo.com" />
-<label>🖌️ Text Color</label>
-<input type="color" id="brandingTextColor" />
-
-<h3>🔤 Fonts</h3>
-<label>✒️ Font</label>
-<select id="fontFamily">
-  <option value="Arial">Arial</option>
-  <option value="Verdana">Verdana</option>
-  <option value="Times New Roman">Times New Roman</option>
-  <option value="Courier New">Courier New</option>
-  <option value="Georgia">Georgia</option>
-</select>
-<label>Font Size (px)</label>
-<input type="number" id="fontSize" placeholder="e.g. 16" />
-
-<h3>🧑‍✈️ Advanced</h3>
-<label>⚒️ Project Name</label>
-<input type="text" id="projectName" placeholder="e.g. X-Logistics Monitor" />
-<label>⏩ Leap Link URL</label>
-<input type="url" id="leapUrl" placeholder="e.g. https://your-site.com/track" />
-
-<button type="submit">CREATE SHIPMENT</button>
-</form>
-
-<h3>Live Preview</h3>
-<div id="preview"></div>
-
-<h3>📄 Receipt</h3>
-<div id="receipt">
-  <h2>X-Cargo Express</h2>
-  <h3>Shipment Receipt</h3>
-  <div id="receiptContent">
-    <p>Receipt will be generated after creating a package.</p>
-  </div>
-</div>
-<button id="printBtn" onclick="printReceipt()">🖨️ Print Receipt</button>
-
 </body>
 </html>
