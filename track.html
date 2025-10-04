@@ -45,10 +45,10 @@
     box-shadow: 0 3px 8px rgba(0,0,0,0.1);
   }
   #result img {
-    max-width: 100%;
-    height: auto;
-    margin-top: 10px;
+    max-width: 200px;
+    margin: 10px;
     border-radius: 6px;
+    display: block;
   }
   .field {
     margin-bottom: 8px;
@@ -90,27 +90,35 @@ window.trackPackage = async function() {
     const snapshot = await get(child(dbRef, `packages/${trackingId}`));
     if(snapshot.exists()) {
       const data = snapshot.val();
-      let html = "";
+      let html = `<h2>📦 Tracking Result</h2>`;
 
-      // Show all fields dynamically
-      for (const key in data) {
-        if(data[key] && key !== "image") {
-          html += `<div class="field"><strong>${key}:</strong> ${data[key]}</div>`;
-        }
+      // Show known fields with labels
+      if (data.trackingId) html += `<div class="field"><strong>Tracking ID:</strong> ${data.trackingId}</div>`;
+      if (data.sender) html += `<div class="field"><strong>Sender:</strong> ${data.sender}</div>`;
+      if (data.receiver) html += `<div class="field"><strong>Receiver:</strong> ${data.receiver}</div>`;
+      if (data.status) html += `<div class="field"><strong>Status:</strong> ${data.status}</div>`;
+      if (data.location) html += `<div class="field"><strong>Location:</strong> ${data.location}</div>`;
+      if (data.expectedDate) html += `<div class="field"><strong>Expected Date:</strong> ${data.expectedDate}</div>`;
+
+      // Show images if exist
+      if (data.logoImage) {
+        html += `<div class="field"><strong>Company Logo:</strong><br><img src="${data.logoImage}" alt="Logo"></div>`;
+      }
+      if (data.packageImage) {
+        html += `<div class="field"><strong>Package Image:</strong><br><img src="${data.packageImage}" alt="Package"></div>`;
       }
 
-      // Show image if exists
-      if(data.image) {
-        html += `<img src="${data.image}" alt="Package Image">`;
-      }
+      // Add today’s date
+      const today = new Date().toLocaleDateString();
+      html += `<div class="field"><em>Result generated on: ${today}</em></div>`;
 
       resultDiv.innerHTML = html;
     } else {
-      resultDiv.innerHTML = "No package found with this tracking number.";
+      resultDiv.innerHTML = "❌ No package found with this tracking number.";
     }
   } catch (error) {
     console.error(error);
-    resultDiv.innerHTML = "Error retrieving package data. Try again later.";
+    resultDiv.innerHTML = "⚠ Error retrieving package data. Try again later.";
   }
 }
 </script>
