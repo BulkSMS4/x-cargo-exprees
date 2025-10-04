@@ -43,15 +43,16 @@
     background: #fff;
     border-radius: 10px;
     box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    text-align: center;
   }
   #result img {
-    max-width: 200px;
-    margin: 10px;
-    border-radius: 6px;
-    display: block;
+    max-width: 250px;
+    margin-top: 15px;
+    border-radius: 8px;
   }
   .field {
     margin-bottom: 8px;
+    text-align: left;
   }
   .field strong {
     color: #004080;
@@ -90,27 +91,24 @@ window.trackPackage = async function() {
     const snapshot = await get(child(dbRef, `packages/${trackingId}`));
     if(snapshot.exists()) {
       const data = snapshot.val();
-      let html = `<h2>📦 Tracking Result</h2>`;
+      let html = "";
 
-      // Show known fields with labels
-      if (data.trackingId) html += `<div class="field"><strong>Tracking ID:</strong> ${data.trackingId}</div>`;
-      if (data.sender) html += `<div class="field"><strong>Sender:</strong> ${data.sender}</div>`;
-      if (data.receiver) html += `<div class="field"><strong>Receiver:</strong> ${data.receiver}</div>`;
-      if (data.status) html += `<div class="field"><strong>Status:</strong> ${data.status}</div>`;
-      if (data.location) html += `<div class="field"><strong>Location:</strong> ${data.location}</div>`;
-      if (data.expectedDate) html += `<div class="field"><strong>Expected Date:</strong> ${data.expectedDate}</div>`;
-
-      // Show images if exist
-      if (data.logoImage) {
-        html += `<div class="field"><strong>Company Logo:</strong><br><img src="${data.logoImage}" alt="Logo"></div>`;
-      }
-      if (data.packageImage) {
-        html += `<div class="field"><strong>Package Image:</strong><br><img src="${data.packageImage}" alt="Package"></div>`;
+      // Show logo at the top if available
+      if(data.logo) {
+        html += `<img src="${data.logo}" alt="Company Logo" style="max-width:150px;display:block;margin:auto;">`;
       }
 
-      // Add today’s date
-      const today = new Date().toLocaleDateString();
-      html += `<div class="field"><em>Result generated on: ${today}</em></div>`;
+      // Show all fields except images
+      for (const key in data) {
+        if (data[key] && key !== "logo" && key !== "packageImage") {
+          html += `<div class="field"><strong>${key}:</strong> ${data[key]}</div>`;
+        }
+      }
+
+      // Show package image if exists
+      if(data.packageImage) {
+        html += `<img src="${data.packageImage}" alt="Package Image">`;
+      }
 
       resultDiv.innerHTML = html;
     } else {
@@ -118,7 +116,7 @@ window.trackPackage = async function() {
     }
   } catch (error) {
     console.error(error);
-    resultDiv.innerHTML = "⚠ Error retrieving package data. Try again later.";
+    resultDiv.innerHTML = "⚠️ Error retrieving package data. Try again later.";
   }
 }
 </script>
