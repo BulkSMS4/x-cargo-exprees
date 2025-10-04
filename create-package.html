@@ -9,7 +9,7 @@
     form { max-width: 650px; margin: auto; background:#fff; padding:20px; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
     label { display:block; margin-top:10px; font-weight:bold; }
     input, textarea, select { width:100%; padding:8px; margin-top:5px; border-radius:5px; border:1px solid #ccc; }
-    .preview, .receipt { max-width:650px; margin:20px auto; padding:20px; border-radius:10px; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+    .receipt { max-width:650px; margin:20px auto; padding:20px; border-radius:10px; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.1); display:none; }
     .warning-box { font-weight:bold; padding:10px; border-radius:5px; margin-top:10px; }
     .package-img, .logo-img { max-width:200px; margin:10px auto; display:block; }
     button { padding:10px 15px; margin-top:15px; border:none; background:#007bff; color:#fff; border-radius:5px; cursor:pointer; }
@@ -18,7 +18,12 @@
     table td, table th { border:1px solid #ccc; padding:8px; text-align:left; }
     .receipt-header { text-align:center; margin-bottom:15px; }
     .signature { margin-top:40px; text-align:center; }
+    .action-buttons { text-align:center; margin-top:20px; }
+    .action-buttons button { margin:5px; }
   </style>
+  <!-- html2canvas + jsPDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -65,6 +70,11 @@
   <label><input type="checkbox" id="showWarning"> Show Warning on Receipt</label>
   <label>Warning Color</label>
   <input type="color" id="warningColor" value="#ff0000">
+
+  <!-- Generate button -->
+  <div style="text-align:center;">
+    <button type="button" onclick="generateReceipt()">✅ Generate Receipt</button>
+  </div>
 </form>
 
 <!-- Receipt -->
@@ -77,18 +87,7 @@
   </div>
   
   <table>
-    <tbody id="receiptContent">
-      <tr><td><strong>Tracking ID</strong></td><td>-</td></tr>
-      <tr><td><strong>Sender</strong></td><td>-</td></tr>
-      <tr><td><strong>Receiver</strong></td><td>-</td></tr>
-      <tr><td><strong>Delivery Address</strong></td><td>-</td></tr>
-      <tr><td><strong>Status</strong></td><td>-</td></tr>
-      <tr><td><strong>Shipment Date</strong></td><td>-</td></tr>
-      <tr><td><strong>Expected Delivery</strong></td><td>-</td></tr>
-      <tr><td><strong>Weight</strong></td><td>-</td></tr>
-      <tr><td><strong>Description</strong></td><td>-</td></tr>
-      <tr><td><strong>Quantity</strong></td><td>-</td></tr>
-    </tbody>
+    <tbody id="receiptContent"></tbody>
   </table>
 
   <div id="receiptWarning"></div>
@@ -102,16 +101,19 @@
   </div>
 </div>
 
-<div style="text-align:center;">
-  <button onclick="printReceipt()">🖨️ Print Receipt</button>
+<!-- Action buttons -->
+<div class="action-buttons">
+  <button onclick="printReceipt()">🖨️ Print</button>
+  <button onclick="downloadPDF()">📄 Download PDF</button>
+  <button onclick="saveImage()">🖼️ Save to Gallery</button>
 </div>
 
 <script>
 // Today's date
 document.getElementById("todayDate").innerText = new Date().toLocaleDateString();
 
-// Live update function
-function updateLive(){
+// Generate Receipt function
+function generateReceipt(){
   const data = {
     trackingId: document.getElementById("trackingId").value,
     sender: document.getElementById("sender").value,
@@ -125,7 +127,7 @@ function updateLive(){
     quantity: document.getElementById("quantity").value,
   };
 
-  // Receipt Table
+  // Fill receipt table
   const r = document.getElementById("receiptContent");
   r.innerHTML = `
     <tr><td><strong>Tracking ID</strong></td><td>${data.trackingId}</td></tr>
@@ -149,12 +151,10 @@ function updateLive(){
   } else {
     warningBox.innerHTML = "";
   }
-}
 
-// Watch inputs
-document.querySelectorAll("#packageForm input, #packageForm textarea").forEach(el=>{
-  el.addEventListener("input", updateLive);
-});
+  // Show receipt
+  document.getElementById("receipt").style.display = "block";
+}
 
 // Handle package image
 document.getElementById("packageImage").addEventListener("change", function(){
@@ -183,7 +183,7 @@ document.getElementById("logoUpload").addEventListener("change", function(){
   }
 });
 
-// Print function
+// Print
 function printReceipt(){
   const printContents = document.getElementById("receipt").innerHTML;
   const win = window.open('', '', 'width=700,height=600');
@@ -192,6 +192,30 @@ function printReceipt(){
   win.document.write('</body></html>');
   win.document.close();
   win.print();
+}
+
+// Download PDF
+async function downloadPDF(){
+  const { jsPDF } = window.jspdf;
+  const receipt = document.getElementById("receipt");
+  const canvas = await html2canvas(receipt);
+  const imgData = canvas.toDataURL("image/png");
+  const pdf = new jsPDF("p", "mm", "a4");
+  const imgProps = pdf.getImageProperties(imgData);
+  const pdfWidth = pdf.internal.pageSize.getWidth();
+  const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+  pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+  pdf.save("shipment_receipt.pdf");
+}
+
+// Save to Gallery (download as image)
+async function saveImage(){
+  const receipt = document.getElementById("receipt");
+  const canvas = await html2canvas(receipt);
+  const link = document.createElement("a");
+  link.download = "shipment_receipt.png";
+  link.href = canvas.toDataURL("image/png");
+  link.click();
 }
 </script>
 </body>
