@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>🚚 X-Cargo Express - Update Status</title>
+  <title>🚚 X-Cargo Express - Update Package Status</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
@@ -11,7 +11,11 @@
       color: #333;
       padding: 25px;
     }
-    h2 { text-align: center; margin-bottom: 25px; }
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #007bff;
+    }
     form {
       max-width: 650px;
       margin: auto;
@@ -20,48 +24,102 @@
       border-radius: 12px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
-    label { display: block; margin-top: 10px; font-weight: 500; }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: 500;
+    }
     input, select, textarea {
-      width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;
-      margin-top: 5px; font-size: 15px;
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      margin-top: 5px;
+      font-size: 15px;
     }
     button {
-      background: #007bff; color: #fff; border: none; padding: 12px;
-      border-radius: 6px; width: 100%; margin-top: 20px; font-size: 16px;
-      cursor: pointer; transition: 0.3s;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      padding: 12px;
+      border-radius: 6px;
+      width: 100%;
+      margin-top: 20px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
     }
     button:hover { background: #0056b3; }
+
     .receipt {
-      display: none; background: #fff; padding: 25px; border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1); max-width: 700px; margin: 30px auto;
+      display: none;
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      max-width: 700px;
+      margin: 30px auto;
     }
     .header {
-      text-align: center; border-bottom: 2px solid #007bff; padding-bottom: 10px; margin-bottom: 15px;
+      text-align: center;
+      border-bottom: 2px solid #007bff;
+      padding-bottom: 10px;
+      margin-bottom: 15px;
     }
     .header img {
-      width: 80px; height: auto; display: block; margin: 0 auto 8px;
+      width: 80px;
+      height: auto;
+      display: block;
+      margin: 0 auto 8px;
     }
     .header h2 { margin: 5px 0; }
     .header p { margin: 0; font-size: 13px; color: #666; }
     table {
-      width: 100%; border-collapse: collapse; margin-top: 15px;
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
     }
     table td, table th {
-      padding: 8px; border: 1px solid #ccc; font-size: 14px;
+      padding: 8px;
+      border: 1px solid #ccc;
+      font-size: 14px;
     }
     table th { background: #f1f1f1; text-align: left; }
     .status-box { text-align: center; margin-top: 10px; }
     .status-badge {
-      display: inline-block; padding: 6px 14px; border-radius: 20px; color: #fff; font-weight: bold;
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 20px;
+      color: #fff;
+      font-weight: bold;
     }
-    .warning-box { text-align:center; font-weight:bold; margin-top:10px; }
-    .images { text-align:center; margin-top:15px; }
-    .images img { max-width:220px; margin:8px; border-radius:6px; }
-    .actions { text-align:center; margin-top:15px; }
-    .actions button { width:auto; margin:5px; padding:10px 15px; border-radius:6px; }
-    .actions .pdf { background:#ffc107; }
-    .actions .print { background:#17a2b8; }
-    .actions .img { background:#28a745; }
+    .warning-box {
+      text-align: center;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    .images {
+      text-align: center;
+      margin-top: 15px;
+    }
+    .images img {
+      max-width: 220px;
+      margin: 8px;
+      border-radius: 6px;
+    }
+    .actions {
+      text-align: center;
+      margin-top: 15px;
+    }
+    .actions button {
+      width: auto;
+      margin: 5px;
+      padding: 10px 15px;
+      border-radius: 6px;
+    }
+    .actions .pdf { background: #ffc107; }
+    .actions .print { background: #17a2b8; }
+    .actions .img { background: #28a745; }
   </style>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -77,23 +135,26 @@
 
     <label>Change Status</label>
     <select id="status">
-      <option>In Transit</option>
-      <option>Delivered</option>
       <option>Pending</option>
+      <option>Processing</option>
+      <option>In Transit</option>
+      <option>On Hold</option>
       <option>Suspended</option>
+      <option>Delivered</option>
+      <option>Not Delivered Yet</option>
     </select>
 
     <label>Custom Status Color</label>
     <input type="color" id="statusColor" value="#007bff">
 
     <h3>⚠️ Warning Settings</h3>
-    <label><input type="checkbox" id="showWarning"> Show Warning</label>
-    <textarea id="warningText" placeholder="⚠️ Handle with care! Fragile."></textarea>
+    <label><input type="checkbox" id="showWarning"> Show Warning Message</label>
+    <textarea id="warningText" placeholder="⚠️ Failure to verify may result in account lock!"></textarea>
     <label>Warning Text Color</label>
     <input type="color" id="warningColor" value="#ff0000">
 
     <button type="button" id="fetchBtn">🔍 Fetch Package</button>
-    <button type="submit" id="updateBtn" disabled>✅ Update</button>
+    <button type="submit" id="updateBtn" disabled>✅ Update Status</button>
   </form>
 
   <div id="receipt" class="receipt">
@@ -165,6 +226,7 @@
       updateBtn.disabled = false;
       document.getElementById("receipt").style.display = "block";
 
+      // Fill data
       document.getElementById("rTracking").textContent = data.trackingId;
       document.getElementById("rSender").textContent = data.sender;
       document.getElementById("rReceiver").textContent = data.receiver;
@@ -176,20 +238,23 @@
       document.getElementById("rDesc").textContent = data.description;
       document.getElementById("headerLogo").src = data.logoURL || "";
 
-      // Fill warning details
+      // Images
+      const imageSection = document.getElementById("imageSection");
+      imageSection.innerHTML = "";
+      if (data.packageImages) {
+        Object.values(data.packageImages).forEach(url => {
+          imageSection.innerHTML += `<img src="${url}" alt="Package Image">`;
+        });
+      }
+
+      // Fill warning + status
+      document.getElementById("status").value = data.status || "Pending";
+      document.getElementById("statusColor").value = data.statusColor || "#007bff";
       document.getElementById("warningText").value = data.warningText || "";
       document.getElementById("warningColor").value = data.warningColor || "#ff0000";
       document.getElementById("showWarning").checked = data.showWarning || false;
 
-      // Fill status color
-      document.getElementById("statusColor").value = "#007bff";
-
-      // Render warning + status
-      renderPreview(data.status, document.getElementById("statusColor").value, data.warningText, data.warningColor, data.showWarning);
-
-      document.getElementById("imageSection").innerHTML = data.packageURL
-        ? `<img src="${data.packageURL}" alt="Package">`
-        : "";
+      renderPreview(data.status, data.statusColor, data.warningText, data.warningColor, data.showWarning);
     });
 
     function renderPreview(status, statusColor, warningText, warningColor, showWarning) {
@@ -214,14 +279,14 @@
 
       await update(ref(db, "packages/" + trackingId), {
         status: newStatus,
+        statusColor,
         warningText,
         warningColor,
         showWarning
       });
 
       renderPreview(newStatus, statusColor, warningText, warningColor, showWarning);
-
-      alert("✅ Status and Warning updated successfully!");
+      alert("✅ Package status updated successfully!");
     });
 
     // PDF Download
@@ -234,7 +299,7 @@
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
       pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-      pdf.save("Updated-Receipt.pdf");
+      pdf.save("Updated-Package-Receipt.pdf");
     });
 
     // Save as Image
@@ -242,7 +307,7 @@
       const element = document.getElementById("receipt");
       const canvas = await html2canvas(element);
       const link = document.createElement("a");
-      link.download = "Updated-Receipt.png";
+      link.download = "Updated-Package-Receipt.png";
       link.href = canvas.toDataURL("image/png");
       link.click();
     });
