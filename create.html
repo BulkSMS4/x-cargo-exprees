@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>📄 X-Cargo Express — Create Invoice</title>
+  <title>📄 X-Cargo Express — Create Package (Admin)</title>
   <style>
-    :root{--primary:#007bff}
-    body{font-family:Inter, "Segoe UI", Roboto, Arial; background:#f5f7fb; color:#222; margin:0; padding:24px;}
-    h1{color:var(--primary); text-align:center; margin-bottom:18px}
-    form { max-width:900px; margin:0 auto 18px; background:#fff; padding:18px; border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.06); }
+    :root{--brand:#007bff}
+    body{font-family:Inter, "Segoe UI", Arial; background:#f6f8fb; color:#222; margin:0; padding:24px;}
+    h1{color:var(--brand); text-align:center; margin-bottom:18px}
+    form { max-width:1000px; margin:0 auto 18px; background:#fff; padding:18px; border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.06); }
     label{display:block; margin-top:12px; font-weight:600}
     input[type="text"], input[type="date"], input[type="number"], input[type="color"], select, textarea, input[type="file"] {
       width:100%; padding:10px; margin-top:6px; border-radius:8px; border:1px solid #d8dce3; font-size:14px;
@@ -17,48 +17,37 @@
     .row { display:flex; gap:12px; }
     .col { flex:1; }
     .small { max-width:220px; }
-    button { background:var(--primary); color:#fff; border:none; padding:12px; border-radius:8px; cursor:pointer; font-weight:700; margin-top:16px; width:100%;}
-    button.secondary { background:#444; width:auto; padding:8px 12px; margin-left:8px; }
-    .flex { display:flex; gap:8px; align-items:center; }
+    button { background:var(--brand); color:#fff; border:none; padding:12px; border-radius:8px; cursor:pointer; font-weight:700; margin-top:16px;}
+    .secondary { background:#666; }
     .note { font-size:13px; color:#666; margin-top:6px; }
-
-    /* invoice / receipt */
-    .invoice { display:none; max-width:900px; margin:20px auto; background:#fff; padding:20px; border-radius:10px; box-shadow:0 6px 20px rgba(0,0,0,.06); }
+    .invoice { display:none; max-width:1000px; margin:20px auto; background:#fff; padding:20px; border-radius:10px; box-shadow:0 6px 20px rgba(0,0,0,.06); }
     .inv-header { display:flex; gap:16px; align-items:center; border-bottom:2px solid #eef3fb; padding-bottom:12px; }
-    .inv-logo { width:84px; height:84px; object-fit:contain; border-radius:8px; background:#fff; border:1px solid #eee; }
-    .inv-title { margin-left:6px; }
-    .inv-title h2{ margin:0; color:var(--primary) }
+    .inv-logo { width:90px; height:90px; object-fit:contain; border-radius:8px; background:#fff; border:1px solid #eee; }
+    .inv-title h2{ margin:0; color:var(--brand) }
     .inv-meta { margin-left:auto; text-align:right; font-size:13px; color:#555 }
     table.inv-table { width:100%; border-collapse:collapse; margin-top:14px; }
     table.inv-table th, table.inv-table td { padding:10px; border:1px solid #eee; text-align:left; font-size:14px; }
-    .status-badge { display:inline-block; padding:6px 12px; border-radius:20px; color:#fff; font-weight:700; margin-top:8px; }
+    .status-badge { display:inline-block; padding:6px 12px; border-radius:18px; color:#fff; font-weight:700; margin-top:8px; }
     .warning { margin-top:12px; font-weight:700; padding:8px 10px; border-radius:8px; display:inline-block;}
     .images { margin-top:12px; display:flex; gap:8px; flex-wrap:wrap; }
     .images img { width:180px; height:120px; object-fit:cover; border-radius:8px; border:1px solid #eee; }
-
-    .upload-status { text-align:center; margin-top:10px; font-size:14px; color:#007bff; font-weight:700; }
+    .upload-status { text-align:center; margin-top:10px; font-size:14px; color:var(--brand); font-weight:700; }
     .actions { display:flex; gap:8px; margin-top:16px; flex-wrap:wrap; }
     .actions button { width:auto; }
-
-    /* responsive */
-    @media (max-width:720px){
-      .row { flex-direction:column; }
-      .inv-header { flex-direction:column; align-items:flex-start }
-      .inv-meta { margin-left:0; text-align:left; margin-top:8px; }
-    }
+    @media (max-width:760px){ .row{flex-direction:column} .inv-header{flex-direction:column;align-items:flex-start} .inv-meta{text-align:left;margin-left:0} }
   </style>
+
   <!-- libs -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
-
-  <h1>📄 X-Cargo Express — Create Invoice</h1>
+  <h1>📦 X-Cargo Express — Create Package (Admin)</h1>
 
   <form id="createForm" autocomplete="off">
     <div class="row">
       <div class="col">
-        <label>Tracking ID <span class="note">(auto if blank)</span></label>
+        <label>Tracking ID <span class="note">(leave blank to auto-generate)</span></label>
         <input id="trackingId" type="text" placeholder="e.g. XCE123456">
       </div>
       <div class="col small">
@@ -73,11 +62,11 @@
 
     <div class="row">
       <div class="col">
-        <label>Sender</label>
+        <label>Sender (Name / City, Country)</label>
         <input id="sender" type="text" placeholder="e.g. John Smith / New York, USA">
       </div>
       <div class="col">
-        <label>Receiver</label>
+        <label>Receiver (Name / City, Country)</label>
         <input id="receiver" type="text" placeholder="e.g. Mary Johnson / London, UK">
       </div>
     </div>
@@ -87,21 +76,20 @@
 
     <div class="row">
       <div class="col small">
-        <label>Weight</label>
+        <label>Weight (e.g. 12.5 kg)</label>
         <input id="weight" type="text" placeholder="e.g. 12.5 kg">
       </div>
       <div class="col small">
         <label>Quantity</label>
-        <input id="quantity" type="number" min="1" value="1" placeholder="e.g. 3">
+        <input id="quantity" type="number" min="1" value="1" placeholder="e.g. 2">
       </div>
       <div class="col">
         <label>Description</label>
-        <input id="description" type="text" placeholder="e.g. Fragile electronic items">
+        <input id="description" type="text" placeholder="e.g. Fragile electronics - handle with care">
       </div>
     </div>
 
-    <h3 style="margin-top:14px; color:var(--primary)">Status & Warning</h3>
-
+    <h3 style="margin-top:14px; color:var(--brand)">Status & Warning</h3>
     <div class="row">
       <div class="col">
         <label>Status</label>
@@ -123,22 +111,24 @@
 
     <div style="margin-top:10px">
       <label><input id="showWarning" type="checkbox"> Show Warning Message</label>
-      <textarea id="warningText" placeholder="e.g. ⚠️ Handle with care — fragile"></textarea>
+      <textarea id="warningText" placeholder="e.g. ⚠️ Fragile — no stacking"></textarea>
       <div style="max-width:200px;">
         <label>Warning Color</label>
         <input id="warningColor" type="color" value="#ff0000">
       </div>
     </div>
 
-    <h3 style="margin-top:14px; color:var(--primary)">Images</h3>
+    <h3 style="margin-top:14px; color:var(--brand)">Images (upload manually)</h3>
     <div class="row">
       <div class="col">
         <label>Company Logo (optional)</label>
         <input id="logoUpload" type="file" accept="image/*">
+        <div class="note">Upload a logo file (PNG/JPG). This will appear on the invoice preview.</div>
       </div>
       <div class="col">
-        <label>Package Images (optional — multiple)</label>
+        <label>Package Images (optional — multiple allowed)</label>
         <input id="packageImages" type="file" accept="image/*" multiple>
+        <div class="note">Upload package photo(s). Previews appear instantly; files upload in background.</div>
       </div>
     </div>
 
@@ -150,14 +140,12 @@
         <button id="clearBtn" type="button" class="secondary">Clear Form</button>
       </div>
     </div>
-
-    <p class="note">Tip: invoice appears immediately. Files upload in background and will update the saved record when done.</p>
+    <p class="note">Tip: The invoice preview appears instantly. Image uploads continue in background and update the saved package once complete.</p>
   </form>
 
-  <!-- upload status -->
   <div id="uploadStatus" class="upload-status" style="display:none"></div>
 
-  <!-- Invoice / Receipt -->
+  <!-- Invoice / Receipt (admin sees this instantly after Save) -->
   <section id="invoice" class="invoice" aria-live="polite">
     <div class="inv-header">
       <img id="invLogo" class="inv-logo" src="" alt="Company logo" />
@@ -170,7 +158,7 @@
 
     <div id="statusWrap" style="margin-top:10px"></div>
 
-    <table class="inv-table" style="margin-top:14px">
+    <table class="inv-table">
       <tbody>
         <tr><th>Tracking ID</th><td id="iTracking"></td></tr>
         <tr><th>Sender</th><td id="iSender"></td></tr>
@@ -195,12 +183,10 @@
   </section>
 
   <script type="module">
-    // Firebase imports
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
     import { getDatabase, ref as dbRef, set as dbSet } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
     import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-storage.js";
 
-    // Firebase config (kept as your project)
     const firebaseConfig = {
       apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
       authDomain: "x-cargo-exprees.firebaseapp.com",
@@ -217,11 +203,10 @@
 
     // DOM
     const createForm = document.getElementById("createForm");
-    const saveBtn = document.getElementById("saveBtn");
     const invoice = document.getElementById("invoice");
     const uploadStatus = document.getElementById("uploadStatus");
 
-    // Elements for invoice fill
+    // Invoice elements
     const invLogo = document.getElementById("invLogo");
     const invMeta = document.getElementById("invMeta");
     const iTracking = document.getElementById("iTracking");
@@ -237,10 +222,37 @@
     const iWarning = document.getElementById("iWarning");
     const iImages = document.getElementById("iImages");
 
-    // helpers
+    // helper for local previews
     const createObjectURL = (file) => URL.createObjectURL(file);
 
-    function showInvoice(data, previewImgs = []) {
+    // background uploader - returns {logoURL, imageURLs}
+    async function uploadFilesInBackground(trackingId, logoFile, packageFiles) {
+      const result = { logoURL: "", imageURLs: [] };
+
+      // upload logo (if any)
+      if (logoFile) {
+        const name = `logos/${Date.now()}_${Math.random().toString(36).slice(2)}_${logoFile.name}`;
+        const ref = storageRef(storage, name);
+        await uploadBytes(ref, logoFile);
+        result.logoURL = await getDownloadURL(ref);
+      }
+
+      // upload package files in parallel
+      const promises = [];
+      for (const file of packageFiles) {
+        const name = `packages/${Date.now()}_${Math.random().toString(36).slice(2)}_${file.name}`;
+        const refImg = storageRef(storage, name);
+        promises.push(uploadBytes(refImg, file).then(() => getDownloadURL(refImg)));
+      }
+      if (promises.length) {
+        const urls = await Promise.all(promises);
+        result.imageURLs = urls;
+      }
+      return result;
+    }
+
+    // shows invoice immediately with local previews (no wait)
+    function showInvoice(data, logoPreview, previewImgs) {
       invoice.style.display = "block";
       iTracking.textContent = data.trackingId;
       iSender.textContent = data.sender;
@@ -251,76 +263,30 @@
       iWeight.textContent = data.weight || "-";
       iQuantity.textContent = data.quantity || "-";
       iDesc.textContent = data.description || "-";
-
-      // status badge with chosen color
-      statusWrap.innerHTML = `<div class="status-badge" style="background:${data.statusColor || '#007bff'}">${data.status || 'Pending'}</div>`;
-
-      // warning
+      statusWrap.innerHTML = `<div class="status-badge" style="background:${data.statusColor || '#007bff'}">${data.status||'Pending'}</div>`;
       if (data.showWarning && data.warningText) {
-        iWarning.innerHTML = `<div class="warning" style="color:${data.warningColor || '#ff0000'}">${data.warningText}</div>`;
-      } else {
-        iWarning.innerHTML = "";
-      }
+        iWarning.innerHTML = `<div class="warning" style="color:${data.warningColor||'#ff0000'}">${data.warningText}</div>`;
+      } else iWarning.innerHTML = "";
 
-      // logo (preview or final)
+      // logo (prefer final URL if present)
       if (data.logoURL) invLogo.src = data.logoURL;
-      else invLogo.src = data.logoPreview || "";
+      else invLogo.src = logoPreview || "";
 
-      // images (preview or final)
+      // images: show final URLs if present, otherwise previews
       iImages.innerHTML = "";
       if (data.imageURLs && data.imageURLs.length) {
-        data.imageURLs.forEach(url => {
-          iImages.innerHTML += `<img src="${url}" alt="Package image">`;
-        });
+        data.imageURLs.forEach(url => iImages.innerHTML += `<img src="${url}" alt="Package image">`);
       } else if (previewImgs && previewImgs.length) {
-        previewImgs.forEach(src => {
-          iImages.innerHTML += `<img src="${src}" alt="Preview image">`;
-        });
+        previewImgs.forEach(src => iImages.innerHTML += `<img src="${src}" alt="Preview image">`);
       }
     }
 
-    // Background upload function: returns object with logoURL and imageURLs
-    async function uploadFilesInBackground(trackingId, logoFile, packageFiles, onProgress) {
-      const result = { logoURL: "", imageURLs: [] };
-
-      try {
-        // upload logo
-        if (logoFile) {
-          const name = `logos/${Date.now()}_${Math.random().toString(36).slice(2)}_${logoFile.name}`;
-          const ref = storageRef(storage, name);
-          await uploadBytes(ref, logoFile);
-          result.logoURL = await getDownloadURL(ref);
-        }
-
-        // upload package images sequentially (or you can parallelize)
-        const promises = [];
-        for (const file of packageFiles) {
-          const name = `packages/${Date.now()}_${Math.random().toString(36).slice(2)}_${file.name}`;
-          const refImg = storageRef(storage, name);
-          // push promise but await all with Promise.all for concurrency
-          promises.push(uploadBytes(refImg, file).then(() => getDownloadURL(refImg)));
-        }
-
-        if (promises.length) {
-          const urls = await Promise.all(promises);
-          result.imageURLs = urls;
-        }
-
-      } catch (err) {
-        console.error("Upload error:", err);
-        throw err;
-      }
-
-      return result;
-    }
-
-    // Save form: instant show, background upload -> update DB when done
+    // main submit: instant preview + background upload + db save when uploads complete
     createForm.addEventListener("submit", async (ev) => {
       ev.preventDefault();
 
-      // collect fields
-      const trackingField = document.getElementById("trackingId");
-      let trackingId = trackingField.value.trim();
+      // collect data
+      let trackingId = document.getElementById("trackingId").value.trim();
       if (!trackingId) trackingId = "XCE" + Math.floor(100000 + Math.random() * 900000);
 
       const data = {
@@ -338,66 +304,61 @@
         warningText: document.getElementById("warningText").value.trim(),
         warningColor: document.getElementById("warningColor").value,
         showWarning: document.getElementById("showWarning").checked,
-        logoURL: "",      // will be filled after upload
-        imageURLs: []    // will be filled after upload
+        logoURL: "",
+        imageURLs: [],
+        createdAt: new Date().toISOString()
       };
 
-      // immediate local previews (object URLs)
+      // local preview urls (object URLs)
       const logoFile = document.getElementById("logoUpload").files[0] || null;
       const packageFileList = Array.from(document.getElementById("packageImages").files || []);
       const previewImgs = [];
       if (logoFile) data.logoPreview = createObjectURL(logoFile);
       for (const f of packageFileList) previewImgs.push(createObjectURL(f));
 
-      // show invoice instantly (no wait)
-      showInvoice(data, previewImgs);
+      // show invoice instantly
+      showInvoice(data, data.logoPreview, previewImgs);
 
-      // Show visible upload status
+      // show upload status
       uploadStatus.style.display = "block";
       uploadStatus.textContent = "⏳ Uploading files in background...";
 
-      // Start background upload & DB save
       try {
+        // start background uploads
         const uploadResult = await uploadFilesInBackground(trackingId, logoFile, packageFileList);
-        // update data with actual URLs
-        data.logoURL = uploadResult.logoURL || data.logoURL;
-        data.imageURLs = uploadResult.imageURLs || [];
+        // attach final URLs
+        if (uploadResult.logoURL) data.logoURL = uploadResult.logoURL;
+        if (uploadResult.imageURLs && uploadResult.imageURLs.length) data.imageURLs = uploadResult.imageURLs;
 
-        // save final record to DB
+        // save full record to realtime DB
         await dbSet(dbRef(db, "packages/" + trackingId), data);
 
-        // replace previews with final urls (if available)
+        // update invoice to final URLs (swap previews)
         if (data.logoURL) invLogo.src = data.logoURL;
         if (data.imageURLs && data.imageURLs.length) {
           iImages.innerHTML = "";
-          data.imageURLs.forEach(url => {
-            iImages.innerHTML += `<img src="${url}" alt="Package image">`;
-          });
+          data.imageURLs.forEach(url => iImages.innerHTML += `<img src="${url}" alt="Package image">`);
         }
 
-        uploadStatus.textContent = "✅ Files uploaded and saved.";
+        uploadStatus.textContent = "✅ Files uploaded and package saved.";
         setTimeout(()=> uploadStatus.style.display = "none", 2500);
-
       } catch (err) {
+        console.error("Upload/save error:", err);
         uploadStatus.textContent = "❌ Upload failed: " + (err.message || err);
-        console.error(err);
       }
     });
 
-    // Clear form
+    // clear
     document.getElementById("clearBtn").addEventListener("click", () => {
       createForm.reset();
       invoice.style.display = "none";
       uploadStatus.style.display = "none";
-      // revoke preview object urls optionally
     });
 
-    // Print immediately (prints invoice section)
-    document.getElementById("printBtn").addEventListener("click", () => {
-      window.print();
-    });
+    // Print
+    document.getElementById("printBtn").addEventListener("click", () => window.print());
 
-    // Download PDF (uses html2canvas + jsPDF)
+    // PDF
     document.getElementById("pdfBtn").addEventListener("click", async () => {
       const element = document.getElementById("invoice");
       const canvas = await html2canvas(element, { scale: 2 });
@@ -407,28 +368,21 @@
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
       pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-      pdf.save(`Invoice-${document.getElementById("iTracking").textContent || 'package'}.pdf`);
+      pdf.save(`Invoice-${document.getElementById("iTracking").textContent || "package"}.pdf`);
     });
 
-    // Save to gallery / download image
+    // Save to gallery (download PNG)
     document.getElementById("saveGalleryBtn").addEventListener("click", async () => {
       const element = document.getElementById("invoice");
       const canvas = await html2canvas(element, { scale: 2 });
-      const url = canvas.toDataURL("image/png");
       const link = document.createElement("a");
-      link.href = url;
-      link.download = `Invoice-${document.getElementById("iTracking").textContent || 'package'}.png`;
+      link.download = `Invoice-${document.getElementById("iTracking").textContent || "package"}.png`;
+      link.href = canvas.toDataURL("image/png");
       document.body.appendChild(link);
       link.click();
       link.remove();
     });
 
-    // Small helper: ensure dbRef is available
-    function dbRef(dbInstance, path) {
-      return dbRefOriginal(dbInstance, path);
-    }
-    // We need to access original dbRef name; workaround: import alias
-    import { ref as dbRefOriginal } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
   </script>
 </body>
 </html>
