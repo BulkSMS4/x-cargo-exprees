@@ -6,12 +6,12 @@
 <title>X Cargo Express – Track Your Package</title>
 <style>
   body {
-    font-family: Arial, sans-serif;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #f4f6fb;
+    color: #222;
     padding: 20px;
     max-width: 900px;
     margin: auto;
-    background: #f4f4f4;
-    color: #333;
   }
   h1 {
     text-align: center;
@@ -39,25 +39,67 @@
   }
   #result {
     margin-top: 30px;
-    padding: 20px;
+    padding: 24px;
     background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-    text-align: center;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
   }
-  #result img {
-    max-width: 250px;
-    margin-top: 15px;
-    border-radius: 8px;
+  #result h2 {
+    text-align: center;
+    color: #004080;
+    margin-top: 0;
   }
   .field {
-    margin-bottom: 8px;
-    text-align: left;
+    margin-bottom: 10px;
   }
   .field strong {
     color: #004080;
   }
+  .status {
+    text-align: center;
+    margin: 10px 0;
+  }
+  .status-badge {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 20px;
+    color: #fff;
+    font-weight: 700;
+  }
+  .warning {
+    margin: 12px 0;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: 700;
+  }
+  .images {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 15px;
+  }
+  .images img {
+    width: 180px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #eee;
+    transition: transform 0.2s;
+  }
+  .images img:hover {
+    transform: scale(1.05);
+  }
+  .logo {
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  .logo img {
+    max-width: 120px;
+    border-radius: 8px;
+  }
 </style>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
 import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
@@ -69,8 +111,7 @@ const firebaseConfig = {
   projectId: "x-cargo-exprees",
   storageBucket: "x-cargo-exprees.appspot.com",
   messagingSenderId: "1082201867958",
-  appId: "1:1082201867958:web:d6600fbc82085b0b62c817",
-  measurementId: "G-C3Y4PQC86V"
+  appId: "1:1082201867958:web:d6600fbc82085b0b62c817"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -79,35 +120,64 @@ const db = getDatabase(app);
 window.trackPackage = async function() {
   const trackingId = document.getElementById("trackingId").value.trim();
   const resultDiv = document.getElementById("result");
-  resultDiv.innerHTML = "Loading...";
+  resultDiv.innerHTML = "⏳ Loading package info...";
 
   if (!trackingId) {
     alert("Please enter a tracking number");
+    resultDiv.innerHTML = "";
     return;
   }
 
   try {
-    const dbRef = ref(db);
-    const snapshot = await get(child(dbRef, `packages/${trackingId}`));
-    if(snapshot.exists()) {
+    const snapshot = await get(child(ref(db), `packages/${trackingId}`));
+    if (snapshot.exists()) {
       const data = snapshot.val();
+
       let html = "";
 
-      // Show logo at the top if available
-      if(data.logo) {
-        html += `<img src="${data.logo}" alt="Company Logo" style="max-width:150px;display:block;margin:auto;">`;
+      // company logo
+      if (data.logoURL) {
+        html += `<div class="logo"><img src="${data.logoURL}" alt="Company Logo"></div>`;
       }
 
-      // Show all fields except images
-      for (const key in data) {
-        if (data[key] && key !== "logo" && key !== "packageImage") {
-          html += `<div class="field"><strong>${key}:</strong> ${data[key]}</div>`;
-        }
+      html += `<h2>Package Details</h2>`;
+
+      // status with color
+      html += `
+        <div class="status">
+          <span class="status-badge" style="background:${data.statusColor || '#004080'}">
+            ${data.status || 'Pending'}
+          </span>
+        </div>
+      `;
+
+      // main fields
+      html += `
+        <div class="field"><strong>Tracking ID:</strong> ${data.trackingId}</div>
+        <div class="field"><strong>Sender:</strong> ${data.sender}</div>
+        <div class="field"><strong>Receiver:</strong> ${data.receiver}</div>
+        <div class="field"><strong>Address:</strong> ${data.address}</div>
+        <div class="field"><strong>Shipment Date:</strong> ${data.shipmentDate || '-'}</div>
+        <div class="field"><strong>Expected Delivery:</strong> ${data.expectedDate || '-'}</div>
+        <div class="field"><strong>Weight:</strong> ${data.weight || '-'}</div>
+        <div class="field"><strong>Quantity:</strong> ${data.quantity || '-'}</div>
+        <div class="field"><strong>Description:</strong> ${data.description || '-'}</div>
+      `;
+
+      // warning message
+      if (data.showWarning && data.warningText) {
+        html += `<div class="warning" style="color:${data.warningColor || '#ff0000'}">
+          ${data.warningText}
+        </div>`;
       }
 
-      // Show package image if exists
-      if(data.packageImage) {
-        html += `<img src="${data.packageImage}" alt="Package Image">`;
+      // package images
+      if (data.imageURLs && data.imageURLs.length > 0) {
+        html += `<div class="images">`;
+        data.imageURLs.forEach(url => {
+          html += `<img src="${url}" alt="Package image">`;
+        });
+        html += `</div>`;
       }
 
       resultDiv.innerHTML = html;
