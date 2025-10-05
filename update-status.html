@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🚚 X-Cargo Express - Update Status</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: #f5f7fb;
+      color: #333;
+      padding: 25px;
+    }
+    h2 { text-align: center; margin-bottom: 25px; }
+    form {
+      max-width: 600px;
+      margin: auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    label { display: block; margin-top: 10px; font-weight: 500; }
+    input, select {
+      width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;
+      margin-top: 5px; font-size: 15px;
+    }
+    button {
+      background: #007bff; color: #fff; border: none; padding: 12px;
+      border-radius: 6px; width: 100%; margin-top: 20px; font-size: 16px;
+      cursor: pointer; transition: 0.3s;
+    }
+    button:hover { background: #0056b3; }
+    .receipt {
+      display: none; background: #fff; padding: 25px; border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1); max-width: 700px; margin: 30px auto;
+    }
+    .header {
+      text-align: center; border-bottom: 2px solid #007bff; padding-bottom: 10px; margin-bottom: 15px;
+    }
+    .header img {
+      width: 80px; height: auto; display: block; margin: 0 auto 8px;
+    }
+    .header h2 { margin: 5px 0; }
+    .header p { margin: 0; font-size: 13px; color: #666; }
+    table {
+      width: 100%; border-collapse: collapse; margin-top: 15px;
+    }
+    table td, table th {
+      padding: 8px; border: 1px solid #ccc; font-size: 14px;
+    }
+    table th { background: #f1f1f1; text-align: left; }
+    .status-box { text-align: center; margin-top: 10px; }
+    .status-badge {
+      display: inline-block; padding: 6px 14px; border-radius: 20px; color: #fff; font-weight: bold;
+    }
+    .warning-box { text-align:center; font-weight:bold; margin-top:10px; }
+    .images { text-align:center; margin-top:15px; }
+    .images img { max-width:220px; margin:8px; border-radius:6px; }
+    .actions { text-align:center; margin-top:15px; }
+    .actions button { width:auto; margin:5px; padding:10px 15px; border-radius:6px; }
+    .actions .pdf { background:#ffc107; }
+    .actions .print { background:#17a2b8; }
+    .actions .img { background:#28a745; }
+  </style>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+  <h2>🚚 Update Package Status</h2>
+
+  <form id="statusForm">
+    <label>Enter Tracking ID</label>
+    <input type="text" id="trackingId" placeholder="e.g. XCE123456" required>
+
+    <label>Change Status</label>
+    <select id="status">
+      <option>In Transit</option>
+      <option>Delivered</option>
+      <option>Pending</option>
+      <option>Suspended</option>
+    </select>
+
+    <label>Custom Status Color</label>
+    <input type="color" id="statusColor" value="#007bff">
+
+    <button type="button" id="fetchBtn">🔍 Fetch Package</button>
+    <button type="submit" id="updateBtn" disabled>✅ Update Status</button>
+  </form>
+
+  <div id="receipt" class="receipt">
+    <div class="header">
+      <img id="headerLogo" src="" alt="Company Logo">
+      <h2>X-Cargo Express</h2>
+      <p>123 Express Avenue, Florida, USA</p>
+      <p>Email: support@xcargoexpress.com | Tel: +1-800-555-XCEX</p>
+    </div>
+
+    <div class="status-box" id="statusBox"></div>
+
+    <table>
+      <tr><th>Tracking ID</th><td id="rTracking"></td></tr>
+      <tr><th>Sender</th><td id="rSender"></td></tr>
+      <tr><th>Receiver</th><td id="rReceiver"></td></tr>
+      <tr><th>Address</th><td id="rAddress"></td></tr>
+      <tr><th>Shipment Date</th><td id="rShip"></td></tr>
+      <tr><th>Expected Delivery</th><td id="rExpected"></td></tr>
+      <tr><th>Weight</th><td id="rWeight"></td></tr>
+      <tr><th>Quantity</th><td id="rQuantity"></td></tr>
+      <tr><th>Description</th><td id="rDesc"></td></tr>
+    </table>
+
+    <div id="warningBox"></div>
+    <div class="images" id="imageSection"></div>
+
+    <div class="actions">
+      <button class="print" onclick="window.print()">🖨 Print</button>
+      <button class="pdf" id="downloadPDF">⬇ PDF</button>
+      <button class="img" id="saveImage">🖼 Save Image</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+    import { getDatabase, ref, get, child, update } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
+      authDomain: "x-cargo-exprees.firebaseapp.com",
+      databaseURL: "https://x-cargo-exprees-default-rtdb.firebaseio.com",
+      projectId: "x-cargo-exprees",
+      storageBucket: "x-cargo-exprees.appspot.com",
+      messagingSenderId: "1082201867958",
+      appId: "1:1082201867958:web:d6600fbc82085b0b62c817"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const fetchBtn = document.getElementById("fetchBtn");
+    const updateBtn = document.getElementById("updateBtn");
+
+    fetchBtn.addEventListener("click", async () => {
+      const trackingId = document.getElementById("trackingId").value.trim();
+      if (!trackingId) return alert("Please enter a Tracking ID");
+
+      const dbRef = ref(db);
+      const snapshot = await get(child(dbRef, "packages/" + trackingId));
+
+      if (!snapshot.exists()) {
+        alert("❌ No package found with that Tracking ID");
+        return;
+      }
+
+      const data = snapshot.val();
+      updateBtn.disabled = false;
+      document.getElementById("receipt").style.display = "block";
+
+      document.getElementById("rTracking").textContent = data.trackingId;
+      document.getElementById("rSender").textContent = data.sender;
+      document.getElementById("rReceiver").textContent = data.receiver;
+      document.getElementById("rAddress").textContent = data.address;
+      document.getElementById("rShip").textContent = data.shipmentDate;
+      document.getElementById("rExpected").textContent = data.expectedDate;
+      document.getElementById("rWeight").textContent = data.weight;
+      document.getElementById("rQuantity").textContent = data.quantity;
+      document.getElementById("rDesc").textContent = data.description;
+      document.getElementById("headerLogo").src = data.logoURL || "";
+      document.getElementById("warningBox").innerHTML = data.showWarning
+        ? `<div class="warning-box" style="color:${data.warningColor};">${data.warningText}</div>`
+        : "";
+
+      document.getElementById("imageSection").innerHTML = data.packageURL
+        ? `<img src="${data.packageURL}" alt="Package">`
+        : "";
+
+      const statusBox = document.getElementById("statusBox");
+      statusBox.innerHTML = `<span class="status-badge" style="background:${document.getElementById("statusColor").value};">${data.status}</span>`;
+    });
+
+    // Update status only
+    document.getElementById("statusForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const trackingId = document.getElementById("trackingId").value.trim();
+      const newStatus = document.getElementById("status").value;
+      const customColor = document.getElementById("statusColor").value;
+
+      if (!trackingId) return alert("Enter a tracking ID first");
+
+      await update(ref(db, "packages/" + trackingId), { status: newStatus });
+
+      const statusBox = document.getElementById("statusBox");
+      statusBox.innerHTML = `<span class="status-badge" style="background:${customColor};">${newStatus}</span>`;
+
+      alert("✅ Status updated successfully!");
+    });
+
+    // PDF Download
+    document.getElementById("downloadPDF").addEventListener("click", async () => {
+      const { jsPDF } = window.jspdf;
+      const element = document.getElementById("receipt");
+      const canvas = await html2canvas(element);
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+      pdf.save("Updated-Receipt.pdf");
+    });
+
+    // Save as Image
+    document.getElementById("saveImage").addEventListener("click", async () => {
+      const element = document.getElementById("receipt");
+      const canvas = await html2canvas(element);
+      const link = document.createElement("a");
+      link.download = "Updated-Receipt.png";
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    });
+  </script>
+</body>
+</html>
