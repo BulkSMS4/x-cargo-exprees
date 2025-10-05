@@ -34,18 +34,31 @@
       cursor: pointer; transition: 0.3s;
     }
     button:hover { background: #0056b3; }
+
     .receipt {
-      display: none; background: #fff; padding: 25px; border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1); max-width: 700px; margin: 30px auto;
+      display: none;
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      max-width: 700px;
+      margin: 30px auto;
     }
     .header {
-      text-align: center; border-bottom: 2px solid #007bff; padding-bottom: 10px; margin-bottom: 15px;
+      text-align: center;
+      border-bottom: 2px solid #007bff;
+      padding-bottom: 10px;
+      margin-bottom: 15px;
     }
     .header img {
-      width: 80px; height: auto; display: block; margin: 0 auto 8px;
+      width: 80px;
+      height: auto;
+      display: block;
+      margin: 0 auto 8px;
     }
     .header h2 { margin: 5px 0; }
     .header p { margin: 0; font-size: 13px; color: #666; }
+
     table {
       width: 100%; border-collapse: collapse; margin-top: 15px;
     }
@@ -61,18 +74,33 @@
     .status-badge {
       display: inline-block; padding: 6px 14px; border-radius: 20px; color: #fff; font-weight: bold;
     }
-    .status-In-Transit { background: #17a2b8; }
+    .status-In\ Transit { background: #17a2b8; }
     .status-Delivered { background: #28a745; }
     .status-Pending { background: #ffc107; color:#000; }
     .status-Suspended { background: #dc3545; }
-    .warning-box { text-align:center; font-weight:bold; margin-top:10px; }
-    .images { text-align:center; margin-top:15px; }
-    .images img { max-width:220px; margin:8px; border-radius:6px; }
-    .actions { text-align:center; margin-top:15px; }
-    .actions button { width:auto; margin:5px; padding:10px 15px; border-radius:6px; }
+
+    .warning-box {
+      text-align:center; font-weight:bold; margin-top:10px;
+    }
+    .images {
+      text-align:center; margin-top:15px;
+    }
+    .images img {
+      max-width:220px; margin:8px; border-radius:6px;
+    }
+    .actions {
+      text-align:center; margin-top:15px;
+    }
+    .actions button {
+      width:auto; margin:5px; padding:10px 15px; border-radius:6px;
+    }
     .actions .pdf { background:#ffc107; }
     .actions .print { background:#17a2b8; }
     .actions .img { background:#28a745; }
+
+    .uploading {
+      text-align:center; color:#007bff; margin-top:15px; font-weight:bold;
+    }
   </style>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -83,7 +111,7 @@
   <h2>📦 Create Package</h2>
 
   <form id="packageForm">
-    <label>Tracking ID (auto-generated if empty)</label>
+    <label>Tracking ID (auto-generated if empty 🚚🛍️)</label>
     <input type="text" id="trackingId" placeholder="e.g. XCE123456">
 
     <label>Sender Name</label>
@@ -93,7 +121,7 @@
     <input type="text" id="receiver" placeholder="e.g. Mary Johnson, London UK" required>
 
     <label>Delivery Address</label>
-    <textarea id="address" placeholder="e.g. 22B Baker Street, London, UK"></textarea>
+    <textarea id="address" placeholder="e.g. 22B Baker Street, London, W1U 3BW, United Kingdom"></textarea>
 
     <label>Status</label>
     <select id="status">
@@ -129,6 +157,8 @@
 
     <label>Upload Company Logo</label>
     <input type="file" id="logoImage" accept="image/*">
+
+    <div id="uploadingMsg" class="uploading" style="display:none;">⏳ Uploading files, please wait...</div>
 
     <button type="submit">✅ Create Package</button>
   </form>
@@ -186,88 +216,88 @@
     const storage = getStorage(app);
 
     const form = document.getElementById("packageForm");
+    const uploadingMsg = document.getElementById("uploadingMsg");
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
+      uploadingMsg.style.display = "block";
 
-      let trackingId = document.getElementById("trackingId").value.trim();
-      if (!trackingId) trackingId = "XCE" + Math.floor(100000 + Math.random() * 900000);
+      try {
+        let trackingId = document.getElementById("trackingId").value.trim();
+        if (!trackingId) trackingId = "XCE" + Math.floor(100000 + Math.random() * 900000);
 
-      const sender = document.getElementById("sender").value;
-      const receiver = document.getElementById("receiver").value;
-      const address = document.getElementById("address").value;
-      const status = document.getElementById("status").value;
-      const shipmentDate = document.getElementById("shipmentDate").value;
-      const expectedDate = document.getElementById("expectedDate").value;
-      const weight = document.getElementById("weight").value;
-      const quantity = document.getElementById("quantity").value;
-      const description = document.getElementById("description").value;
-      const warningText = document.getElementById("warningText").value;
-      const showWarning = document.getElementById("showWarning").checked;
-      const warningColor = document.getElementById("warningColor").value;
+        const sender = document.getElementById("sender").value;
+        const receiver = document.getElementById("receiver").value;
+        const address = document.getElementById("address").value;
+        const status = document.getElementById("status").value;
+        const shipmentDate = document.getElementById("shipmentDate").value;
+        const expectedDate = document.getElementById("expectedDate").value;
+        const weight = document.getElementById("weight").value;
+        const quantity = document.getElementById("quantity").value;
+        const description = document.getElementById("description").value;
+        const warningText = document.getElementById("warningText").value;
+        const showWarning = document.getElementById("showWarning").checked;
+        const warningColor = document.getElementById("warningColor").value;
 
-      const packageFile = document.getElementById("packageImage").files[0];
-      const logoFile = document.getElementById("logoImage").files[0];
+        const packageFile = document.getElementById("packageImage").files[0];
+        const logoFile = document.getElementById("logoImage").files[0];
 
-      let packageURL = "", logoURL = "";
+        let packageURL = "", logoURL = "";
 
-      if (packageFile) {
-        const pRef = sRef(storage, "packages/" + packageFile.name);
-        await uploadBytes(pRef, packageFile);
-        packageURL = await getDownloadURL(pRef);
+        const uploadFile = async (file, folder) => {
+          const uniqueName = `${folder}/${Date.now()}_${file.name}`;
+          const fileRef = sRef(storage, uniqueName);
+          await uploadBytes(fileRef, file);
+          return await getDownloadURL(fileRef);
+        };
+
+        const uploadPromises = [];
+        if (packageFile) uploadPromises.push(uploadFile(packageFile, "packages").then(url => packageURL = url));
+        if (logoFile) uploadPromises.push(uploadFile(logoFile, "logos").then(url => logoURL = url));
+
+        if (uploadPromises.length > 0) await Promise.all(uploadPromises);
+
+        const packageData = {
+          trackingId, sender, receiver, address, status,
+          shipmentDate, expectedDate, weight, quantity, description,
+          warningText, warningColor, showWarning, packageURL, logoURL
+        };
+
+        await set(ref(db, "packages/" + trackingId), packageData);
+
+        uploadingMsg.style.display = "none";
+        form.style.display = "none";
+        const receipt = document.getElementById("receipt");
+        receipt.style.display = "block";
+
+        document.getElementById("headerLogo").src = logoURL || "";
+        document.getElementById("rTracking").textContent = trackingId;
+        document.getElementById("rSender").textContent = sender;
+        document.getElementById("rReceiver").textContent = receiver;
+        document.getElementById("rAddress").textContent = address;
+        document.getElementById("rShip").textContent = shipmentDate;
+        document.getElementById("rExpected").textContent = expectedDate;
+        document.getElementById("rWeight").textContent = weight;
+        document.getElementById("rQuantity").textContent = quantity;
+        document.getElementById("rDesc").textContent = description;
+
+        document.getElementById("statusBox").innerHTML =
+          `<span class="status-badge status-${status.replace(" ", "-")}">${status}</span>`;
+
+        document.getElementById("warningBox").innerHTML = showWarning
+          ? `<div class="warning-box" style="color:${warningColor};">${warningText}</div>` : "";
+
+        document.getElementById("imageSection").innerHTML = packageURL
+          ? `<img src="${packageURL}" alt="Package">` : "";
+
+        receipt.scrollIntoView({ behavior: "smooth" });
+      } catch (err) {
+        alert("⚠️ Error: " + err.message);
+        uploadingMsg.style.display = "none";
       }
-
-      if (logoFile) {
-        const lRef = sRef(storage, "logos/" + logoFile.name);
-        await uploadBytes(lRef, logoFile);
-        logoURL = await getDownloadURL(lRef);
-      }
-
-      const packageData = {
-        trackingId, sender, receiver, address, status,
-        shipmentDate, expectedDate, weight, quantity, description,
-        warningText, warningColor, showWarning, packageURL, logoURL
-      };
-
-      await set(ref(db, "packages/" + trackingId), packageData);
-
-      // ✅ Hide form, show receipt
-      document.getElementById("packageForm").style.display = "none";
-      const receipt = document.getElementById("receipt");
-      receipt.style.display = "block";
-
-      // ✅ Fill receipt
-      document.getElementById("headerLogo").src = logoURL || "";
-      document.getElementById("rTracking").textContent = trackingId;
-      document.getElementById("rSender").textContent = sender;
-      document.getElementById("rReceiver").textContent = receiver;
-      document.getElementById("rAddress").textContent = address;
-      document.getElementById("rShip").textContent = shipmentDate;
-      document.getElementById("rExpected").textContent = expectedDate;
-      document.getElementById("rWeight").textContent = weight;
-      document.getElementById("rQuantity").textContent = quantity;
-      document.getElementById("rDesc").textContent = description;
-
-      const statusBox = document.getElementById("statusBox");
-      statusBox.innerHTML = `<span class="status-badge status-${status.replace(" ", "-")}">${status}</span>`;
-
-      const warningBox = document.getElementById("warningBox");
-      warningBox.innerHTML = showWarning ? `<div class="warning-box" style="color:${warningColor};">${warningText}</div>` : "";
-
-      const imageSection = document.getElementById("imageSection");
-      imageSection.innerHTML = packageURL ? `<img src="${packageURL}" alt="Package">` : "";
-
-      // ✅ Scroll to receipt
-      receipt.scrollIntoView({ behavior: "smooth" });
     });
 
-    // ✅ Print receipt
-    document.getElementById("printReceipt").addEventListener("click", () => {
-      window.print();
-      resetFormAfterAction();
-    });
-
-    // ✅ PDF Download
+    // PDF & Image
     document.getElementById("downloadPDF").addEventListener("click", async () => {
       const { jsPDF } = window.jspdf;
       const element = document.getElementById("receipt");
@@ -278,10 +308,8 @@
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
       pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
       pdf.save("Package-Receipt.pdf");
-      resetFormAfterAction();
     });
 
-    // ✅ Save as Image
     document.getElementById("saveImage").addEventListener("click", async () => {
       const element = document.getElementById("receipt");
       const canvas = await html2canvas(element);
@@ -289,18 +317,7 @@
       link.download = "Package-Receipt.png";
       link.href = canvas.toDataURL("image/png");
       link.click();
-      resetFormAfterAction();
     });
-
-    // ✅ Reset form + show again
-    function resetFormAfterAction() {
-      setTimeout(() => {
-        document.getElementById("receipt").style.display = "none";
-        document.getElementById("packageForm").reset();
-        document.getElementById("packageForm").style.display = "block";
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }, 500);
-    }
   </script>
 </body>
 </html>
