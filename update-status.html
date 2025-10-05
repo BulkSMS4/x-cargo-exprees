@@ -13,7 +13,7 @@
     }
     h2 { text-align: center; margin-bottom: 25px; }
     form {
-      max-width: 600px;
+      max-width: 650px;
       margin: auto;
       background: #fff;
       padding: 25px;
@@ -21,7 +21,7 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
     label { display: block; margin-top: 10px; font-weight: 500; }
-    input, select {
+    input, select, textarea {
       width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;
       margin-top: 5px; font-size: 15px;
     }
@@ -86,8 +86,14 @@
     <label>Custom Status Color</label>
     <input type="color" id="statusColor" value="#007bff">
 
+    <h3>⚠️ Warning Settings</h3>
+    <label><input type="checkbox" id="showWarning"> Show Warning</label>
+    <textarea id="warningText" placeholder="⚠️ Handle with care! Fragile."></textarea>
+    <label>Warning Text Color</label>
+    <input type="color" id="warningColor" value="#ff0000">
+
     <button type="button" id="fetchBtn">🔍 Fetch Package</button>
-    <button type="submit" id="updateBtn" disabled>✅ Update Status</button>
+    <button type="submit" id="updateBtn" disabled>✅ Update</button>
   </form>
 
   <div id="receipt" class="receipt">
@@ -142,6 +148,7 @@
     const fetchBtn = document.getElementById("fetchBtn");
     const updateBtn = document.getElementById("updateBtn");
 
+    // Fetch package info
     fetchBtn.addEventListener("click", async () => {
       const trackingId = document.getElementById("trackingId").value.trim();
       if (!trackingId) return alert("Please enter a Tracking ID");
@@ -168,33 +175,53 @@
       document.getElementById("rQuantity").textContent = data.quantity;
       document.getElementById("rDesc").textContent = data.description;
       document.getElementById("headerLogo").src = data.logoURL || "";
-      document.getElementById("warningBox").innerHTML = data.showWarning
-        ? `<div class="warning-box" style="color:${data.warningColor};">${data.warningText}</div>`
-        : "";
+
+      // Fill warning details
+      document.getElementById("warningText").value = data.warningText || "";
+      document.getElementById("warningColor").value = data.warningColor || "#ff0000";
+      document.getElementById("showWarning").checked = data.showWarning || false;
+
+      // Fill status color
+      document.getElementById("statusColor").value = "#007bff";
+
+      // Render warning + status
+      renderPreview(data.status, document.getElementById("statusColor").value, data.warningText, data.warningColor, data.showWarning);
 
       document.getElementById("imageSection").innerHTML = data.packageURL
         ? `<img src="${data.packageURL}" alt="Package">`
         : "";
-
-      const statusBox = document.getElementById("statusBox");
-      statusBox.innerHTML = `<span class="status-badge" style="background:${document.getElementById("statusColor").value};">${data.status}</span>`;
     });
 
-    // Update status only
+    function renderPreview(status, statusColor, warningText, warningColor, showWarning) {
+      const statusBox = document.getElementById("statusBox");
+      statusBox.innerHTML = `<span class="status-badge" style="background:${statusColor};">${status}</span>`;
+
+      const warningBox = document.getElementById("warningBox");
+      warningBox.innerHTML = showWarning ? `<div class="warning-box" style="color:${warningColor};">${warningText}</div>` : "";
+    }
+
+    // Update status + warning
     document.getElementById("statusForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const trackingId = document.getElementById("trackingId").value.trim();
       const newStatus = document.getElementById("status").value;
-      const customColor = document.getElementById("statusColor").value;
+      const statusColor = document.getElementById("statusColor").value;
+      const warningText = document.getElementById("warningText").value;
+      const warningColor = document.getElementById("warningColor").value;
+      const showWarning = document.getElementById("showWarning").checked;
 
       if (!trackingId) return alert("Enter a tracking ID first");
 
-      await update(ref(db, "packages/" + trackingId), { status: newStatus });
+      await update(ref(db, "packages/" + trackingId), {
+        status: newStatus,
+        warningText,
+        warningColor,
+        showWarning
+      });
 
-      const statusBox = document.getElementById("statusBox");
-      statusBox.innerHTML = `<span class="status-badge" style="background:${customColor};">${newStatus}</span>`;
+      renderPreview(newStatus, statusColor, warningText, warningColor, showWarning);
 
-      alert("✅ Status updated successfully!");
+      alert("✅ Status and Warning updated successfully!");
     });
 
     // PDF Download
