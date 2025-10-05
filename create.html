@@ -2,145 +2,102 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>🚚 X-Cargo Express - Create Package</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Package - X Cargo Express</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body {
       font-family: "Segoe UI", sans-serif;
-      background: #f5f7fb;
-      color: #333;
+      background: #f3f5f8;
       padding: 25px;
-    }
-    h2 {
-      text-align: center;
-      margin-bottom: 25px;
-      color: #007bff;
+      color: #333;
     }
     form {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 25px;
       max-width: 700px;
       margin: auto;
-      background: #fff;
-      padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
-    label {
-      display: block;
-      margin-top: 10px;
-      font-weight: 500;
-    }
-    input, select, textarea {
+    h2 { text-align: center; color: #007bff; }
+    label { font-weight: 600; display: block; margin-top: 10px; }
+    input, textarea, select {
       width: 100%;
       padding: 10px;
-      border: 1px solid #ccc;
       border-radius: 6px;
+      border: 1px solid #ccc;
       margin-top: 5px;
       font-size: 15px;
     }
     button {
       background: #007bff;
-      color: #fff;
+      color: white;
       border: none;
-      padding: 12px;
       border-radius: 6px;
+      padding: 12px;
       width: 100%;
       margin-top: 20px;
       font-size: 16px;
       cursor: pointer;
-      transition: 0.3s;
     }
     button:hover { background: #0056b3; }
 
     .receipt {
       display: none;
-      background: #fff;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       max-width: 700px;
       margin: 30px auto;
     }
-    .header {
-      text-align: center;
-      border-bottom: 2px solid #007bff;
-      padding-bottom: 10px;
-      margin-bottom: 15px;
-    }
-    .header img {
-      width: 80px;
-      height: auto;
-      display: block;
-      margin: 0 auto 8px;
-    }
+    .header { text-align: center; }
+    .header img { width: 90px; height: auto; margin-bottom: 10px; }
     .header h2 { margin: 5px 0; }
-    .header p { margin: 0; font-size: 13px; color: #666; }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 15px;
-    }
-    table td, table th {
-      padding: 8px;
-      border: 1px solid #ccc;
-      font-size: 14px;
-    }
-    table th { background: #f1f1f1; text-align: left; }
-    .status-box { text-align: center; margin-top: 10px; }
     .status-badge {
       display: inline-block;
-      padding: 6px 14px;
-      border-radius: 20px;
+      padding: 6px 15px;
       color: #fff;
+      border-radius: 20px;
       font-weight: bold;
+      margin: 10px 0;
     }
-    .warning-box {
-      text-align: center;
-      font-weight: bold;
-      margin-top: 10px;
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    table th, table td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      font-size: 14px;
+      text-align: left;
     }
-    .images {
-      text-align: center;
-      margin-top: 15px;
-    }
+    table th { background: #f5f5f5; }
+    .images { text-align: center; margin-top: 15px; }
     .images img {
-      max-width: 220px;
+      width: 200px;
       margin: 8px;
-      border-radius: 6px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
     }
-    .actions {
-      text-align: center;
-      margin-top: 15px;
-    }
-    .actions button {
-      width: auto;
-      margin: 5px;
-      padding: 10px 15px;
-      border-radius: 6px;
-    }
-    .actions .pdf { background: #ffc107; }
-    .actions .print { background: #17a2b8; }
-    .actions .img { background: #28a745; }
+    .actions { text-align: center; margin-top: 15px; }
+    .actions button { width: auto; margin: 5px; padding: 10px 15px; }
   </style>
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
-  <h2>🚀 Create New Package</h2>
-
+  <h2>📦 Create New Package</h2>
   <form id="createForm">
     <label>Tracking ID</label>
-    <input type="text" id="trackingId" placeholder="e.g. XCE123456" required>
+    <input id="trackingId" placeholder="e.g. XCE12345" required>
 
     <label>Sender Name</label>
-    <input type="text" id="sender" required>
+    <input id="sender" placeholder="e.g. John Smith" required>
 
     <label>Receiver Name</label>
-    <input type="text" id="receiver" required>
+    <input id="receiver" placeholder="e.g. Mary Johnson" required>
 
-    <label>Receiver Address</label>
-    <textarea id="address" required></textarea>
+    <label>Address</label>
+    <textarea id="address" placeholder="e.g. 123 Palm Avenue, Florida, USA" required></textarea>
 
     <label>Shipment Date</label>
     <input type="date" id="shipmentDate" required>
@@ -149,21 +106,14 @@
     <input type="date" id="expectedDate" required>
 
     <label>Weight</label>
-    <input type="text" id="weight" placeholder="e.g. 10kg" required>
+    <input id="weight" placeholder="e.g. 25kg">
 
     <label>Quantity</label>
-    <input type="number" id="quantity" min="1" value="1" required>
+    <input id="quantity" type="number" min="1" placeholder="e.g. 3">
 
     <label>Description</label>
-    <textarea id="description" required></textarea>
+    <textarea id="description" placeholder="e.g. Electronics, Fragile items"></textarea>
 
-    <label>Upload Logo</label>
-    <input type="file" id="logoUpload" accept="image/*">
-
-    <label>Upload Package Images</label>
-    <input type="file" id="packageImages" accept="image/*" multiple>
-
-    <h3>Status Settings</h3>
     <label>Status</label>
     <select id="status">
       <option>Pending</option>
@@ -174,28 +124,31 @@
       <option>Delivered</option>
       <option>Not Delivered Yet</option>
     </select>
+
     <label>Status Color</label>
     <input type="color" id="statusColor" value="#007bff">
 
-    <h3>⚠️ Warning Settings</h3>
-    <label><input type="checkbox" id="showWarning"> Show Warning Message</label>
+    <label>⚠️ Show Warning Message</label>
+    <input type="checkbox" id="showWarning">
     <textarea id="warningText" placeholder="⚠️ Failure to verify may result in account lock!"></textarea>
-    <label>Warning Text Color</label>
     <input type="color" id="warningColor" value="#ff0000">
+
+    <label>Upload Company Logo</label>
+    <input type="file" id="logoUpload" accept="image/*">
+
+    <label>Upload Package Images</label>
+    <input type="file" id="packageImages" accept="image/*" multiple>
 
     <button type="submit">💾 Save Package</button>
   </form>
 
   <div id="receipt" class="receipt">
     <div class="header">
-      <img id="headerLogo" src="" alt="Company Logo">
-      <h2>X-Cargo Express</h2>
-      <p>123 Express Avenue, Florida, USA</p>
-      <p>Email: support@xcargoexpress.com | Tel: +1-800-555-XCEX</p>
+      <img id="headerLogo">
+      <h2>X Cargo Express</h2>
+      <p>123 Express Ave, Florida | support@xcargoexpress.com</p>
     </div>
-
-    <div class="status-box" id="statusBox"></div>
-
+    <div id="statusBox"></div>
     <table>
       <tr><th>Tracking ID</th><td id="rTracking"></td></tr>
       <tr><th>Sender</th><td id="rSender"></td></tr>
@@ -207,14 +160,12 @@
       <tr><th>Quantity</th><td id="rQuantity"></td></tr>
       <tr><th>Description</th><td id="rDesc"></td></tr>
     </table>
-
     <div id="warningBox"></div>
-    <div class="images" id="imageSection"></div>
-
+    <div id="imageSection" class="images"></div>
     <div class="actions">
-      <button class="print" onclick="window.print()">🖨 Print</button>
-      <button class="pdf" id="downloadPDF">⬇ PDF</button>
-      <button class="img" id="saveImage">🖼 Save Image</button>
+      <button onclick="window.print()">🖨 Print</button>
+      <button id="downloadPDF">⬇ PDF</button>
+      <button id="saveImage">🖼 Save Image</button>
     </div>
   </div>
 
@@ -237,101 +188,101 @@
     const db = getDatabase(app);
     const storage = getStorage(app);
 
-    const createForm = document.getElementById("createForm");
+    const form = document.getElementById("createForm");
 
-    createForm.addEventListener("submit", async (e) => {
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      const trackingId = document.getElementById("trackingId").value.trim();
-      const sender = document.getElementById("sender").value.trim();
-      const receiver = document.getElementById("receiver").value.trim();
-      const address = document.getElementById("address").value.trim();
-      const shipmentDate = document.getElementById("shipmentDate").value;
-      const expectedDate = document.getElementById("expectedDate").value;
-      const weight = document.getElementById("weight").value;
-      const quantity = document.getElementById("quantity").value;
-      const description = document.getElementById("description").value;
-      const status = document.getElementById("status").value;
-      const statusColor = document.getElementById("statusColor").value;
-      const warningText = document.getElementById("warningText").value;
-      const warningColor = document.getElementById("warningColor").value;
-      const showWarning = document.getElementById("showWarning").checked;
+      const trackingId = trackingId.value.trim();
+      if (!trackingId) return alert("Tracking ID required");
+
+      alert("⏳ Uploading files... Please wait");
 
       const logoFile = document.getElementById("logoUpload").files[0];
       const packageFiles = document.getElementById("packageImages").files;
 
       let logoURL = "";
-      let packageImages = [];
+      let imageURLs = [];
 
       // Upload logo
       if (logoFile) {
-        const logoRef = sRef(storage, "logos/" + logoFile.name);
+        const logoRef = sRef(storage, "logos/" + Date.now() + "-" + logoFile.name);
         await uploadBytes(logoRef, logoFile);
         logoURL = await getDownloadURL(logoRef);
       }
 
-      // Upload multiple package images
+      // Upload package images
       for (const file of packageFiles) {
-        const imgRef = sRef(storage, "packages/" + file.name);
+        const imgRef = sRef(storage, "packages/" + Date.now() + "-" + file.name);
         await uploadBytes(imgRef, file);
         const url = await getDownloadURL(imgRef);
-        packageImages.push(url);
+        imageURLs.push(url);
       }
 
-      await set(ref(db, "packages/" + trackingId), {
-        trackingId, sender, receiver, address,
-        shipmentDate, expectedDate, weight, quantity,
-        description, logoURL, packageImages,
-        status, statusColor, warningText, warningColor, showWarning
-      });
+      const packageData = {
+        trackingId: document.getElementById("trackingId").value,
+        sender: sender.value,
+        receiver: receiver.value,
+        address: address.value,
+        shipmentDate: shipmentDate.value,
+        expectedDate: expectedDate.value,
+        weight: weight.value,
+        quantity: quantity.value,
+        description: description.value,
+        status: status.value,
+        statusColor: statusColor.value,
+        warningText: warningText.value,
+        warningColor: warningColor.value,
+        showWarning: showWarning.checked,
+        logoURL,
+        imageURLs
+      };
 
-      alert("✅ Package created successfully!");
+      await set(ref(db, "packages/" + trackingId), packageData);
 
-      // Display receipt
+      alert("✅ Package saved successfully!");
+
+      // Display receipt AFTER upload done
       document.getElementById("receipt").style.display = "block";
-      document.getElementById("rTracking").textContent = trackingId;
-      document.getElementById("rSender").textContent = sender;
-      document.getElementById("rReceiver").textContent = receiver;
-      document.getElementById("rAddress").textContent = address;
-      document.getElementById("rShip").textContent = shipmentDate;
-      document.getElementById("rExpected").textContent = expectedDate;
-      document.getElementById("rWeight").textContent = weight;
-      document.getElementById("rQuantity").textContent = quantity;
-      document.getElementById("rDesc").textContent = description;
-      document.getElementById("headerLogo").src = logoURL || "";
-
-      const imageSection = document.getElementById("imageSection");
-      imageSection.innerHTML = "";
-      packageImages.forEach(url => {
-        imageSection.innerHTML += `<img src="${url}" alt="Package Image">`;
-      });
+      document.getElementById("rTracking").textContent = packageData.trackingId;
+      document.getElementById("rSender").textContent = packageData.sender;
+      document.getElementById("rReceiver").textContent = packageData.receiver;
+      document.getElementById("rAddress").textContent = packageData.address;
+      document.getElementById("rShip").textContent = packageData.shipmentDate;
+      document.getElementById("rExpected").textContent = packageData.expectedDate;
+      document.getElementById("rWeight").textContent = packageData.weight;
+      document.getElementById("rQuantity").textContent = packageData.quantity;
+      document.getElementById("rDesc").textContent = packageData.description;
+      document.getElementById("headerLogo").src = logoURL;
 
       const statusBox = document.getElementById("statusBox");
-      statusBox.innerHTML = `<span class="status-badge" style="background:${statusColor};">${status}</span>`;
+      statusBox.innerHTML = `<span class="status-badge" style="background:${packageData.statusColor};">${packageData.status}</span>`;
 
       const warningBox = document.getElementById("warningBox");
-      warningBox.innerHTML = showWarning ? `<div class="warning-box" style="color:${warningColor};">${warningText}</div>` : "";
+      warningBox.innerHTML = packageData.showWarning
+        ? `<p style="color:${packageData.warningColor}; font-weight:bold;">${packageData.warningText}</p>` : "";
+
+      const imageSection = document.getElementById("imageSection");
+      imageSection.innerHTML = imageURLs.map(url => `<img src="${url}">`).join("");
     });
 
-    // PDF Download
+    // Save as PDF
     document.getElementById("downloadPDF").addEventListener("click", async () => {
       const { jsPDF } = window.jspdf;
-      const element = document.getElementById("receipt");
-      const canvas = await html2canvas(element);
+      const canvas = await html2canvas(document.getElementById("receipt"));
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF("p", "mm", "a4");
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-      pdf.save("New-Package-Receipt.pdf");
+      const width = pdf.internal.pageSize.getWidth();
+      const height = (canvas.height * width) / canvas.width;
+      pdf.addImage(imgData, "PNG", 0, 0, width, height);
+      pdf.save("Receipt.pdf");
     });
 
     // Save as Image
     document.getElementById("saveImage").addEventListener("click", async () => {
-      const element = document.getElementById("receipt");
-      const canvas = await html2canvas(element);
+      const canvas = await html2canvas(document.getElementById("receipt"));
       const link = document.createElement("a");
-      link.download = "New-Package-Receipt.png";
+      link.download = "Receipt.png";
       link.href = canvas.toDataURL("image/png");
       link.click();
     });
