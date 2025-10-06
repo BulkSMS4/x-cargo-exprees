@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Admin — Export Invoices</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+  body{font-family:Inter,system-ui,Segoe UI,Arial;background:#f4f7fb;margin:0;padding:20px;color:#111}
+  .wrap{max-width:1100px;margin:0 auto}
+  h1{color:#0b63d6}
+  .list{display:grid;grid-template-columns:1fr;gap:10px}
+  .item{background:#fff;padding:12px;border-radius:10px;display:flex;align-items:center;gap:12px;box-shadow:0 6px 18px rgba(10,10,30,.04)}
+  .item .meta{flex:1}
+  .actions{display:flex;gap:8px}
+  .btn{padding:8px 10px;border-radius:8px;border:none;background:#0b63d6;color:#fff;cursor:pointer;font-weight:700}
+  .btn.secondary{background:#374151}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Admin — Export Invoices</h1>
+  <div id="list" class="list">
+    Loading packages...
+  </div>
+</div>
+
+<!-- libs -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+  import { getDatabase, ref as dbRef, get, child } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
+    authDomain: "x-cargo-exprees.firebaseapp.com",
+    databaseURL: "https://x-cargo-exprees-default-rtdb.firebaseio.com",
+    projectId: "x-cargo-exprees",
+    storageBucket: "x-cargo-exprees.appspot.com",
+    messagingSenderId: "1082201867958",
+    appId: "1:1082201867958:web:d6600fbc82085b0b62c817"
+  };
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  const listEl = document.getElementById('list');
+
+  function escapeHtml(s){ if(!s && s !== 0) return ''; return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+  async function loadPackages() {
+    try {
+      const snap = await get(child(dbRef(db), 'packages'));
+      if (!snap.exists()) { listEl.innerHTML = '<div class="muted">No packages found.</div>'; return; }
+      const data = snap.val();
+      listEl.innerHTML = '';
+      // show latest first
+      const keys = Object.keys(data).sort((a,b) => (data[b].createdAt || 0) > (data[a].createdAt || 0) ? 1 : -1);
+      keys.forEach(k => {
+        const d = data[k];
+        const item = document.createElement('div');
+        item.className = 'item';
+        item.innerHTML = `<div class="meta">
+          <div><strong>${escapeHtml(d.trackingId || k)}</strong> — ${escapeHtml(d.title || '')}</div>
+          <div class="muted">${escapeHtml(d.receiverName || '')} · ${escapeHtml(d.receiverEmail || '')}</div>
+        </div>
+        <div class="actions">
+          <button class="btn" data-id="${escapeHtml(k)}" onclick="exportPrint('${escapeHtml(k)}')">🖨 Print</button>
+          <button class="btn" data-id="${escapeHtml(k)}" onclick="exportPDF('${escapeHtml(k)}')">📥 PDF</button>
+          <button class="btn secondary" data-id="${escapeHtml(k)}" onclick="exportImage('${escapeHtml(k)}')">🖼 Save Image</button>
+        </div>`;
+        listEl.appendChild(item);
+      });
+    } catch (err) {
+      console.error(err);
+      listEl.innerHTML = '<div class="muted">Error loading packages.</div>';
+    }
+  }
+
+  // Build a temporary invoice DOM to export (includes images)
+  async function buildInvoiceNode(pkg) {
+    const wrapper = document.createElement('div');
+    wrapper.style.width = '100%';
+    wrapper.style.padding = '18px';
+    wrapper.style.background = '#fff';
+    wrapper.style.borderRadius = '8px';
+    wrapper.innerHTML = `
+      <div style="display:flex;gap:12px;align-items:center;border-bottom:1px solid #eef2f7;padding-bottom:12px">
+        <img src="${pkg.logoURL || ''}" style="width:84px;height:84px;object-fit:contain;border-radius:8px;border:1px solid #f0f2f6;padding:6px" />
+        <div>
+          <h2 style="color:#0b63d6;margin:0">X-Cargo Express — Invoice</h2>
+          <div style="color:#6b7280">${escapeHtml(pkg.trackingId)}</div>
+        </div>
+      </div>
+      <div style="margin-top:12px"><span style="display:inline-block;padding:8px 14px;border-radius:20px;background:${pkg.statusColor||'#007bff'};color:#fff;font-weight:700">${escapeHtml(pkg.status||'Pending')}</span></div>
+      <table style="width:100%;border-collapse:collapse;margin-top:12px">
+        <tbody>
+          <tr><th style="text-align:left;padding:8px;border:1px solid #f0f2f6">Tracking ID</th><td style="padding:8px;border:1px solid #f0f2f6">${escapeHtml(pkg.trackingId)}</td></tr>
+          <tr><th style="text-align:left;padding:8px;border:1px solid #f0f2f6">Receiver</th><td style="padding:8px;border:1px solid #f0f2f6">${escapeHtml(pkg.receiverName)} — ${escapeHtml(pkg.receiverEmail)}</td></tr>
+          <tr><th style="text-align:left;padding:8px;border:1px solid #f0f2f6">Address</th><td style="padding:8px;border:1px solid #f0f2f6">${escapeHtml(pkg.address)}</td></tr>
+          <tr><th style="text-align:left;padding:8px;border:1px solid #f0f2f6">Description</th><td style="padding:8px;border:1px solid #f0f2f6">${escapeHtml(pkg.description)}</td></tr>
+        </tbody>
+      </table>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px">
+        ${pkg.imageURLs && pkg.imageURLs.length ? pkg.imageURLs.map(u=>`<img src="${u}" style="width:220px;height:150px;object-fit:cover;border-radius:8px;border:1px solid #eee"/>`).join('') : ''}
+      </div>
+    `;
+    document.body.appendChild(wrapper);
+    return wrapper;
+  }
+
+  // export helpers
+  window.exportPrint = async function(key) {
+    try {
+      const snap = await get(child(dbRef(db), 'packages/' + key));
+      if (!snap.exists()) return alert('Package not found');
+      const pkg = snap.val();
+      const node = await buildInvoiceNode(pkg);
+      const w = window.open('', '_blank');
+      w.document.write('<!doctype html><html><head><title>Print</title></head><body>' + node.innerHTML + '</body></html>');
+      w.document.close();
+      w.focus();
+      setTimeout(()=>{ w.print(); w.close(); node.remove(); }, 300);
+    } catch (err) { console.error(err); alert('Export failed'); }
+  };
+
+  window.exportPDF = async function(key) {
+    try {
+      const snap = await get(child(dbRef(db), 'packages/' + key));
+      if (!snap.exists()) return alert('Package not found');
+      const pkg = snap.val();
+      const node = await buildInvoiceNode(pkg);
+      const canvas = await html2canvas(node, { scale: 2 });
+      const img = canvas.toDataURL('image/png');
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF('p','mm','a4');
+      const pdfW = pdf.internal.pageSize.getWidth();
+      const pdfH = (canvas.height * pdfW) / canvas.width;
+      pdf.addImage(img,'PNG',0,0,pdfW,pdfH);
+      pdf.save(`Invoice-${pkg.trackingId || key}.pdf`);
+      node.remove();
+    } catch (err) { console.error(err); alert('Export failed'); }
+  };
+
+  window.exportImage = async function(key) {
+    try {
+      const snap = await get(child(dbRef(db), 'packages/' + key));
+      if (!snap.exists()) return alert('Package not found');
+      const pkg = snap.val();
+      const node = await buildInvoiceNode(pkg);
+      const canvas = await html2canvas(node, { scale: 2 });
+      const url = canvas.toDataURL('image/png');
+      const a = document.createElement('a'); a.href = url; a.download = `Invoice-${pkg.trackingId || key}.png`; a.click();
+      node.remove();
+    } catch (err) { console.error(err); alert('Export failed'); }
+  };
+
+  // load packages on open
+  (async ()=>{ await loadPackages(); })();
+
+</script>
+</body>
+</html>
