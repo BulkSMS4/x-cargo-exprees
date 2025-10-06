@@ -1,174 +1,266 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>📦 X-Cargo Express — Create Package (Admin)</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>📦 X-Cargo Express — Create Package</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
 <style>
-  :root{--brand:#007bff}
-  body{font-family:Inter, "Segoe UI", Arial; background:#f6f8fb; color:#222; margin:0; padding:20px;}
-  h1{color:var(--brand); text-align:center; margin-bottom:14px}
-  form { max-width:1000px; margin:0 auto 14px; background:#fff; padding:14px; border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.06); }
-  label{display:block; margin-top:10px; font-weight:600}
-  input[type="text"], input[type="email"], input[type="tel"], input[type="date"], input[type="number"], input[type="color"], select, textarea, input[type="file"] {
-    width:100%; padding:10px; margin-top:6px; border-radius:8px; border:1px solid #d8dce3; font-size:14px;
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+  :root{
+    --brand: #0b63d6;
+    --muted: #6b7280;
+    --input-bg: #fbfdff;
+    --radius: 10px;
   }
-  textarea{min-height:70px; resize:vertical}
-  .row { display:flex; gap:12px; }
-  .col { flex:1; }
-  .small { max-width:220px; }
-  button { background:var(--brand); color:#fff; border:none; padding:10px 12px; border-radius:8px; cursor:pointer; font-weight:700; margin-top:12px;}
-  .secondary { background:#666; }
-  .note { font-size:13px; color:#666; margin-top:6px; }
-  .invoice { display:none; max-width:1000px; margin:18px auto; background:#fff; padding:16px; border-radius:10px; box-shadow:0 6px 20px rgba(0,0,0,.06); }
-  .inv-header { display:flex; gap:16px; align-items:center; border-bottom:2px solid #eef3fb; padding-bottom:12px; }
-  .inv-logo { width:90px; height:90px; object-fit:contain; border-radius:8px; background:#fff; border:1px solid #eee; }
-  .inv-title h2{ margin:0; color:var(--brand) }
-  .inv-meta { margin-left:auto; text-align:right; font-size:13px; color:#555 }
-  table.inv-table { width:100%; border-collapse:collapse; margin-top:12px; }
-  table.inv-table th, table.inv-table td { padding:8px; border:1px solid #eee; text-align:left; font-size:14px; }
-  .status-badge { display:inline-block; padding:6px 12px; border-radius:18px; color:#fff; font-weight:700; margin-top:6px; }
-  .warning { margin-top:10px; font-weight:700; padding:8px 10px; border-radius:8px; display:inline-block;}
-  .images { margin-top:12px; display:flex; gap:8px; flex-wrap:wrap; }
-  .images img { width:180px; height:120px; object-fit:cover; border-radius:8px; border:1px solid #eee; }
-  .actions { display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; justify-content:center; }
-  .actions button { width:auto; padding:8px 14px; border-radius:6px; }
-  @media (max-width:760px){ .row{flex-direction:column} .inv-header{flex-direction:column;align-items:flex-start} .inv-meta{text-align:left;margin-left:0} }
-  /* hide actions on export by JS; also hide when printing */
-  @media print { .actions, #uploadStatus, form { display:none !important } }
+  *{box-sizing:border-box}
+  body{font-family:Inter,system-ui,Segoe UI,Arial; background:#f4f7fb; margin:0; padding:28px; color:#111}
+  .wrap{max-width:1150px;margin:0 auto}
+  h1{color:var(--brand); text-align:center; margin-bottom:18px}
+  .card{background:#fff;border-radius:var(--radius); padding:18px; box-shadow:0 8px 30px rgba(20,20,50,0.06); margin-bottom:18px}
+  .grid{display:grid; grid-template-columns:repeat(12,1fr); gap:12px}
+  .col-12{grid-column: span 12}
+  .col-8{grid-column: span 8}
+  .col-6{grid-column: span 6}
+  .col-4{grid-column: span 4}
+  .col-3{grid-column: span 3}
+  label{display:block;font-weight:600;margin-bottom:8px;color:#1f2937;font-size:14px}
+  .input-row{display:flex;gap:8px;align-items:center}
+  .icon-box{width:40px;height:40px;border-radius:8px;background:var(--input-bg);display:flex;align-items:center;justify-content:center;border:1px solid #eef2f6;font-size:18px}
+  input[type=text], input[type=email], input[type=tel], input[type=date], input[type=number], input[type=color], select, textarea {
+    width:100%;padding:10px;border-radius:8px;border:1px solid #e6e9ef;font-size:14px;background:var(--input-bg);
+  }
+  textarea{min-height:88px;resize:vertical}
+  .small{max-width:220px}
+  .btn{background:var(--brand);color:#fff;padding:12px 14px;border-radius:10px;border:none;font-weight:700;cursor:pointer}
+  .btn.secondary{background:#374151}
+  .muted{color:var(--muted);font-size:13px}
+  .invoice{display:none;margin-top:18px;padding:18px;border-radius:12px;background:#fff;box-shadow:0 12px 30px rgba(20,20,50,0.06)}
+  .inv-head{display:flex;align-items:center;gap:16px;border-bottom:1px solid #eef2f7;padding-bottom:12px}
+  .inv-logo{width:84px;height:84px;object-fit:contain;border-radius:8px;border:1px solid #f0f2f6;background:#fff;padding:6px}
+  .inv-title h2{margin:0;color:var(--brand);font-size:18px}
+  .inv-meta{margin-left:auto;text-align:right;color:#6b7280;font-size:13px}
+  table{width:100%;border-collapse:collapse;margin-top:12px}
+  th, td{padding:10px;border:1px solid #f0f2f6;text-align:left;font-size:14px}
+  .status-badge{display:inline-block;padding:8px 14px;border-radius:20px;color:#fff;font-weight:700}
+  .images{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+  .images img{width:180px;height:120px;object-fit:cover;border-radius:8px;border:1px solid #eee}
+  .controls{display:flex;gap:10px;justify-content:center;margin-top:14px}
+  .controls .btn{padding:10px 12px}
+  .note{font-size:13px;color:#6b7280;margin-top:8px}
+  .address-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:10px;align-items:center}
+  .addr-col-6{grid-column:span 6}
+  .addr-col-4{grid-column:span 4}
+  .addr-col-3{grid-column:span 3}
+  .map-preview{margin-top:12px;border-radius:8px;overflow:hidden;border:1px solid #eef2f7;height:220px}
+  @media (max-width:980px){
+    .col-8,.col-6,.col-4,.col-3{grid-column:span 12}
+    .addr-col-6,.addr-col-4,.addr-col-3{grid-column:span 12}
+  }
+  /* hide action buttons when printing via CSS fallback */
+  @media print { .controls, form { display:none !important } }
 </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>📦 X-Cargo Express — Create Package</h1>
+
+  <div class="card" aria-labelledby="create-title">
+    <form id="createForm" autocomplete="off">
+      <div class="grid">
+        <div class="col-6">
+          <label>Tracking ID <span class="muted">(leave blank to auto-generate)</span></label>
+          <div class="input-row">
+            <div style="flex:1"><input id="trackingId" type="text" placeholder="e.g. XCE1234567890"></div>
+          </div>
+        </div>
+
+        <div class="col-3">
+          <label>Shipment Date</label>
+          <input id="shipmentDate" type="date">
+        </div>
+
+        <div class="col-3">
+          <label>Expected Delivery</label>
+          <input id="expectedDate" type="date">
+        </div>
+
+        <!-- Sender -->
+        <div class="col-6">
+          <label>Sender Name</label>
+          <input id="senderName" type="text" placeholder="John Smith">
+          <div style="display:flex;gap:10px;margin-top:8px">
+            <div style="flex:1">
+              <label style="font-weight:600">Sender Email</label>
+              <input id="senderEmail" type="email" placeholder="john@example.com">
+            </div>
+            <div style="flex:1">
+              <label style="font-weight:600">Sender Phone</label>
+              <input id="senderPhone" type="tel" placeholder="+1-555-0123">
+            </div>
+          </div>
+          <div style="margin-top:8px">
+            <label style="font-weight:600">Sender Location</label>
+            <input id="senderLocation" type="text" placeholder="New York, USA">
+          </div>
+        </div>
+
+        <!-- Receiver -->
+        <div class="col-6">
+          <label>Receiver Name</label>
+          <input id="receiverName" type="text" placeholder="Mary Johnson">
+          <div style="display:flex;gap:10px;margin-top:8px">
+            <div style="flex:1">
+              <label style="font-weight:600">Receiver Email</label>
+              <input id="receiverEmail" type="email" placeholder="mary@example.com">
+            </div>
+            <div style="flex:1">
+              <label style="font-weight:600">Receiver Phone</label>
+              <input id="receiverPhone" type="tel" placeholder="+44-20-1234-5678">
+            </div>
+          </div>
+          <div style="margin-top:8px">
+            <label style="font-weight:600">Receiver Location</label>
+            <input id="receiverLocation" type="text" placeholder="London, UK">
+          </div>
+        </div>
+
+        <!-- Delivery Address Details with icons -->
+        <div class="col-12" style="margin-top:8px">
+          <label>Delivery Address Details 📦</label>
+          <div class="address-grid">
+            <div class="addr-col-6" title="Street Address">
+              <label style="font-weight:600">🏠 Street Address</label>
+              <div style="display:flex;gap:8px;align-items:center">
+                <div class="icon-box">🏠</div>
+                <input id="streetAddress" type="text" placeholder="221B Baker Street">
+              </div>
+            </div>
+
+            <div class="addr-col-3" title="City">
+              <label style="font-weight:600">🌆 City</label>
+              <div style="display:flex;gap:8px;align-items:center">
+                <div class="icon-box">🌆</div>
+                <input id="city" type="text" placeholder="London">
+              </div>
+            </div>
+
+            <div class="addr-col-3" title="State / Province">
+              <label style="font-weight:600">🏛 State / Province</label>
+              <div style="display:flex;gap:8px;align-items:center">
+                <div class="icon-box">🏛</div>
+                <input id="state" type="text" placeholder="Greater London">
+              </div>
+            </div>
+
+            <div class="addr-col-3" title="Postal / ZIP">
+              <label style="font-weight:600">📮 Postal / ZIP</label>
+              <div style="display:flex;gap:8px;align-items:center">
+                <div class="icon-box">📮</div>
+                <input id="postalCode" type="text" placeholder="NW1 6XE">
+              </div>
+            </div>
+
+            <div class="addr-col-3" title="Country">
+              <label style="font-weight:600">🌍 Country</label>
+              <div style="display:flex;gap:8px;align-items:center">
+                <div class="icon-box">🌍</div>
+                <input id="country" type="text" placeholder="United Kingdom">
+              </div>
+            </div>
+
+            <!-- Map preview (updates when address fields change) -->
+            <div class="addr-col-12" style="margin-top:8px">
+              <div class="map-preview" id="mapPreviewContainer" aria-hidden="false" title="Map preview">
+                <!-- map iframe injected here -->
+                <iframe id="mapIframe" width="100%" height="100%" style="border:0" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+              </div>
+              <div class="note">Map preview (uses the combined delivery address). This only appears on dashboard for convenience.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Package details -->
+        <div class="col-3">
+          <label>Weight</label>
+          <input id="weight" type="text" placeholder="e.g. 12.5 kg">
+        </div>
+        <div class="col-3">
+          <label>Quantity</label>
+          <input id="quantity" type="number" min="1" value="1">
+        </div>
+        <div class="col-6">
+          <label>Package Title</label>
+          <input id="title" type="text" placeholder="Fragile electronics">
+          <label style="margin-top:8px">Description</label>
+          <textarea id="description" placeholder="Contains glass components - handle with care"></textarea>
+        </div>
+
+        <!-- Status & warning -->
+        <div class="col-6">
+          <label>Status</label>
+          <select id="status">
+            <option>Pending</option>
+            <option>Processing</option>
+            <option>In Transit</option>
+            <option>On Hold</option>
+            <option>Suspended</option>
+            <option>Delivered</option>
+            <option>Not Delivered Yet</option>
+          </select>
+        </div>
+        <div class="col-6 small">
+          <label>Status Color</label>
+          <input id="statusColor" type="color" value="#007bff">
+        </div>
+
+        <div class="col-8" style="display:flex;align-items:center;gap:8px">
+          <label style="margin:0"><input id="showWarning" type="checkbox"> Show Warning Message</label>
+          <input id="warningText" type="text" placeholder="⚠️ Fragile — no stacking" style="flex:1">
+        </div>
+        <div class="col-4 small">
+          <label>Warning Color</label>
+          <input id="warningColor" type="color" value="#ff0000">
+        </div>
+
+        <!-- Images -->
+        <div class="col-6">
+          <label>Upload Company Logo</label>
+          <input id="logoFile" type="file" accept="image/*">
+          <div class="note">Logo appears on invoice. Single file only.</div>
+        </div>
+        <div class="col-6">
+          <label>Upload Package Images (multiple)</label>
+          <input id="packageFiles" type="file" accept="image/*" multiple>
+          <div class="note">All pictures will be included in the invoice and tracking page.</div>
+        </div>
+
+        <div class="col-6">
+          <button id="saveBtn" class="btn" type="submit">Save & Show Invoice</button>
+        </div>
+        <div class="col-6">
+          <button id="clearBtn" type="button" class="btn secondary">Clear Form</button>
+        </div>
+      </div>
+    </form>
+
+    <div class="note" style="margin-top:10px">Tip: invoice preview appears instantly below. Images upload to Cloudinary in the background and will be saved into Firebase automatically — tracking will work immediately after saving.</div>
+  </div>
+
+  <!-- Invoice preview (dashboard-only) -->
+  <section id="invoice" class="invoice" aria-live="polite"></section>
+
+</div>
 
 <!-- libs -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-</head>
-<body>
-<h1>📦 X-Cargo Express — Create Package</h1>
-
-<form id="createForm" autocomplete="off">
-  <!-- Tracking row -->
-  <div class="row">
-    <div class="col">
-      <label>Tracking ID <span class="note">(leave blank to auto-generate)</span></label>
-      <input id="trackingId" type="text" placeholder="e.g. XCE1234567890">
-    </div>
-    <div class="col small">
-      <label>Shipment Date</label>
-      <input id="shipmentDate" type="date">
-    </div>
-    <div class="col small">
-      <label>Expected Delivery</label>
-      <input id="expectedDate" type="date">
-    </div>
-  </div>
-
-  <!-- Sender & Receiver -->
-  <div class="row">
-    <div class="col">
-      <label>Sender Name</label>
-      <input id="senderName" type="text" placeholder="e.g. John Smith">
-      <label>Sender Email</label>
-      <input id="senderEmail" type="email" placeholder="e.g. john@example.com">
-      <label>Sender Phone</label>
-      <input id="senderPhone" type="tel" placeholder="e.g. +1-555-0123">
-      <label>Sender Location</label>
-      <input id="senderLocation" type="text" placeholder="e.g. New York, USA">
-    </div>
-
-    <div class="col">
-      <label>Receiver Name</label>
-      <input id="receiverName" type="text" placeholder="e.g. Mary Johnson">
-      <label>Receiver Email</label>
-      <input id="receiverEmail" type="email" placeholder="e.g. mary@example.com">
-      <label>Receiver Phone</label>
-      <input id="receiverPhone" type="tel" placeholder="e.g. +44-20-1234-5678">
-      <label>Receiver Location</label>
-      <input id="receiverLocation" type="text" placeholder="e.g. London, UK">
-    </div>
-  </div>
-
-  <label>Delivery Address</label>
-  <textarea id="address" placeholder="e.g. 22B Baker Street, London, W1U 3BW"></textarea>
-
-  <div class="row">
-    <div class="col small">
-      <label>Weight (e.g. 12.5 kg)</label>
-      <input id="weight" type="text" placeholder="e.g. 12.5 kg">
-    </div>
-    <div class="col small">
-      <label>Quantity</label>
-      <input id="quantity" type="number" min="1" value="1" placeholder="e.g. 2">
-    </div>
-    <div class="col">
-      <label>Package Title</label>
-      <input id="title" type="text" placeholder="e.g. Fragile electronics">
-      <label>Description</label>
-      <textarea id="description" placeholder="e.g. Contains glass components - handle with care"></textarea>
-    </div>
-  </div>
-
-  <h3 style="margin-top:12px; color:var(--brand)">Status & Warning</h3>
-  <div class="row">
-    <div class="col">
-      <label>Status</label>
-      <select id="status">
-        <option>Pending</option>
-        <option>Processing</option>
-        <option>In Transit</option>
-        <option>On Hold</option>
-        <option>Suspended</option>
-        <option>Delivered</option>
-        <option>Not Delivered Yet</option>
-      </select>
-    </div>
-    <div class="col small">
-      <label>Status Color</label>
-      <input id="statusColor" type="color" value="#007bff">
-    </div>
-  </div>
-
-  <div style="margin-top:10px">
-    <label><input id="showWarning" type="checkbox"> Show Warning Message</label>
-    <textarea id="warningText" placeholder="⚠️ Failure to verify may result in account lock!"></textarea>
-    <div style="max-width:200px;">
-      <label>Warning Color</label>
-      <input id="warningColor" type="color" value="#ff0000">
-    </div>
-  </div>
-
-  <h3 style="margin-top:12px; color:var(--brand)">Images (upload)</h3>
-  <div class="row">
-    <div class="col">
-      <label>Upload Company Logo (single)</label>
-      <input id="logoFile" type="file" accept="image/*">
-    </div>
-    <div class="col">
-      <label>Upload Package Images (multiple)</label>
-      <input id="packageFiles" type="file" accept="image/*" multiple>
-      <div class="note">All images will be uploaded to Cloudinary. Previews show instantly.</div>
-    </div>
-  </div>
-
-  <div class="row" style="margin-top:12px;">
-    <div class="col small">
-      <button id="saveBtn" type="submit">Save & Show Invoice</button>
-    </div>
-    <div class="col small">
-      <button id="clearBtn" type="button" class="secondary">Clear Form</button>
-    </div>
-  </div>
-
-  <p class="note">Tip: the invoice preview appears instantly. Images are uploaded to Cloudinary in the background and the saved package is updated once uploads finish — tracking will work immediately using the shown Tracking ID.</p>
-</form>
-
-<div id="invoice" class="invoice" aria-live="polite"></div>
-
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
   import { getDatabase, ref as dbRef, set as dbSet, update as dbUpdate } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
 
-  // — Firebase config (your existing project)
+  // ---------- CONFIG ----------
   const firebaseConfig = {
     apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
     authDomain: "x-cargo-exprees.firebaseapp.com",
@@ -181,138 +273,185 @@
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  // — Cloudinary (unsigned preset)
-  const CLOUDINARY_CLOUD = "dymwisuau";              // your cloud name
-  const CLOUDINARY_UPLOAD_PRESET = "unsigned_upload"; // your unsigned preset
+  // Cloudinary unsigned upload
+  const CLOUDINARY_CLOUD = "dymwisuau";
+  const CLOUDINARY_UPLOAD_PRESET = "unsigned_upload";
 
-  // DOM shortcuts
-  const createForm = document.getElementById("createForm");
-  const invoiceEl = document.getElementById("invoice");
-  const clearBtn = document.getElementById("clearBtn");
+  // ---------- DOM ----------
+  const createForm = document.getElementById('createForm');
+  const invoiceEl = document.getElementById('invoice');
+  const clearBtn = document.getElementById('clearBtn');
 
-  // helper to create object URL previews
-  const createObjectURL = (file) => URL.createObjectURL(file);
+  // invoice fields
+  const invMapIframe = document.getElementById('mapIframe');
 
-  // upload a single file to Cloudinary (unsigned)
+  // address inputs for live map
+  const streetInput = document.getElementById('streetAddress');
+  const cityInput = document.getElementById('city');
+  const stateInput = document.getElementById('state');
+  const postalInput = document.getElementById('postalCode');
+  const countryInput = document.getElementById('country');
+
+  // helpers
+  const createObjectURL = file => URL.createObjectURL(file);
+  const escapeHtml = s => (s===0 ? '0' : (s? String(s).replace(/[&<>"']/g,m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]) : '') );
+
+  // Build combined address
+  function buildAddressString() {
+    const parts = [
+      streetInput.value.trim(),
+      cityInput.value.trim(),
+      stateInput.value.trim(),
+      postalInput.value.trim(),
+      countryInput.value.trim()
+    ].filter(Boolean);
+    return parts.join(', ');
+  }
+
+  // Update map preview iframe (uses Google maps search url)
+  function updateMapPreview() {
+    const addr = buildAddressString();
+    if (!addr) {
+      invMapIframe.src = "about:blank";
+      return;
+    }
+    const q = encodeURIComponent(addr);
+    // quick map preview; google will show a search result map
+    invMapIframe.src = `https://www.google.com/maps?q=${q}&output=embed`;
+  }
+
+  // debounce for map updates
+  let mapTimer = null;
+  [streetInput, cityInput, stateInput, postalInput, countryInput].forEach(inp => {
+    inp.addEventListener('input', () => {
+      clearTimeout(mapTimer);
+      mapTimer = setTimeout(updateMapPreview, 400);
+    });
+  });
+
+  // ---------- Cloudinary upload helpers ----------
   async function uploadToCloudinary(file) {
     const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`;
     const fd = new FormData();
-    fd.append("file", file);
-    fd.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-    const res = await fetch(url, { method: "POST", body: fd });
+    fd.append('file', file);
+    fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+    // optionally: fd.append('folder', 'x-cargo-exprees');
+    const res = await fetch(url, { method: 'POST', body: fd });
     if (!res.ok) {
       const txt = await res.text();
-      throw new Error("Cloudinary upload failed: " + txt);
+      throw new Error('Cloudinary upload failed: ' + txt);
     }
     const json = await res.json();
     return json.secure_url;
   }
 
-  // upload multiple files sequentially (safer for mobile)
-  async function uploadMultiple(files) {
+  async function uploadMultiple(files, progressCb) {
     const urls = [];
     for (let i = 0; i < files.length; i++) {
       const u = await uploadToCloudinary(files[i]);
       urls.push(u);
+      if (progressCb) progressCb(i+1, files.length);
     }
     return urls;
   }
 
-  // Render invoice instantly (previews)
-  function renderInvoice(data, logoPreview, previewImgs) {
-    invoiceEl.style.display = "block";
+  // ---------- invoice render ----------
+  function renderInvoice(data, logoPreview, imgPreviews) {
+    invoiceEl.style.display = 'block';
     const meta = new Date().toLocaleString();
     let html = `
-      <div class="inv-header">
-        <img id="invLogo" class="inv-logo" src="${data.logoURL || logoPreview || ''}" alt="Company logo" />
+      <div class="inv-head">
+        <img id="invLogo" class="inv-logo" src="${escapeHtml(data.logoURL || logoPreview || '')}" alt="Company logo">
         <div class="inv-title">
-          <h2>📦 X-Cargo Express — Invoice</h2>
-          <div style="color:#555; font-size:13px">123 Express Avenue, Florida, USA<br/>support@xcargoexpress.com | +1-800-555-XCEX</div>
+          <h2>X-Cargo Express — Invoice</h2>
+          <div class="muted">123 Express Avenue, Florida, USA · support@xcargoexpress.com · +1-800-555-XCEX</div>
         </div>
-        <div class="inv-meta">Created: ${meta}<br>Tracking: ${data.trackingId}</div>
+        <div class="inv-meta">Created: ${meta}<br>Tracking: ${escapeHtml(data.trackingId)}</div>
       </div>
-      <div id="statusWrap" style="margin-top:10px"><span class="status-badge" style="background:${data.statusColor || '#007bff'}">${data.status || 'Pending'}</span></div>
+
+      <div style="margin-top:12px"><span class="status-badge" style="background:${escapeHtml(data.statusColor || '#007bff')}">${escapeHtml(data.status || 'Pending')}</span></div>
+
       <table class="inv-table">
         <tbody>
           <tr><th>Tracking ID</th><td>${escapeHtml(data.trackingId)}</td></tr>
-          <tr><th>Title</th><td>${escapeHtml(data.title || '')}</td></tr>
-          <tr><th>Sender</th><td>${escapeHtml(data.senderName || '')} — ${escapeHtml(data.senderEmail || '')} — ${escapeHtml(data.senderPhone || '')} — ${escapeHtml(data.senderLocation || '')}</td></tr>
-          <tr><th>Receiver</th><td>${escapeHtml(data.receiverName || '')} — ${escapeHtml(data.receiverEmail || '')} — ${escapeHtml(data.receiverPhone || '')} — ${escapeHtml(data.receiverLocation || '')}</td></tr>
-          <tr><th>Address</th><td>${escapeHtml(data.address || '')}</td></tr>
-          <tr><th>Shipment Date</th><td>${escapeHtml(data.shipmentDate || '')}</td></tr>
-          <tr><th>Expected Delivery</th><td>${escapeHtml(data.expectedDate || '')}</td></tr>
-          <tr><th>Weight</th><td>${escapeHtml(data.weight || '')}</td></tr>
-          <tr><th>Quantity</th><td>${escapeHtml(data.quantity || '')}</td></tr>
-          <tr><th>Description</th><td>${escapeHtml(data.description || '')}</td></tr>
+          <tr><th>Title</th><td>${escapeHtml(data.title)}</td></tr>
+          <tr><th>Sender</th><td>${escapeHtml(data.senderName)} — ${escapeHtml(data.senderEmail)} — ${escapeHtml(data.senderPhone)} — ${escapeHtml(data.senderLocation)}</td></tr>
+          <tr><th>Receiver</th><td>${escapeHtml(data.receiverName)} — ${escapeHtml(data.receiverEmail)} — ${escapeHtml(data.receiverPhone)} — ${escapeHtml(data.receiverLocation)}</td></tr>
+          <tr><th>Address</th><td>${escapeHtml(data.address)}</td></tr>
+          <tr><th>Shipment Date</th><td>${escapeHtml(data.shipmentDate)}</td></tr>
+          <tr><th>Expected Delivery</th><td>${escapeHtml(data.expectedDate)}</td></tr>
+          <tr><th>Weight</th><td>${escapeHtml(data.weight)}</td></tr>
+          <tr><th>Quantity</th><td>${escapeHtml(data.quantity)}</td></tr>
+          <tr><th>Description</th><td>${escapeHtml(data.description)}</td></tr>
         </tbody>
       </table>
     `;
 
     if (data.showWarning && data.warningText) {
-      html += `<div id="iWarning" class="warning" style="color:${data.warningColor || '#ff0000'}">${escapeHtml(data.warningText)}</div>`;
+      html += `<div style="margin-top:12px;color:${escapeHtml(data.warningColor || '#ff0000')};font-weight:700">${escapeHtml(data.warningText)}</div>`;
     }
 
     html += `<div id="iImages" class="images">`;
-    // prefer final imageURLs, otherwise previews
     if (data.imageURLs && data.imageURLs.length) {
-      data.imageURLs.forEach(u => html += `<img src="${u}" alt="Package image">`);
-    } else if (previewImgs && previewImgs.length) {
-      previewImgs.forEach(u => html += `<img src="${u}" alt="Preview image">`);
+      data.imageURLs.forEach(u => html += `<img src="${escapeHtml(u)}" alt="Package image">`);
+    } else if (imgPreviews && imgPreviews.length) {
+      imgPreviews.forEach(p => html += `<img src="${escapeHtml(p)}" alt="Preview image">`);
     }
     html += `</div>`;
 
-    // Dashboard-only controls
-    html += `<div class="actions">
-      <button id="printBtn" type="button">🖨 Print Invoice</button>
-      <button id="pdfBtn" type="button">📥 Download PDF</button>
-      <button id="saveGalleryBtn" type="button">🖼 Save to Gallery</button>
+    // actions - dashboard only
+    html += `<div class="controls">
+      <button id="printBtn" class="btn" type="button">🖨 Print</button>
+      <button id="pdfBtn" class="btn" type="button">📥 Download PDF</button>
+      <button id="saveGalleryBtn" class="btn" type="button">🖼 Save to Gallery</button>
     </div>`;
 
     invoiceEl.innerHTML = html;
 
-    // Hook the actions
-    document.getElementById("printBtn").onclick = () => {
-      // hide actions for printing
-      const actions = document.querySelector('.actions');
+    // hook actions (hide controls while creating exports)
+    const printBtn = document.getElementById('printBtn');
+    const pdfBtn   = document.getElementById('pdfBtn');
+    const saveBtn  = document.getElementById('saveGalleryBtn');
+
+    printBtn.onclick = () => {
+      const actions = invoiceEl.querySelector('.controls');
       actions.style.display = 'none';
-      setTimeout(() => { window.print(); actions.style.display = ''; }, 120);
+      setTimeout(()=>{ window.print(); actions.style.display='flex';},120);
     };
-    document.getElementById("pdfBtn").onclick = async () => {
-      const actions = document.querySelector('.actions'); actions.style.display = 'none';
+
+    pdfBtn.onclick = async () => {
+      const actions = invoiceEl.querySelector('.controls'); actions.style.display = 'none';
       const canvas = await html2canvas(invoiceEl, { scale: 2 });
-      const img = canvas.toDataURL('image/png');
       const { jsPDF } = window.jspdf;
+      const img = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p','mm','a4');
       const pdfW = pdf.internal.pageSize.getWidth();
       const pdfH = (canvas.height * pdfW) / canvas.width;
       pdf.addImage(img,'PNG',0,0,pdfW,pdfH);
       pdf.save(`Invoice-${data.trackingId}.pdf`);
-      actions.style.display = '';
+      actions.style.display = 'flex';
     };
-    document.getElementById("saveGalleryBtn").onclick = async () => {
-      const actions = document.querySelector('.actions'); actions.style.display = 'none';
+
+    saveBtn.onclick = async () => {
+      const actions = invoiceEl.querySelector('.controls'); actions.style.display = 'none';
       const canvas = await html2canvas(invoiceEl, { scale: 2 });
       const url = canvas.toDataURL('image/png');
       const a = document.createElement('a'); a.href = url; a.download = `Invoice-${data.trackingId}.png`; a.click();
-      actions.style.display = '';
+      actions.style.display = 'flex';
     };
   }
 
-  // Escape helper
-  function escapeHtml(s) {
-    if (!s && s !== 0) return '';
-    return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-  }
-
-  // Main submit handler:
+  // ---------- Main submit logic ----------
   createForm.addEventListener('submit', async (ev) => {
     ev.preventDefault();
 
-    // collect form values
+    // gather fields
     let trackingId = document.getElementById('trackingId').value.trim();
     if (!trackingId) trackingId = 'XCE' + Math.floor(1000000000 + Math.random()*9000000000);
 
-    const data = {
+    const addressCombined = buildAddressString();
+
+    const initialData = {
       trackingId,
       title: document.getElementById('title').value.trim(),
       senderName: document.getElementById('senderName').value.trim(),
@@ -323,7 +462,12 @@
       receiverEmail: document.getElementById('receiverEmail').value.trim(),
       receiverPhone: document.getElementById('receiverPhone').value.trim(),
       receiverLocation: document.getElementById('receiverLocation').value.trim(),
-      address: document.getElementById('address').value.trim(),
+      address: addressCombined,
+      street: document.getElementById('streetAddress').value.trim(),
+      city: document.getElementById('city').value.trim(),
+      state: document.getElementById('state').value.trim(),
+      postalCode: document.getElementById('postalCode').value.trim(),
+      country: document.getElementById('country').value.trim(),
       shipmentDate: document.getElementById('shipmentDate').value,
       expectedDate: document.getElementById('expectedDate').value,
       weight: document.getElementById('weight').value.trim(),
@@ -334,64 +478,84 @@
       showWarning: document.getElementById('showWarning').checked,
       warningText: document.getElementById('warningText').value.trim(),
       warningColor: document.getElementById('warningColor').value,
-      logoURL: '', // will be filled after upload
-      imageURLs: [], // will be filled after upload
+      logoURL: '',
+      imageURLs: [],
       createdAt: new Date().toISOString()
     };
 
-    // Prepare previews
+    // prepare previews
     const logoFile = document.getElementById('logoFile').files[0] || null;
-    const packageFileList = Array.from(document.getElementById('packageFiles').files || []);
+    const packageFiles = Array.from(document.getElementById('packageFiles').files || []);
     const previewImgs = [];
-    if (logoFile) data.logoPreview = createObjectURL(logoFile);
-    for (const f of packageFileList) previewImgs.push(createObjectURL(f));
+    if (logoFile) initialData.logoPreview = createObjectURL(logoFile);
+    for (const f of packageFiles) previewImgs.push(createObjectURL(f));
 
-    // Render invoice instantly (using preview images if available)
-    renderInvoice(data, data.logoPreview, previewImgs);
+    // show invoice instantly (no waiting)
+    renderInvoice(initialData, initialData.logoPreview, previewImgs);
 
-    // Start uploading files to Cloudinary in background (no messages)
+    // IMMEDIATE partial save to DB so tracking works instantly
+    try {
+      const node = dbRef(db, 'packages/' + trackingId);
+      // write initial data now (without images) — recipient can track right away
+      await dbSet(node, initialData);
+    } catch (err) {
+      console.error('Initial DB save error:', err);
+      // continue — still show invoice locally
+    }
+
+    // Background: upload images to Cloudinary and update DB with final URLs
     (async () => {
       try {
-        if (logoFile) {
-          const url = await uploadToCloudinary(logoFile);
-          data.logoURL = url;
-        }
-        if (packageFileList.length) {
-          const urls = await uploadMultiple(packageFileList);
-          data.imageURLs = urls;
+        const uploadedLogo = logoFile ? await uploadToCloudinary(logoFile) : '';
+        const uploadedImages = packageFiles.length ? await uploadMultiple(packageFiles) : [];
+
+        const updates = {};
+        if (uploadedLogo) updates.logoURL = uploadedLogo;
+        if (uploadedImages.length) updates.imageURLs = uploadedImages;
+
+        // update combined address in case fields changed during upload
+        updates.address = buildAddressString();
+
+        if (Object.keys(updates).length) {
+          try {
+            await dbUpdate(dbRef(db, 'packages/' + trackingId), updates);
+          } catch (err) {
+            console.error('DB update after upload failed:', err);
+          }
         }
 
-        // Save final package object to Firebase under packages/<trackingId>
-        const pkgNode = dbRef(db, 'packages/' + trackingId);
-        await dbSet(pkgNode, data);
-
-        // Update invoice to final URLs (swap previews)
-        if (data.logoURL) {
-          const img = document.getElementById('invLogo'); if (img) img.src = data.logoURL;
+        // update invoice UI to final URLs if present
+        if (uploadedLogo) {
+          const invLogo = document.getElementById('invLogo');
+          if (invLogo) invLogo.src = uploadedLogo;
         }
-        if (data.imageURLs && data.imageURLs.length) {
+        if (uploadedImages.length) {
           const imgsEl = document.getElementById('iImages');
           if (imgsEl) {
             imgsEl.innerHTML = '';
-            data.imageURLs.forEach(u => imgsEl.innerHTML += `<img src="${u}" alt="Package image">`);
+            uploadedImages.forEach(u => imgsEl.innerHTML += `<img src="${u}" alt="Package image">`);
           }
         }
-        // No "uploading" messages per your request.
       } catch (err) {
-        console.error('Upload failed:', err);
-        // We don't show blocking errors in UI (per your "no wait" preference) — just log.
+        console.error('Upload error (background):', err);
+        // no UI blocking; errors logged to console
       }
     })();
 
-    // done: keep invoice visible and form intact for further actions
-    alert('✅ Package created — tracking ID: ' + trackingId);
-    // optionally reset form or keep it — we'll keep it for convenience
+    alert('✅ Package created — Tracking ID: ' + trackingId);
   });
 
+  // clear form
   clearBtn.addEventListener('click', () => {
     createForm.reset();
     invoiceEl.style.display = 'none';
+    invMapIframe.src = 'about:blank';
   });
+
+  // initialize map blank
+  invMapIframe.src = 'about:blank';
+  // initial attempt to update map if any address pre-filled
+  updateMapPreview();
 
 </script>
 </body>
