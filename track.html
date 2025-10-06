@@ -5,23 +5,117 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>X-Cargo Express – Track Your Package</title>
 <style>
-  body{font-family:Inter, "Segoe UI", Arial; background:#f4f6fb; color:#222; padding:20px; max-width:920px; margin:auto;}
-  h1{color:#004080; text-align:center;}
-  .search { display:flex; gap:8px; justify-content:center; margin:12px 0 20px; }
-  input{padding:12px; width:60%; border-radius:6px; border:1px solid #ccc; font-size:15px;}
-  button{padding:12px 14px; border-radius:6px; border:none; background:#004080; color:#fff; cursor:pointer; font-weight:700;}
-  #result{background:#fff; padding:18px; border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.06); margin-top:18px;}
-  .logo img{max-width:120px; display:block; margin:0 auto 8px;}
-  .status{ text-align:center; margin:10px 0; }
-  .status-badge{display:inline-block;padding:6px 14px;border-radius:18px;color:#fff;font-weight:700;}
-  .warning{margin:10px 0; padding:10px; border-radius:8px; font-weight:700;}
-  .images{display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:12px;}
-  .images img{width:180px; height:120px; object-fit:cover; border-radius:8px; border:1px solid #eee;}
-  .field{margin-bottom:8px;}
-  .field strong{color:#004080;}
-  .controls{display:flex; gap:10px; justify-content:center; margin-top:12px;}
-  @media (max-width:720px){ input{width:100%;} .search{flex-direction:column; align-items:center} }
+  body {
+    font-family: Inter, "Segoe UI", Arial;
+    background: #f4f6fb;
+    color: #222;
+    padding: 20px;
+    max-width: 920px;
+    margin: auto;
+  }
+  h1 {
+    color: #004080;
+    text-align: center;
+  }
+  .search {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin: 12px 0 20px;
+  }
+  input {
+    padding: 12px;
+    width: 60%;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 15px;
+  }
+  button {
+    padding: 12px 14px;
+    border-radius: 6px;
+    border: none;
+    background: #004080;
+    color: #fff;
+    cursor: pointer;
+    font-weight: 700;
+  }
+  #result {
+    background: #fff;
+    padding: 18px;
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, .06);
+    margin-top: 18px;
+  }
+  .logo img {
+    max-width: 120px;
+    display: block;
+    margin: 0 auto 8px;
+  }
+  .status {
+    text-align: center;
+    margin: 10px 0;
+  }
+  .status-badge {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 18px;
+    color: #fff;
+    font-weight: 700;
+  }
+  .warning {
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: 700;
+  }
+  .images {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 12px;
+  }
+  .images img {
+    width: 180px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #eee;
+  }
+  .field {
+    margin-bottom: 8px;
+  }
+  .field strong {
+    color: #004080;
+  }
+  .controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 12px;
+  }
+  @media (max-width: 720px) {
+    input {
+      width: 100%;
+    }
+    .search {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
 </style>
+</head>
+<body>
+
+<h1>Track Your Package</h1>
+<div class="search">
+  <input id="trackingId" placeholder="Enter your tracking ID (e.g. XCE123456)">
+  <button onclick="trackPackage()">Track</button>
+</div>
+
+<div id="result"></div>
+
+<!-- Firebase & Tracker Script -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
   import { getDatabase, ref as dbRef, get, child } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
@@ -35,54 +129,70 @@
     messagingSenderId: "1082201867958",
     appId: "1:1082201867958:web:d6600fbc82085b0b62c817"
   };
+
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  window.trackPackage = async function() {
+  window.trackPackage = async function () {
     const id = document.getElementById("trackingId").value.trim();
     const res = document.getElementById("result");
     res.innerHTML = "⏳ Loading...";
     if (!id) { alert("Enter tracking ID"); res.innerHTML = ""; return; }
 
     try {
-      const snapshot = await get(child(dbRef(db), `packages/${id}`));
-      if (!snapshot.exists()) { res.innerHTML = "<strong>❌ No package found for that Tracking ID.</strong>"; return; }
-      const data = snapshot.val();
+      const snapshot = await get(child(dbRef(db), `packages`));
+      if (!snapshot.exists()) {
+        res.innerHTML = "<strong>❌ No packages found.</strong>";
+        return;
+      }
 
-      // top: logo
+      let foundData = null;
+      snapshot.forEach(pkg => {
+        const data = pkg.val();
+        if ((pkg.key && pkg.key.toLowerCase() === id.toLowerCase()) ||
+            (data.trackingId && data.trackingId.toLowerCase() === id.toLowerCase())) {
+          foundData = data;
+        }
+      });
+
+      if (!foundData) {
+        res.innerHTML = "<strong>❌ No package found for that Tracking ID.</strong>";
+        return;
+      }
+
+      const data = foundData;
+
+      // Build the details
       let html = "";
       if (data.logoURL) html += `<div class="logo"><img src="${data.logoURL}" alt="Logo"></div>`;
-
-      // title + status
       html += `<h2 style="text-align:center;color:#004080;margin-top:4px">Package Details</h2>`;
       const sc = data.statusColor || "#007bff";
       html += `<div class="status"><span class="status-badge" style="background:${sc}">${data.status || "Pending"}</span></div>`;
+      html += `<div class="field"><strong>Tracking ID:</strong> ${escapeHtml(data.trackingId || id)}</div>`;
+      html += `<div class="field"><strong>Sender:</strong> ${escapeHtml(data.sender || "-")}</div>`;
+      html += `<div class="field"><strong>Receiver:</strong> ${escapeHtml(data.receiver || "-")}</div>`;
+      html += `<div class="field"><strong>Address:</strong> ${escapeHtml(data.address || "-")}</div>`;
+      html += `<div class="field"><strong>Shipment Date:</strong> ${escapeHtml(data.shipmentDate || "-")}</div>`;
+      html += `<div class="field"><strong>Expected Delivery:</strong> ${escapeHtml(data.expectedDate || "-")}</div>`;
+      html += `<div class="field"><strong>Weight:</strong> ${escapeHtml(data.weight || "-")}</div>`;
+      html += `<div class="field"><strong>Quantity:</strong> ${escapeHtml(data.quantity || "-")}</div>`;
+      html += `<div class="field"><strong>Description:</strong> ${escapeHtml(data.description || "-")}</div>`;
 
-      // fields
-      html += `<div class="field"><strong>Tracking ID:</strong> ${escapeHtml(data.trackingId||id)}</div>`;
-      html += `<div class="field"><strong>Sender:</strong> ${escapeHtml(data.sender||"-")}</div>`;
-      html += `<div class="field"><strong>Receiver:</strong> ${escapeHtml(data.receiver||"-")}</div>`;
-      html += `<div class="field"><strong>Address:</strong> ${escapeHtml(data.address||"-")}</div>`;
-      html += `<div class="field"><strong>Shipment Date:</strong> ${escapeHtml(data.shipmentDate||"-")}</div>`;
-      html += `<div class="field"><strong>Expected Delivery:</strong> ${escapeHtml(data.expectedDate||"-")}</div>`;
-      html += `<div class="field"><strong>Weight:</strong> ${escapeHtml(data.weight||"-")}</div>`;
-      html += `<div class="field"><strong>Quantity:</strong> ${escapeHtml(data.quantity||"-")}</div>`;
-      html += `<div class="field"><strong>Description:</strong> ${escapeHtml(data.description||"-")}</div>`;
-
-      // warning
       if (data.showWarning && data.warningText) {
-        html += `<div class="warning" style="color:${data.warningColor||'#ff0000'}">${escapeHtml(data.warningText)}</div>`;
+        html += `<div class="warning" style="color:${data.warningColor || '#ff0000'}">${escapeHtml(data.warningText)}</div>`;
       }
 
-      // images
       if (data.imageURLs && data.imageURLs.length) {
         html += `<div class="images">`;
         data.imageURLs.forEach(url => { html += `<img src="${url}" alt="Package image">`; });
         html += `</div>`;
       }
 
-      // controls for receiver: print/download (they asked to be able to see and print their own package)
-      html += `<div class="controls"><button onclick="printResult()">🖨 Print</button><button onclick="downloadResultPDF('${escapeForFilename(data.trackingId||id)}')">📥 Download PDF</button></div>`;
+      // Print & PDF download controls
+      html += `<div class="controls">
+        <button onclick="printResult()">🖨 Print</button>
+        <button onclick="downloadResultPDF('${escapeForFilename(data.trackingId || id)}')">📥 Download PDF</button>
+      </div>`;
 
       res.innerHTML = html;
     } catch (err) {
@@ -91,16 +201,17 @@
     }
   };
 
-  // small helpers (escape to avoid HTML injection)
   function escapeHtml(s) {
     if (s === null || s === undefined) return "";
-    return String(s).replace(/[&<>"']/g, function(m){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[m]; });
-  }
-  function escapeForFilename(s) {
-    return (s||'package').replace(/[^a-z0-9_\-]/gi, '_');
+    return String(s).replace(/[&<>"']/g, m => (
+      {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]
+    ));
   }
 
-  // print result area
+  function escapeForFilename(s) {
+    return (s || 'package').replace(/[^a-z0-9_\-]/gi, '_');
+  }
+
   window.printResult = function() {
     const content = document.getElementById("result").innerHTML;
     const w = window.open("", "_blank");
@@ -111,7 +222,6 @@
     w.close();
   };
 
-  // download PDF of result using html2canvas + jsPDF
   window.downloadResultPDF = async function(filenameBase) {
     const el = document.getElementById("result");
     const canvas = await html2canvas(el, { scale: 2 });
@@ -123,20 +233,11 @@
     pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
     pdf.save(`${filenameBase || 'package'}.pdf`);
   };
-
 </script>
 
-<!-- libs -->
+<!-- Libraries -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-<h1>Track Your Package</h1>
-<div class="search">
-  <input id="trackingId" placeholder="Enter your tracking ID (e.g. XCE123456)">
-  <button onclick="trackPackage()">Track</button>
-</div>
-
-<div id="result"></div>
 
 </body>
 </html>
