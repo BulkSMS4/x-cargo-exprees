@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>X-Cargo Express – All Invoices</title>
+<style>
+  body {font-family: Inter, "Segoe UI", Arial; background: #f4f6fb; color: #222; padding: 20px; max-width: 1000px; margin: auto;}
+  h1 {color: #004080; text-align: center; margin-bottom: 20px;}
+  input[type="text"] {width: 100%; padding: 10px 12px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px;}
+  table {width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 6px 18px rgba(0,0,0,.08);}
+  th, td {padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee;}
+  th {background: #004080; color: #fff; font-weight: 600; cursor: pointer;}
+  tr:hover {background: #f1f9ff;}
+  button {padding: 6px 12px; margin-right: 5px; background: #004080; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;}
+  button:hover {background: #003366;}
+  .delete-btn {background: #d9534f;}
+  .delete-btn:hover {background: #c12e2a;}
+  .status {padding: 4px 8px; border-radius: 12px; color: #fff; font-weight: 600; display: inline-block;}
+</style>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+  import { getDatabase, ref, get, remove } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
+    authDomain: "x-cargo-exprees.firebaseapp.com",
+    databaseURL: "https://x-cargo-exprees-default-rtdb.firebaseio.com",
+    projectId: "x-cargo-exprees",
+    storageBucket: "x-cargo-exprees.appspot.com",
+    messagingSenderId: "1082201867958",
+    appId: "1:1082201867958:web:d6600fbc82085b0b62c817"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  let allPackages = [];
+
+  async function loadInvoices() {
+    const tableBody = document.getElementById("invoicesTableBody");
+    const snap = await get(ref(db, 'packages'));
+    if (!snap.exists()) {
+      tableBody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No packages found.</td></tr>';
+      return;
+    }
+
+    allPackages = [];
+    const data = snap.val();
+    for (const id in data) {
+      const pkg = data[id];
+      allPackages.push({id, ...pkg});
+    }
+    renderTable(allPackages);
+  }
+
+  function renderTable(packages) {
+    const tableBody = document.getElementById("invoicesTableBody");
+    tableBody.innerHTML = '';
+    if (!packages.length) {
+      tableBody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No packages match your search.</td></tr>';
+      return;
+    }
+    packages.forEach(pkg => {
+      const statusColor = pkg.statusColor || "#007bff";
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${pkg.id}</td>
+        <td>${pkg.sender || "-"}</td>
+        <td>${pkg.receiver || "-"}</td>
+        <td><span class="status" style="background:${statusColor}">${pkg.status || "Pending"}</span></td>
+        <td>${pkg.shipmentDate || "-"}</td>
+        <td>
+          <a href="invoice.html?id=${pkg.id}" target="_blank">
+            <button>View</button>
+          </a>
+          <button class="delete-btn" onclick="deletePackage('${pkg.id}')">Delete</button>
+        </td>
+      `;
+      tableBody.appendChild(tr);
+    });
+  }
+
+  function searchInvoices() {
+    const query = document.getElementById("searchInput").value.toLowerCase();
+    const filtered = allPackages.filter(pkg =>
+      pkg.id.toLowerCase().includes(query) ||
+      (pkg.sender && pkg.sender.toLowerCase().includes(query)) ||
+      (pkg.receiver && pkg.receiver.toLowerCase().includes(query))
+    );
+    renderTable(filtered);
+  }
+
+  function sortBy(field) {
+    allPackages.sort((a, b) => {
+      if (field === 'shipmentDate') {
+        return (a.shipmentDate || '').localeCompare(b.shipmentDate || '');
+      } else if (field === 'status') {
+        return (a.status || '').localeCompare(b.status || '');
+      }
+      return 0;
+    });
+    renderTable(allPackages);
+  }
+
+  async function deletePackage(id) {
+    if (!confirm(`Are you sure you want to delete package ${id}? This action cannot be undone.`)) return;
+    try {
+      await remove(ref(db, `packages/${id}`));
+      allPackages = allPackages.filter(pkg => pkg.id !== id);
+      renderTable(allPackages);
+      alert(`Package ${id} deleted successfully.`);
+    } catch (err) {
+      alert(`Error deleting package: ${err.message}`);
+    }
+  }
+
+  window.onload = loadInvoices;
+</script>
+</head>
+<body>
+<h1>All Shipment Invoices</h1>
+
+<input type="text" id="searchInput" placeholder="Search by Package ID, Sender, or Receiver" oninput="searchInvoices()">
+
+<table>
+  <thead>
+    <tr>
+      <th>Package ID</th>
+      <th>Sender</th>
+      <th>Receiver</th>
+      <th onclick="sortBy('status')">Status ⬍</th>
+      <th onclick="sortBy('shipmentDate')">Shipment Date ⬍</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody id="invoicesTableBody">
+    <tr><td colspan="7" style="text-align:center;">Loading invoices...</td></tr>
+  </tbody>
+</table>
+</body>
+</html>
