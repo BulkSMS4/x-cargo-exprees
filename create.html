@@ -1,100 +1,174 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>X-Cargo Express – Create Package</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>📦 X-Cargo Express — Create Package (Admin)</title>
 <style>
-  body{font-family:Inter,"Segoe UI",Arial; background:#f4f6fb; color:#222; padding:20px; max-width:900px; margin:auto;}
-  h1{color:#004080; text-align:center;}
-  form{background:#fff; padding:20px; border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.08);}
-  label{font-weight:600; color:#004080; display:block; margin-top:12px;}
-  input, textarea, select{width:100%; padding:10px; margin-top:6px; border-radius:6px; border:1px solid #ccc; font-size:15px;}
-  button{margin-top:20px; width:100%; padding:14px; background:#004080; color:#fff; border:none; border-radius:6px; font-size:16px; font-weight:700; cursor:pointer;}
-  .flex{display:flex; gap:10px;}
-  .flex input{flex:1;}
-  .warning-box{background:#fff3cd; border:1px solid #ffeeba; padding:10px; border-radius:8px; margin-top:10px;}
+  :root{--brand:#007bff}
+  body{font-family:Inter, "Segoe UI", Arial; background:#f6f8fb; color:#222; margin:0; padding:20px;}
+  h1{color:var(--brand); text-align:center; margin-bottom:14px}
+  form { max-width:1000px; margin:0 auto 14px; background:#fff; padding:14px; border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.06); }
+  label{display:block; margin-top:10px; font-weight:600}
+  input[type="text"], input[type="email"], input[type="tel"], input[type="date"], input[type="number"], input[type="color"], select, textarea, input[type="file"] {
+    width:100%; padding:10px; margin-top:6px; border-radius:8px; border:1px solid #d8dce3; font-size:14px;
+  }
+  textarea{min-height:70px; resize:vertical}
+  .row { display:flex; gap:12px; }
+  .col { flex:1; }
+  .small { max-width:220px; }
+  button { background:var(--brand); color:#fff; border:none; padding:10px 12px; border-radius:8px; cursor:pointer; font-weight:700; margin-top:12px;}
+  .secondary { background:#666; }
+  .note { font-size:13px; color:#666; margin-top:6px; }
+  .invoice { display:none; max-width:1000px; margin:18px auto; background:#fff; padding:16px; border-radius:10px; box-shadow:0 6px 20px rgba(0,0,0,.06); }
+  .inv-header { display:flex; gap:16px; align-items:center; border-bottom:2px solid #eef3fb; padding-bottom:12px; }
+  .inv-logo { width:90px; height:90px; object-fit:contain; border-radius:8px; background:#fff; border:1px solid #eee; }
+  .inv-title h2{ margin:0; color:var(--brand) }
+  .inv-meta { margin-left:auto; text-align:right; font-size:13px; color:#555 }
+  table.inv-table { width:100%; border-collapse:collapse; margin-top:12px; }
+  table.inv-table th, table.inv-table td { padding:8px; border:1px solid #eee; text-align:left; font-size:14px; }
+  .status-badge { display:inline-block; padding:6px 12px; border-radius:18px; color:#fff; font-weight:700; margin-top:6px; }
+  .warning { margin-top:10px; font-weight:700; padding:8px 10px; border-radius:8px; display:inline-block;}
+  .images { margin-top:12px; display:flex; gap:8px; flex-wrap:wrap; }
+  .images img { width:180px; height:120px; object-fit:cover; border-radius:8px; border:1px solid #eee; }
+  .actions { display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; justify-content:center; }
+  .actions button { width:auto; padding:8px 14px; border-radius:6px; }
+  @media (max-width:760px){ .row{flex-direction:column} .inv-header{flex-direction:column;align-items:flex-start} .inv-meta{text-align:left;margin-left:0} }
+  /* hide actions on export by JS; also hide when printing */
+  @media print { .actions, #uploadStatus, form { display:none !important } }
 </style>
+
+<!-- libs -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 </head>
 <body>
+<h1>📦 X-Cargo Express — Create Package</h1>
 
-<h1>📦 Post New Package</h1>
-
-<form id="packageForm">
-  <label>Tracking ID</label>
-  <input id="trackingId" placeholder="e.g. XCE1234567890" required>
-
-  <div class="flex">
-    <div style="flex:1">
-      <label>Sender</label>
-      <input id="sender" placeholder="Sender name" required>
+<form id="createForm" autocomplete="off">
+  <!-- Tracking row -->
+  <div class="row">
+    <div class="col">
+      <label>Tracking ID <span class="note">(leave blank to auto-generate)</span></label>
+      <input id="trackingId" type="text" placeholder="e.g. XCE1234567890">
     </div>
-    <div style="flex:1">
-      <label>Receiver</label>
-      <input id="receiver" placeholder="Receiver name" required>
-    </div>
-  </div>
-
-  <label>Address</label>
-  <input id="address" placeholder="Destination address" required>
-
-  <div class="flex">
-    <div style="flex:1">
+    <div class="col small">
       <label>Shipment Date</label>
-      <input id="shipmentDate" type="date" required>
+      <input id="shipmentDate" type="date">
     </div>
-    <div style="flex:1">
+    <div class="col small">
       <label>Expected Delivery</label>
-      <input id="expectedDate" type="date" required>
+      <input id="expectedDate" type="date">
     </div>
   </div>
 
-  <div class="flex">
-    <div style="flex:1">
-      <label>Weight</label>
-      <input id="weight" placeholder="e.g. 15kg">
+  <!-- Sender & Receiver -->
+  <div class="row">
+    <div class="col">
+      <label>Sender Name</label>
+      <input id="senderName" type="text" placeholder="e.g. John Smith">
+      <label>Sender Email</label>
+      <input id="senderEmail" type="email" placeholder="e.g. john@example.com">
+      <label>Sender Phone</label>
+      <input id="senderPhone" type="tel" placeholder="e.g. +1-555-0123">
+      <label>Sender Location</label>
+      <input id="senderLocation" type="text" placeholder="e.g. New York, USA">
     </div>
-    <div style="flex:1">
+
+    <div class="col">
+      <label>Receiver Name</label>
+      <input id="receiverName" type="text" placeholder="e.g. Mary Johnson">
+      <label>Receiver Email</label>
+      <input id="receiverEmail" type="email" placeholder="e.g. mary@example.com">
+      <label>Receiver Phone</label>
+      <input id="receiverPhone" type="tel" placeholder="e.g. +44-20-1234-5678">
+      <label>Receiver Location</label>
+      <input id="receiverLocation" type="text" placeholder="e.g. London, UK">
+    </div>
+  </div>
+
+  <label>Delivery Address</label>
+  <textarea id="address" placeholder="e.g. 22B Baker Street, London, W1U 3BW"></textarea>
+
+  <div class="row">
+    <div class="col small">
+      <label>Weight (e.g. 12.5 kg)</label>
+      <input id="weight" type="text" placeholder="e.g. 12.5 kg">
+    </div>
+    <div class="col small">
       <label>Quantity</label>
-      <input id="quantity" placeholder="e.g. 3 boxes">
+      <input id="quantity" type="number" min="1" value="1" placeholder="e.g. 2">
+    </div>
+    <div class="col">
+      <label>Package Title</label>
+      <input id="title" type="text" placeholder="e.g. Fragile electronics">
+      <label>Description</label>
+      <textarea id="description" placeholder="e.g. Contains glass components - handle with care"></textarea>
     </div>
   </div>
 
-  <label>Description</label>
-  <textarea id="description" rows="3" placeholder="Package details..."></textarea>
-
-  <label>Status</label>
-  <select id="status">
-    <option>Pending</option>
-    <option>In Transit</option>
-    <option>Delivered</option>
-    <option>Held for Pickup</option>
-    <option>Returned</option>
-  </select>
-
-  <label>Status Color</label>
-  <input type="color" id="statusColor" value="#007bff">
-
-  <div class="warning-box">
-    <label><input type="checkbox" id="showWarning"> Show Warning Message</label>
-    <input id="warningText" placeholder="⚠️ Failure to verify may result in account lock!">
-    <label>Warning Color</label>
-    <input type="color" id="warningColor" value="#ff0000">
+  <h3 style="margin-top:12px; color:var(--brand)">Status & Warning</h3>
+  <div class="row">
+    <div class="col">
+      <label>Status</label>
+      <select id="status">
+        <option>Pending</option>
+        <option>Processing</option>
+        <option>In Transit</option>
+        <option>On Hold</option>
+        <option>Suspended</option>
+        <option>Delivered</option>
+        <option>Not Delivered Yet</option>
+      </select>
+    </div>
+    <div class="col small">
+      <label>Status Color</label>
+      <input id="statusColor" type="color" value="#007bff">
+    </div>
   </div>
 
-  <label>Logo Image URL (optional)</label>
-  <input id="logoURL" placeholder="https://example.com/logo.png">
+  <div style="margin-top:10px">
+    <label><input id="showWarning" type="checkbox"> Show Warning Message</label>
+    <textarea id="warningText" placeholder="⚠️ Failure to verify may result in account lock!"></textarea>
+    <div style="max-width:200px;">
+      <label>Warning Color</label>
+      <input id="warningColor" type="color" value="#ff0000">
+    </div>
+  </div>
 
-  <label>Package Images (optional)</label>
-  <input type="file" multiple id="packageImages">
+  <h3 style="margin-top:12px; color:var(--brand)">Images (upload)</h3>
+  <div class="row">
+    <div class="col">
+      <label>Upload Company Logo (single)</label>
+      <input id="logoFile" type="file" accept="image/*">
+    </div>
+    <div class="col">
+      <label>Upload Package Images (multiple)</label>
+      <input id="packageFiles" type="file" accept="image/*" multiple>
+      <div class="note">All images will be uploaded to Cloudinary. Previews show instantly.</div>
+    </div>
+  </div>
 
-  <button type="submit">📤 Save / Post Package</button>
+  <div class="row" style="margin-top:12px;">
+    <div class="col small">
+      <button id="saveBtn" type="submit">Save & Show Invoice</button>
+    </div>
+    <div class="col small">
+      <button id="clearBtn" type="button" class="secondary">Clear Form</button>
+    </div>
+  </div>
+
+  <p class="note">Tip: the invoice preview appears instantly. Images are uploaded to Cloudinary in the background and the saved package is updated once uploads finish — tracking will work immediately using the shown Tracking ID.</p>
 </form>
+
+<div id="invoice" class="invoice" aria-live="polite"></div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-  import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
+  import { getDatabase, ref as dbRef, set as dbSet, update as dbUpdate } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
 
+  // — Firebase config (your existing project)
   const firebaseConfig = {
     apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
     authDomain: "x-cargo-exprees.firebaseapp.com",
@@ -104,60 +178,221 @@
     messagingSenderId: "1082201867958",
     appId: "1:1082201867958:web:d6600fbc82085b0b62c817"
   };
-
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  document.getElementById("packageForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
+  // — Cloudinary (unsigned preset)
+  const CLOUDINARY_CLOUD = "dymwisuau";              // your cloud name
+  const CLOUDINARY_UPLOAD_PRESET = "unsigned_upload"; // your unsigned preset
 
-    const trackingId = document.getElementById("trackingId").value.trim();
-    if (!trackingId) return alert("Enter tracking ID first!");
+  // DOM shortcuts
+  const createForm = document.getElementById("createForm");
+  const invoiceEl = document.getElementById("invoice");
+  const clearBtn = document.getElementById("clearBtn");
 
-    const sender = document.getElementById("sender").value.trim();
-    const receiver = document.getElementById("receiver").value.trim();
-    const address = document.getElementById("address").value.trim();
-    const shipmentDate = document.getElementById("shipmentDate").value;
-    const expectedDate = document.getElementById("expectedDate").value;
-    const weight = document.getElementById("weight").value;
-    const quantity = document.getElementById("quantity").value;
-    const description = document.getElementById("description").value;
-    const status = document.getElementById("status").value;
-    const statusColor = document.getElementById("statusColor").value;
-    const showWarning = document.getElementById("showWarning").checked;
-    const warningText = document.getElementById("warningText").value;
-    const warningColor = document.getElementById("warningColor").value;
-    const logoURL = document.getElementById("logoURL").value;
+  // helper to create object URL previews
+  const createObjectURL = (file) => URL.createObjectURL(file);
 
-    // Collect any image names (no upload delay)
-    const files = document.getElementById("packageImages").files;
-    const imageURLs = [];
-    for (let f of files) imageURLs.push(f.name);
+  // upload a single file to Cloudinary (unsigned)
+  async function uploadToCloudinary(file) {
+    const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`;
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+    const res = await fetch(url, { method: "POST", body: fd });
+    if (!res.ok) {
+      const txt = await res.text();
+      throw new Error("Cloudinary upload failed: " + txt);
+    }
+    const json = await res.json();
+    return json.secure_url;
+  }
 
-    await set(ref(db, "packages/" + trackingId), {
+  // upload multiple files sequentially (safer for mobile)
+  async function uploadMultiple(files) {
+    const urls = [];
+    for (let i = 0; i < files.length; i++) {
+      const u = await uploadToCloudinary(files[i]);
+      urls.push(u);
+    }
+    return urls;
+  }
+
+  // Render invoice instantly (previews)
+  function renderInvoice(data, logoPreview, previewImgs) {
+    invoiceEl.style.display = "block";
+    const meta = new Date().toLocaleString();
+    let html = `
+      <div class="inv-header">
+        <img id="invLogo" class="inv-logo" src="${data.logoURL || logoPreview || ''}" alt="Company logo" />
+        <div class="inv-title">
+          <h2>📦 X-Cargo Express — Invoice</h2>
+          <div style="color:#555; font-size:13px">123 Express Avenue, Florida, USA<br/>support@xcargoexpress.com | +1-800-555-XCEX</div>
+        </div>
+        <div class="inv-meta">Created: ${meta}<br>Tracking: ${data.trackingId}</div>
+      </div>
+      <div id="statusWrap" style="margin-top:10px"><span class="status-badge" style="background:${data.statusColor || '#007bff'}">${data.status || 'Pending'}</span></div>
+      <table class="inv-table">
+        <tbody>
+          <tr><th>Tracking ID</th><td>${escapeHtml(data.trackingId)}</td></tr>
+          <tr><th>Title</th><td>${escapeHtml(data.title || '')}</td></tr>
+          <tr><th>Sender</th><td>${escapeHtml(data.senderName || '')} — ${escapeHtml(data.senderEmail || '')} — ${escapeHtml(data.senderPhone || '')} — ${escapeHtml(data.senderLocation || '')}</td></tr>
+          <tr><th>Receiver</th><td>${escapeHtml(data.receiverName || '')} — ${escapeHtml(data.receiverEmail || '')} — ${escapeHtml(data.receiverPhone || '')} — ${escapeHtml(data.receiverLocation || '')}</td></tr>
+          <tr><th>Address</th><td>${escapeHtml(data.address || '')}</td></tr>
+          <tr><th>Shipment Date</th><td>${escapeHtml(data.shipmentDate || '')}</td></tr>
+          <tr><th>Expected Delivery</th><td>${escapeHtml(data.expectedDate || '')}</td></tr>
+          <tr><th>Weight</th><td>${escapeHtml(data.weight || '')}</td></tr>
+          <tr><th>Quantity</th><td>${escapeHtml(data.quantity || '')}</td></tr>
+          <tr><th>Description</th><td>${escapeHtml(data.description || '')}</td></tr>
+        </tbody>
+      </table>
+    `;
+
+    if (data.showWarning && data.warningText) {
+      html += `<div id="iWarning" class="warning" style="color:${data.warningColor || '#ff0000'}">${escapeHtml(data.warningText)}</div>`;
+    }
+
+    html += `<div id="iImages" class="images">`;
+    // prefer final imageURLs, otherwise previews
+    if (data.imageURLs && data.imageURLs.length) {
+      data.imageURLs.forEach(u => html += `<img src="${u}" alt="Package image">`);
+    } else if (previewImgs && previewImgs.length) {
+      previewImgs.forEach(u => html += `<img src="${u}" alt="Preview image">`);
+    }
+    html += `</div>`;
+
+    // Dashboard-only controls
+    html += `<div class="actions">
+      <button id="printBtn" type="button">🖨 Print Invoice</button>
+      <button id="pdfBtn" type="button">📥 Download PDF</button>
+      <button id="saveGalleryBtn" type="button">🖼 Save to Gallery</button>
+    </div>`;
+
+    invoiceEl.innerHTML = html;
+
+    // Hook the actions
+    document.getElementById("printBtn").onclick = () => {
+      // hide actions for printing
+      const actions = document.querySelector('.actions');
+      actions.style.display = 'none';
+      setTimeout(() => { window.print(); actions.style.display = ''; }, 120);
+    };
+    document.getElementById("pdfBtn").onclick = async () => {
+      const actions = document.querySelector('.actions'); actions.style.display = 'none';
+      const canvas = await html2canvas(invoiceEl, { scale: 2 });
+      const img = canvas.toDataURL('image/png');
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF('p','mm','a4');
+      const pdfW = pdf.internal.pageSize.getWidth();
+      const pdfH = (canvas.height * pdfW) / canvas.width;
+      pdf.addImage(img,'PNG',0,0,pdfW,pdfH);
+      pdf.save(`Invoice-${data.trackingId}.pdf`);
+      actions.style.display = '';
+    };
+    document.getElementById("saveGalleryBtn").onclick = async () => {
+      const actions = document.querySelector('.actions'); actions.style.display = 'none';
+      const canvas = await html2canvas(invoiceEl, { scale: 2 });
+      const url = canvas.toDataURL('image/png');
+      const a = document.createElement('a'); a.href = url; a.download = `Invoice-${data.trackingId}.png`; a.click();
+      actions.style.display = '';
+    };
+  }
+
+  // Escape helper
+  function escapeHtml(s) {
+    if (!s && s !== 0) return '';
+    return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+
+  // Main submit handler:
+  createForm.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+
+    // collect form values
+    let trackingId = document.getElementById('trackingId').value.trim();
+    if (!trackingId) trackingId = 'XCE' + Math.floor(1000000000 + Math.random()*9000000000);
+
+    const data = {
       trackingId,
-      sender,
-      receiver,
-      address,
-      shipmentDate,
-      expectedDate,
-      weight,
-      quantity,
-      description,
-      status,
-      statusColor,
-      showWarning,
-      warningText,
-      warningColor,
-      logoURL,
-      imageURLs,
-      timestamp: Date.now()
-    });
+      title: document.getElementById('title').value.trim(),
+      senderName: document.getElementById('senderName').value.trim(),
+      senderEmail: document.getElementById('senderEmail').value.trim(),
+      senderPhone: document.getElementById('senderPhone').value.trim(),
+      senderLocation: document.getElementById('senderLocation').value.trim(),
+      receiverName: document.getElementById('receiverName').value.trim(),
+      receiverEmail: document.getElementById('receiverEmail').value.trim(),
+      receiverPhone: document.getElementById('receiverPhone').value.trim(),
+      receiverLocation: document.getElementById('receiverLocation').value.trim(),
+      address: document.getElementById('address').value.trim(),
+      shipmentDate: document.getElementById('shipmentDate').value,
+      expectedDate: document.getElementById('expectedDate').value,
+      weight: document.getElementById('weight').value.trim(),
+      quantity: document.getElementById('quantity').value,
+      description: document.getElementById('description').value.trim(),
+      status: document.getElementById('status').value,
+      statusColor: document.getElementById('statusColor').value,
+      showWarning: document.getElementById('showWarning').checked,
+      warningText: document.getElementById('warningText').value.trim(),
+      warningColor: document.getElementById('warningColor').value,
+      logoURL: '', // will be filled after upload
+      imageURLs: [], // will be filled after upload
+      createdAt: new Date().toISOString()
+    };
 
-    alert("✅ Package posted successfully!\nNow track it using: " + trackingId);
-    e.target.reset();
+    // Prepare previews
+    const logoFile = document.getElementById('logoFile').files[0] || null;
+    const packageFileList = Array.from(document.getElementById('packageFiles').files || []);
+    const previewImgs = [];
+    if (logoFile) data.logoPreview = createObjectURL(logoFile);
+    for (const f of packageFileList) previewImgs.push(createObjectURL(f));
+
+    // Render invoice instantly (using preview images if available)
+    renderInvoice(data, data.logoPreview, previewImgs);
+
+    // Start uploading files to Cloudinary in background (no messages)
+    (async () => {
+      try {
+        if (logoFile) {
+          const url = await uploadToCloudinary(logoFile);
+          data.logoURL = url;
+        }
+        if (packageFileList.length) {
+          const urls = await uploadMultiple(packageFileList);
+          data.imageURLs = urls;
+        }
+
+        // Save final package object to Firebase under packages/<trackingId>
+        const pkgNode = dbRef(db, 'packages/' + trackingId);
+        await dbSet(pkgNode, data);
+
+        // Update invoice to final URLs (swap previews)
+        if (data.logoURL) {
+          const img = document.getElementById('invLogo'); if (img) img.src = data.logoURL;
+        }
+        if (data.imageURLs && data.imageURLs.length) {
+          const imgsEl = document.getElementById('iImages');
+          if (imgsEl) {
+            imgsEl.innerHTML = '';
+            data.imageURLs.forEach(u => imgsEl.innerHTML += `<img src="${u}" alt="Package image">`);
+          }
+        }
+        // No "uploading" messages per your request.
+      } catch (err) {
+        console.error('Upload failed:', err);
+        // We don't show blocking errors in UI (per your "no wait" preference) — just log.
+      }
+    })();
+
+    // done: keep invoice visible and form intact for further actions
+    alert('✅ Package created — tracking ID: ' + trackingId);
+    // optionally reset form or keep it — we'll keep it for convenience
   });
-</script>
 
+  clearBtn.addEventListener('click', () => {
+    createForm.reset();
+    invoiceEl.style.display = 'none';
+  });
+
+</script>
 </body>
 </html>
