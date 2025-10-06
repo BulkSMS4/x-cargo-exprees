@@ -5,35 +5,30 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>X-Cargo Express – Track Your Package</title>
 <style>
-  body{font-family:Inter,"Segoe UI",Arial;background:#f4f6fb;color:#222;padding:20px;max-width:920px;margin:auto}
-  h1{text-align:center;color:#004080;margin-bottom:20px}
-  .search{display:flex;gap:8px;justify-content:center;margin:12px 0 20px}
-  input{padding:12px;width:60%;border-radius:6px;border:1px solid #ccc;font-size:15px}
-  button{padding:12px 14px;border-radius:6px;border:none;background:#004080;color:#fff;cursor:pointer;font-weight:700}
-  #result{background:#fff;padding:18px;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,.06);margin-top:18px;display:none}
-  .logo img{max-width:140px;display:block;margin:0 auto 8px}
-  .status{ text-align:center;margin:10px 0 }
-  .status-badge{display:inline-block;padding:6px 12px;border-radius:18px;color:#fff;font-weight:700}
-  .warning{margin:10px 0;padding:10px;border-radius:8px;font-weight:700}
-  .images{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:12px}
-  .images img{width:180px;height:120px;object-fit:cover;border-radius:8px;border:1px solid #eee}
-  .field{margin-bottom:8px}
-  .field strong{color:#004080}
-  .not-found{text-align:center;color:#f00;font-weight:700;margin-top:20px}
-  @media (max-width:720px){ input{width:100%} .search{flex-direction:column;align-items:center}}
+  body{font-family:Inter, "Segoe UI", Arial; background:#f4f6fb; color:#222; padding:20px; max-width:940px; margin:auto;}
+  h1{color:#004080; text-align:center; margin-bottom:10px;}
+  .search { display:flex; gap:8px; justify-content:center; margin:12px 0 20px; }
+  input{padding:12px; width:60%; border-radius:6px; border:1px solid #ccc; font-size:15px;}
+  button{padding:12px 16px; border-radius:6px; border:none; background:#004080; color:#fff; cursor:pointer; font-weight:700;}
+  #result{background:#fff; padding:20px; border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.08); margin-top:18px;}
+  .header{display:flex; align-items:center; justify-content:space-between; border-bottom:2px solid #004080; padding-bottom:10px; margin-bottom:15px;}
+  .header img{width:120px; height:auto;}
+  .company-info{text-align:right; font-size:14px; line-height:1.5;}
+  .company-info strong{color:#004080;}
+  .status{text-align:center; margin:14px 0;}
+  .status-badge{display:inline-block;padding:8px 16px;border-radius:20px;color:#fff;font-weight:700;}
+  .warning{margin:10px 0; padding:10px; border-radius:8px; font-weight:700;}
+  .images{display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:15px;}
+  .images img{width:190px; height:130px; object-fit:cover; border-radius:8px; border:1px solid #eee;}
+  .field{margin-bottom:8px;}
+  .field strong{color:#004080;}
+  @media(max-width:720px){
+    input{width:100%;}
+    .search{flex-direction:column; align-items:center;}
+    .header{flex-direction:column; text-align:center;}
+    .company-info{text-align:center; margin-top:10px;}
+  }
 </style>
-</head>
-<body>
-<h1>📦 Track Your Package 🛍️</h1>
-
-<div class="search">
-  <input id="trackingId" placeholder="Enter your tracking ID (e.g. XCE1234567890)">
-  <button onclick="trackPackage()">Track</button>
-</div>
-
-<div id="result"></div>
-<p id="notFound" class="not-found" style="display:none">❌ No package found for that Tracking ID.</p>
-
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
   import { getDatabase, ref as dbRef, get, child } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
@@ -51,91 +46,94 @@
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  // helper escape
-  function escapeHtml(s) {
-    if (!s && s !== 0) return '';
-    return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-  }
-
-  async function findPackageByIdOrField(id) {
-    // try direct path first
-    const directSnap = await get(child(dbRef(db), 'packages/' + id));
-    if (directSnap.exists()) return directSnap.val();
-
-    // else search all packages for trackingId match (case-insensitive)
-    const allSnap = await get(child(dbRef(db), 'packages'));
-    if (!allSnap.exists()) return null;
-    let found = null;
-    allSnap.forEach(item => {
-      const d = item.val();
-      if (d && d.trackingId && d.trackingId.toLowerCase() === id.toLowerCase()) {
-        found = d;
-      }
-    });
-    return found;
-  }
-
   window.trackPackage = async function() {
-    const id = document.getElementById('trackingId').value.trim();
-    const res = document.getElementById('result');
-    const notFound = document.getElementById('notFound');
-    res.style.display = 'none';
-    notFound.style.display = 'none';
-    if (!id) return alert('Please enter a tracking ID.');
+    const id = document.getElementById("trackingId").value.trim();
+    const res = document.getElementById("result");
+    res.innerHTML = "⏳ Searching...";
+    if (!id) { alert("Enter tracking ID"); res.innerHTML = ""; return; }
 
     try {
-      const data = await findPackageByIdOrField(id);
-      if (!data) {
-        notFound.style.display = 'block';
-        return;
-      }
+      const snapshot = await get(child(dbRef(db), `packages/${id}`));
+      if (!snapshot.exists()) { res.innerHTML = "<strong>❌ No package found for that Tracking ID.</strong>"; return; }
+      const data = snapshot.val();
 
-      // render
-      let html = '';
-      if (data.logoURL) html += `<div class="logo"><img src="${data.logoURL}" alt="Logo"></div>`;
-      html += `<h2 style="text-align:center;color:#004080;margin-top:4px">Package Details</h2>`;
-      const sc = data.statusColor || '#007bff';
-      html += `<div class="status"><span class="status-badge" style="background:${sc}">${escapeHtml(data.status || 'Pending')}</span></div>`;
+      let html = "";
 
-      html += `<div class="field"><strong>Tracking ID:</strong> ${escapeHtml(data.trackingId || id)}</div>`;
-      html += `<div class="field"><strong>Title:</strong> ${escapeHtml(data.title || '-')}</div>`;
-      html += `<div class="field"><strong>Sender:</strong> ${escapeHtml(data.senderName || '-') } — ${escapeHtml(data.senderEmail || '') } — ${escapeHtml(data.senderPhone || '') } — ${escapeHtml(data.senderLocation || '')}</div>`;
-      html += `<div class="field"><strong>Receiver:</strong> ${escapeHtml(data.receiverName || '-') } — ${escapeHtml(data.receiverEmail || '') } — ${escapeHtml(data.receiverPhone || '') } — ${escapeHtml(data.receiverLocation || '')}</div>`;
-      html += `<div class="field"><strong>Address:</strong> ${escapeHtml(data.address || '-')}</div>`;
-      html += `<div class="field"><strong>Shipment Date:</strong> ${escapeHtml(data.shipmentDate || '-')}</div>`;
-      html += `<div class="field"><strong>Expected Delivery:</strong> ${escapeHtml(data.expectedDate || '-')}</div>`;
-      html += `<div class="field"><strong>Weight:</strong> ${escapeHtml(data.weight || '-')}</div>`;
-      html += `<div class="field"><strong>Quantity:</strong> ${escapeHtml(data.quantity || '-')}</div>`;
-      html += `<div class="field"><strong>Description:</strong> ${escapeHtml(data.description || '-')}</div>`;
+      // Modern header
+      html += `<div class="header">`;
+      html += `<div class="logo">`;
+      if (data.logoURL) html += `<img src="${data.logoURL}" alt="Logo">`;
+      html += `</div>`;
+      html += `<div class="company-info">
+        <strong>X-Cargo Express</strong><br>
+        123 Express Avenue, Florida, USA<br>
+        support@xcargoexpress.com · +1-800-555-XCEX<br>
+        <small>Created: ${escapeHtml(data.createdAt || "-")}<br>Tracking: ${escapeHtml(data.trackingId || id)}</small>
+      </div>`;
+      html += `</div>`;
+
+      html += `<h2 style="text-align:center;color:#004080;">Package Details</h2>`;
+      const sc = data.statusColor || "#007bff";
+      html += `<div class="status"><span class="status-badge" style="background:${sc}">${data.status || "Pending"}</span></div>`;
+
+      // Sender
+      html += `<h3 style="color:#004080">Sender Details</h3>`;
+      html += `<div class="field"><strong>Name:</strong> ${escapeHtml(data.sender||"-")}</div>`;
+      html += `<div class="field"><strong>Email:</strong> ${escapeHtml(data.senderEmail||"-")}</div>`;
+      html += `<div class="field"><strong>Phone:</strong> ${escapeHtml(data.senderPhone||"-")}</div>`;
+      html += `<div class="field"><strong>Location:</strong> ${escapeHtml(data.senderLocation||"-")}</div>`;
+
+      // Receiver
+      html += `<h3 style="color:#004080;margin-top:10px;">Receiver Details</h3>`;
+      html += `<div class="field"><strong>Name:</strong> ${escapeHtml(data.receiver||"-")}</div>`;
+      html += `<div class="field"><strong>Email:</strong> ${escapeHtml(data.receiverEmail||"-")}</div>`;
+      html += `<div class="field"><strong>Phone:</strong> ${escapeHtml(data.receiverPhone||"-")}</div>`;
+      html += `<div class="field"><strong>Location:</strong> ${escapeHtml(data.receiverLocation||"-")}</div>`;
+
+      // Package Info
+      html += `<h3 style="color:#004080;margin-top:10px;">Package Information</h3>`;
+      html += `<div class="field"><strong>Shipment Date:</strong> ${escapeHtml(data.shipmentDate||"-")}</div>`;
+      html += `<div class="field"><strong>Expected Delivery:</strong> ${escapeHtml(data.expectedDate||"-")}</div>`;
+      html += `<div class="field"><strong>Weight:</strong> ${escapeHtml(data.weight||"-")}</div>`;
+      html += `<div class="field"><strong>Quantity:</strong> ${escapeHtml(data.quantity||"-")}</div>`;
+      html += `<div class="field"><strong>Description:</strong> ${escapeHtml(data.description||"-")}</div>`;
 
       if (data.showWarning && data.warningText) {
-        html += `<div class="warning" style="color:${data.warningColor || '#ff0000'}">${escapeHtml(data.warningText)}</div>`;
+        html += `<div class="warning" style="background:${data.warningBg||'#fff8f8'}; color:${data.warningColor||'#ff0000'};">
+        ⚠️ ${escapeHtml(data.warningText)}</div>`;
       }
 
-      // images (all)
+      // Images
       if (data.imageURLs && data.imageURLs.length) {
         html += `<div class="images">`;
-        data.imageURLs.forEach(u => html += `<img src="${u}" alt="Package image">`);
+        data.imageURLs.forEach(url => {
+          html += `<img src="${url}" alt="Package image">`;
+        });
         html += `</div>`;
       }
 
       res.innerHTML = html;
-      res.style.display = 'block';
     } catch (err) {
       console.error(err);
-      alert('Error retrieving package. Try again later.');
+      res.innerHTML = "⚠️ Error loading package.";
     }
   };
 
-  // auto-check URL param ?id=...
-  (function() {
-    const params = new URLSearchParams(window.location.search);
-    const id = params.get('id');
-    if (id) {
-      document.getElementById('trackingId').value = id;
-      setTimeout(() => trackPackage(), 300);
-    }
-  })();
+  function escapeHtml(s) {
+    if (s === null || s === undefined) return "";
+    return String(s).replace(/[&<>"']/g, m => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[m]));
+  }
 </script>
+
+<h1>Track Your Package</h1>
+<div class="search">
+  <input id="trackingId" placeholder="Enter Tracking ID (e.g. XCE123456)">
+  <button onclick="trackPackage()">Track</button>
+</div>
+
+<div id="result"></div>
+
 </body>
 </html>
