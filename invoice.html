@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Invoice — X-Cargo Express</title>
+<style>
+  body{font-family:Inter,"Segoe UI",Arial;padding:20px;background:#f6f8fb;color:#222}
+  .invoice{max-width:900px;margin:auto;background:#fff;padding:20px;border-radius:10px}
+  .inv-header{display:flex;align-items:center;gap:12px;border-bottom:1px solid #eee;padding-bottom:12px}
+  .inv-logo{width:80px;height:80px;object-fit:contain}
+  .status-badge{padding:6px 12px;border-radius:18px;color:#fff}
+  .images{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .images img{width:180px;height:120px;object-fit:cover;border:1px solid #eee;border-radius:8px}
+</style>
+</head>
+<body>
+<div id="inv" class="invoice">Loading...</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+  import { getDatabase, ref as dbRef, get, child } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
+    authDomain: "x-cargo-exprees.firebaseapp.com",
+    databaseURL: "https://x-cargo-exprees-default-rtdb.firebaseio.com",
+    projectId: "x-cargo-exprees",
+    storageBucket: "x-cargo-exprees.appspot.com",
+    messagingSenderId: "1082201867958",
+    appId: "1:1082201867958:web:d6600fbc82085b0b62c817"
+  };
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  function escapeHtml(s) {
+    if (!s && s !== 0) return '';
+    return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+
+  async function load() {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    if (!id) { document.getElementById('inv').textContent = 'No tracking id provided.'; return; }
+    const snap = await get(child(dbRef(db), 'packages/' + id));
+    if (!snap.exists()) {
+      document.getElementById('inv').textContent = 'No package found.';
+      return;
+    }
+    const d = snap.val();
+    let html = `<div class="inv-header"><img class="inv-logo" src="${d.logoURL||''}"><div><h2>X-Cargo Express</h2><div>${escapeHtml(d.trackingId)}</div></div><div style="margin-left:auto"><span class="status-badge" style="background:${d.statusColor||'#007bff'}">${escapeHtml(d.status||'Pending')}</span></div></div>`;
+    html += `<div style="margin-top:12px"><strong>Sender:</strong> ${escapeHtml(d.senderName||'')} — ${escapeHtml(d.senderEmail||'')}</div>`;
+    html += `<div><strong>Receiver:</strong> ${escapeHtml(d.receiverName||'')} — ${escapeHtml(d.receiverEmail||'')}</div>`;
+    html += `<div style="margin-top:12px"><strong>Description:</strong> ${escapeHtml(d.description||'')}</div>`;
+    if (d.imageURLs && d.imageURLs.length) {
+      html += '<div class="images">';
+      d.imageURLs.forEach(u => html += `<img src="${u}">`);
+      html += '</div>';
+    }
+    document.getElementById('inv').innerHTML = html;
+  }
+  load();
+</script>
+</body>
+</html>
