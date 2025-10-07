@@ -1,139 +1,143 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>X-Cargo Express – Track Your Package</title>
+<meta charset="UTF-8">
+<title>🚚 X-Cargo Express - Track Package🛍️</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-  body{font-family:Inter, "Segoe UI", Arial; background:#f4f6fb; color:#222; padding:20px; max-width:940px; margin:auto;}
-  h1{color:#004080; text-align:center; margin-bottom:10px;}
-  .search { display:flex; gap:8px; justify-content:center; margin:12px 0 20px; }
-  input{padding:12px; width:60%; border-radius:6px; border:1px solid #ccc; font-size:15px;}
-  button{padding:12px 16px; border-radius:6px; border:none; background:#004080; color:#fff; cursor:pointer; font-weight:700;}
-  #result{background:#fff; padding:20px; border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.08); margin-top:18px;}
-  .header{display:flex; align-items:center; justify-content:space-between; border-bottom:2px solid #004080; padding-bottom:10px; margin-bottom:15px;}
-  .header img{width:120px; height:auto;}
-  .company-info{text-align:right; font-size:14px; line-height:1.5;}
-  .company-info strong{color:#004080;}
-  .status{text-align:center; margin:14px 0;}
-  .status-badge{display:inline-block;padding:8px 16px;border-radius:20px;color:#fff;font-weight:700;}
-  .warning{margin:10px 0; padding:10px; border-radius:8px; font-weight:700;}
-  .images{display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:15px;}
-  .images img{width:190px; height:130px; object-fit:cover; border-radius:8px; border:1px solid #eee;}
-  .field{margin-bottom:8px;}
-  .field strong{color:#004080;}
-  @media(max-width:720px){
-    input{width:100%;}
-    .search{flex-direction:column; align-items:center;}
-    .header{flex-direction:column; text-align:center;}
-    .company-info{text-align:center; margin-top:10px;}
-  }
+body {font-family:"Segoe UI",sans-serif;background:#f5f7fb;color:#333;padding:25px;}
+h2{text-align:center;margin-bottom:25px;color:#007bff;}
+form{max-width:500px;margin:auto;background:#fff;padding:20px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+label{display:block;margin-top:10px;font-weight:500;}
+input{width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;margin-top:5px;font-size:15px;}
+button{background:#007bff;color:#fff;border:none;padding:12px;border-radius:6px;width:100%;margin-top:20px;font-size:16px;cursor:pointer;transition:0.3s;}
+button:hover{background:#0056b3;}
+.receipt{display:none;background:#fff;padding:25px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.1);max-width:700px;margin:30px auto;position:relative;}
+.header{text-align:center;border-bottom:2px solid #007bff;padding-bottom:10px;margin-bottom:15px;}
+.header img{width:80px;height:auto;display:block;margin:0 auto 8px;}
+.header h2{margin:5px 0;}
+.header p{margin:0;font-size:13px;color:#666;}
+table{width:100%;border-collapse:collapse;margin-top:15px;}
+table td,table th{padding:8px;border:1px solid #ccc;font-size:14px;}
+table th{background:#f1f1f1;text-align:left;}
+.status-box{text-align:center;margin-top:10px;}
+.status-badge{display:inline-block;padding:6px 14px;border-radius:20px;color:#fff;font-weight:bold;}
+.warning-box{text-align:center;font-weight:bold;margin-top:10px;}
+.pay-button{display:block;text-align:center;padding:10px 15px;border-radius:6px;margin:10px auto;color:#fff;text-decoration:none;}
+.images{text-align:center;margin-top:15px;}
+.images img{max-width:220px;margin:8px;border-radius:6px;}
+#stampsContainer{position:relative; min-height:50px;}
+#selectedSignature{text-align:center;margin-top:10px;}
 </style>
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-  import { getDatabase, ref as dbRef, get, child } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
-    authDomain: "x-cargo-exprees.firebaseapp.com",
-    databaseURL: "https://x-cargo-exprees-default-rtdb.firebaseio.com",
-    projectId: "x-cargo-exprees",
-    storageBucket: "x-cargo-exprees.appspot.com",
-    messagingSenderId: "1082201867958",
-    appId: "1:1082201867958:web:d6600fbc82085b0b62c817"
-  };
+<h2>🚚 Track Your Package</h2>
 
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
+<form id="trackForm">
+<label>Enter Tracking ID</label>
+<input type="text" id="trackingId" placeholder="e.g. XCE123456" required>
+<button type="button" id="fetchBtn">🔍 Track Package</button>
+</form>
 
-  window.trackPackage = async function() {
-    const id = document.getElementById("trackingId").value.trim();
-    const res = document.getElementById("result");
-    res.innerHTML = "⏳ Searching...";
-    if (!id) { alert("Enter tracking ID"); res.innerHTML = ""; return; }
-
-    try {
-      const snapshot = await get(child(dbRef(db), `packages/${id}`));
-      if (!snapshot.exists()) { res.innerHTML = "<strong>❌ No package found for that Tracking ID.</strong>"; return; }
-      const data = snapshot.val();
-
-      let html = "";
-
-      // Modern header
-      html += `<div class="header">`;
-      html += `<div class="logo">`;
-      if (data.logoURL) html += `<img src="${data.logoURL}" alt="Logo">`;
-      html += `</div>`;
-      html += `<div class="company-info">
-        <strong>X-Cargo Express</strong><br>
-        123 Express Avenue, Florida, USA<br>
-        support@xcargoexpress.com · +1-800-555-XCEX<br>
-        <small>Created: ${escapeHtml(data.createdAt || "-")}<br>Tracking: ${escapeHtml(data.trackingId || id)}</small>
-      </div>`;
-      html += `</div>`;
-
-      html += `<h2 style="text-align:center;color:#004080;">Package Details</h2>`;
-      const sc = data.statusColor || "#007bff";
-      html += `<div class="status"><span class="status-badge" style="background:${sc}">${data.status || "Pending"}</span></div>`;
-
-      // Sender
-      html += `<h3 style="color:#004080">Sender Details</h3>`;
-      html += `<div class="field"><strong>Name:</strong> ${escapeHtml(data.sender||"-")}</div>`;
-      html += `<div class="field"><strong>Email:</strong> ${escapeHtml(data.senderEmail||"-")}</div>`;
-      html += `<div class="field"><strong>Phone:</strong> ${escapeHtml(data.senderPhone||"-")}</div>`;
-      html += `<div class="field"><strong>Location:</strong> ${escapeHtml(data.senderLocation||"-")}</div>`;
-
-      // Receiver
-      html += `<h3 style="color:#004080;margin-top:10px;">Receiver Details</h3>`;
-      html += `<div class="field"><strong>Name:</strong> ${escapeHtml(data.receiver||"-")}</div>`;
-      html += `<div class="field"><strong>Email:</strong> ${escapeHtml(data.receiverEmail||"-")}</div>`;
-      html += `<div class="field"><strong>Phone:</strong> ${escapeHtml(data.receiverPhone||"-")}</div>`;
-      html += `<div class="field"><strong>Location:</strong> ${escapeHtml(data.receiverLocation||"-")}</div>`;
-
-      // Package Info
-      html += `<h3 style="color:#004080;margin-top:10px;">Package Information</h3>`;
-      html += `<div class="field"><strong>Shipment Date:</strong> ${escapeHtml(data.shipmentDate||"-")}</div>`;
-      html += `<div class="field"><strong>Expected Delivery:</strong> ${escapeHtml(data.expectedDate||"-")}</div>`;
-      html += `<div class="field"><strong>Weight:</strong> ${escapeHtml(data.weight||"-")}</div>`;
-      html += `<div class="field"><strong>Quantity:</strong> ${escapeHtml(data.quantity||"-")}</div>`;
-      html += `<div class="field"><strong>Description:</strong> ${escapeHtml(data.description||"-")}</div>`;
-
-      if (data.showWarning && data.warningText) {
-        html += `<div class="warning" style="background:${data.warningBg||'#fff8f8'}; color:${data.warningColor||'#ff0000'};">
-        ⚠️ ${escapeHtml(data.warningText)}</div>`;
-      }
-
-      // Images
-      if (data.imageURLs && data.imageURLs.length) {
-        html += `<div class="images">`;
-        data.imageURLs.forEach(url => {
-          html += `<img src="${url}" alt="Package image">`;
-        });
-        html += `</div>`;
-      }
-
-      res.innerHTML = html;
-    } catch (err) {
-      console.error(err);
-      res.innerHTML = "⚠️ Error loading package.";
-    }
-  };
-
-  function escapeHtml(s) {
-    if (s === null || s === undefined) return "";
-    return String(s).replace(/[&<>"']/g, m => ({
-      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-    }[m]));
-  }
-</script>
-
-<h1>Track Your Package</h1>
-<div class="search">
-  <input id="trackingId" placeholder="Enter Tracking ID (e.g. XCE123456)">
-  <button onclick="trackPackage()">Track</button>
+<div id="receipt" class="receipt">
+<div class="header">
+<img id="headerLogo" src="" alt="Company Logo">
+<h2>X-Cargo Express</h2>
+<p>123 Express Avenue, Florida, USA</p>
+<p>Email: support@xcargoexpress.com | Tel: +1-800-555-XCEX</p>
 </div>
 
-<div id="result"></div>
+<div class="status-box" id="statusBox"></div>
 
+<table>
+<tr><th>Tracking ID</th><td id="rTracking"></td></tr>
+<tr><th>Sender</th><td id="rSender"></td></tr>
+<tr><th>Receiver</th><td id="rReceiver"></td></tr>
+<tr><th>Address</th><td id="rAddress"></td></tr>
+<tr><th>Shipment Date</th><td id="rShip"></td></tr>
+<tr><th>Expected Delivery</th><td id="rExpected"></td></tr>
+<tr><th>Weight</th><td id="rWeight"></td></tr>
+<tr><th>Quantity</th><td id="rQuantity"></td></tr>
+<tr><th>Description</th><td id="rDesc"></td></tr>
+</table>
+
+<div id="warningBox"></div>
+<div id="payBox"></div>
+<div class="images" id="imageSection"></div>
+<div id="stampsContainer"></div>
+<div id="selectedSignature"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
+
+const firebaseConfig = {
+apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
+authDomain: "x-cargo-exprees.firebaseapp.com",
+databaseURL: "https://x-cargo-exprees-default-rtdb.firebaseio.com",
+projectId: "x-cargo-exprees",
+storageBucket: "x-cargo-exprees.appspot.com",
+messagingSenderId: "1082201867958",
+appId: "1:1082201867958:web:d6600fbc82085b0b62c817"
+};
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+document.getElementById("fetchBtn").addEventListener("click", async ()=>{
+  const trackingId = document.getElementById("trackingId").value.trim();
+  if(!trackingId){alert("Enter Tracking ID"); return;}
+  const dbRef = ref(db);
+  const snapshot = await get(child(dbRef,"packages/"+trackingId));
+  if(!snapshot.exists()){alert("❌ Package not found"); return;}
+  const data = snapshot.val();
+  document.getElementById("receipt").style.display="block";
+
+  document.getElementById("rTracking").textContent=data.trackingId||"";
+  document.getElementById("rSender").textContent=data.sender||"";
+  document.getElementById("rReceiver").textContent=data.receiver||"";
+  document.getElementById("rAddress").textContent=data.address||"";
+  document.getElementById("rShip").textContent=data.shipmentDate||"";
+  document.getElementById("rExpected").textContent=data.expectedDate||"";
+  document.getElementById("rWeight").textContent=data.weight||"";
+  document.getElementById("rQuantity").textContent=data.quantity||"";
+  document.getElementById("rDesc").textContent=data.description||"";
+  document.getElementById("headerLogo").src=data.logoURL||"";
+
+  // Status
+  document.getElementById("statusBox").innerHTML=`<span class="status-badge" style="background:${data.statusColor||'#007bff'}">${data.status||'Pending'}</span>`;
+
+  // Warning
+  document.getElementById("warningBox").innerHTML=(data.showWarning?`<div class="warning-box" style="color:${data.warningColor||'#ff0000'}">${data.warningText||''}</div>`:'');
+  
+  // Payment Button
+  if(data.showPay && data.payURL){
+    const payBtn = document.createElement("a");
+    payBtn.href=data.payURL;
+    payBtn.textContent=data.payText||"Pay Now";
+    payBtn.className="pay-button";
+    payBtn.style.backgroundColor=data.payColor||"#28a745";
+    document.getElementById("payBox").innerHTML="";
+    document.getElementById("payBox").appendChild(payBtn);
+  }else{
+    document.getElementById("payBox").innerHTML="";
+  }
+
+  // Package images
+  const imageSection=document.getElementById("imageSection"); imageSection.innerHTML="";
+  if(data.packageImages){Object.values(data.packageImages).forEach(url=>{ imageSection.innerHTML+=`<img src="${url}" alt="Package Image">`;}); }
+
+  // Stamps
+  const stampsContainer=document.getElementById("stampsContainer");
+  stampsContainer.innerHTML="";
+  if(data.stamps){data.stamps.forEach(url=>{ const img=document.createElement("img"); img.src=url; img.className="draggable-stamp"; img.style.position="relative"; img.style.width="100px"; stampsContainer.appendChild(img);}); }
+
+  // Signature
+  const sigContainer=document.getElementById("selectedSignature");
+  sigContainer.innerHTML="";
+  if(data.signatureURL){const sigImg=document.createElement("img"); sigImg.src=data.signatureURL; sigImg.style.maxWidth="300px"; sigContainer.appendChild(sigImg);}
+});
+</script>
 </body>
 </html>
