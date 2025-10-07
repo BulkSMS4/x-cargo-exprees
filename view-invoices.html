@@ -7,34 +7,47 @@
 <style>
   body {font-family: Inter, "Segoe UI", Arial; background: #f4f6fb; color: #222; padding: 20px; max-width: 1000px; margin: auto;}
   h1 {color: #004080; text-align: center; margin-bottom: 20px;}
-  
+
   .search-container {
     display: flex;
     gap: 10px;
     margin-bottom: 20px;
-    align-items: center;
+    flex-wrap: wrap;
+    position: relative;
   }
 
-  input[type="text"] {
-    flex: 1;
-    padding: 10px 12px;
+  .search-container input[type="text"],
+  .search-container input[type="date"] {
+    padding: 10px 36px 10px 12px;
     border-radius: 8px;
     border: 1px solid #ccc;
     font-size: 16px;
+    flex: 1;
   }
 
-  .search-btn, .clear-btn {
+  .search-container button {
     padding: 10px 16px;
+    border-radius: 8px;
+    border: none;
     background: #004080;
     color: #fff;
-    border: none;
-    border-radius: 6px;
+    font-weight: bold;
     cursor: pointer;
-    font-weight: 600;
   }
-  .search-btn:hover { background: #003366; }
-  .clear-btn { background: #d9534f; }
-  .clear-btn:hover { background: #c12e2a; }
+
+  .clear-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: #999;
+    display: none;
+  }
+  .clear-btn:hover { color: #333; }
 
   table {
     width: 100%;
@@ -53,119 +66,149 @@
   .delete-btn {background: #d9534f;}
   .delete-btn:hover {background: #c12e2a;}
   .status {padding: 4px 8px; border-radius: 12px; color: #fff; font-weight: 600; display: inline-block;}
+
+  mark { background: yellow; color: black; }
+  .highlight-row { background-color: #fffa8c !important; }
+
 </style>
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-  import { getDatabase, ref, get, remove } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+import { getDatabase, ref, get, remove } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
-    authDomain: "x-cargo-exprees.firebaseapp.com",
-    databaseURL: "https://x-cargo-exprees-default-rtdb.firebaseio.com",
-    projectId: "x-cargo-exprees",
-    storageBucket: "x-cargo-exprees.appspot.com",
-    messagingSenderId: "1082201867958",
-    appId: "1:1082201867958:web:d6600fbc82085b0b62c817"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
+  authDomain: "x-cargo-exprees.firebaseapp.com",
+  databaseURL: "https://x-cargo-exprees-default-rtdb.firebaseio.com",
+  projectId: "x-cargo-exprees",
+  storageBucket: "x-cargo-exprees.appspot.com",
+  messagingSenderId: "1082201867958",
+  appId: "1:1082201867958:web:d6600fbc82085b0b62c817"
+};
 
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-  let allPackages = [];
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+let allPackages = [];
 
-  async function loadInvoices() {
-    const tableBody = document.getElementById("invoicesTableBody");
-    const snap = await get(ref(db, 'packages'));
-    if (!snap.exists()) {
-      tableBody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No packages found.</td></tr>';
-      return;
-    }
+async function loadInvoices() {
+  const snap = await get(ref(db, 'packages'));
+  if (!snap.exists()) {
+    document.getElementById("invoicesTableBody").innerHTML = '<tr><td colspan="7" style="text-align:center;">No packages found.</td></tr>';
+    return;
+  }
+  allPackages = Object.entries(snap.val()).map(([id, pkg]) => ({ id, ...pkg }));
+  renderTable(allPackages);
+}
 
-    allPackages = [];
-    const data = snap.val();
-    for (const id in data) {
-      const pkg = data[id];
-      allPackages.push({id, ...pkg});
-    }
+function renderTable(packages, highlight="") {
+  const tableBody = document.getElementById("invoicesTableBody");
+  tableBody.innerHTML = '';
+  if (!packages.length) {
+    tableBody.innerHTML = '<tr><td colspan="7" style="text-align:center;">❌ No matching tracking number or package found.</td></tr>';
+    return;
+  }
+
+  const regex = highlight ? new RegExp(`(${highlight.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, "gi") : null;
+
+  packages.forEach(pkg => {
+    const statusColor = pkg.statusColor || "#007bff";
+    const tr = document.createElement("tr");
+
+    // Highlight row if date within range
+    const fromDate = document.getElementById("fromDate").value;
+    const toDate = document.getElementById("toDate").value;
+    let highlightRow = false;
+    if(fromDate && pkg.shipmentDate >= fromDate) highlightRow = true;
+    if(toDate && pkg.shipmentDate <= toDate) highlightRow = highlightRow && true;
+
+    if(highlightRow) tr.classList.add('highlight-row');
+
+    const highlightText = (text) => text && regex ? text.replace(regex, '<mark>$1</mark>') : (text || "-");
+
+    tr.innerHTML = `
+      <td>${highlightText(pkg.id)}</td>
+      <td>${highlightText(pkg.sender)}</td>
+      <td>${highlightText(pkg.receiver)}</td>
+      <td><span class="status" style="background:${statusColor}">${highlightText(pkg.status)}</span></td>
+      <td>${highlightText(pkg.shipmentDate)}</td>
+      <td>
+        <a href="invoice.html?id=${pkg.id}" target="_blank"><button>View</button></a>
+        <button class="delete-btn" onclick="deletePackage('${pkg.id}')">Delete</button>
+      </td>
+    `;
+    tableBody.appendChild(tr);
+  });
+}
+
+function searchInvoices() {
+  const textQuery = document.getElementById("searchInput").value.toLowerCase();
+  const fromDate = document.getElementById("fromDate").value;
+  const toDate = document.getElementById("toDate").value;
+
+  document.getElementById("clearBtn").style.display = textQuery || fromDate || toDate ? "block" : "none";
+
+  const filtered = allPackages.filter(pkg => {
+    const matchesText = pkg.id.toLowerCase().includes(textQuery) ||
+                        (pkg.sender && pkg.sender.toLowerCase().includes(textQuery)) ||
+                        (pkg.receiver && pkg.receiver.toLowerCase().includes(textQuery));
+
+    let matchesDate = true;
+    if(fromDate) matchesDate = (pkg.shipmentDate || '') >= fromDate;
+    if(toDate) matchesDate = matchesDate && (pkg.shipmentDate || '') <= toDate;
+
+    return matchesText && matchesDate;
+  });
+
+  renderTable(filtered, textQuery);
+}
+
+function clearSearch() {
+  document.getElementById("searchInput").value = '';
+  document.getElementById("fromDate").value = '';
+  document.getElementById("toDate").value = '';
+  document.getElementById("clearBtn").style.display = "none";
+  renderTable(allPackages);
+}
+
+function sortBy(field) {
+  allPackages.sort((a, b) => {
+    if (field === 'shipmentDate') return (a.shipmentDate || '').localeCompare(b.shipmentDate || '');
+    if (field === 'status') return (a.status || '').localeCompare(b.status || '');
+    return 0;
+  });
+  renderTable(allPackages);
+}
+
+async function deletePackage(id) {
+  if (!confirm(`Are you sure you want to delete package ${id}? This action cannot be undone.`)) return;
+  try {
+    await remove(ref(db, `packages/${id}`));
+    allPackages = allPackages.filter(pkg => pkg.id !== id);
     renderTable(allPackages);
+    alert(`Package ${id} deleted successfully.`);
+  } catch (err) {
+    alert(`Error deleting package: ${err.message}`);
   }
+}
 
-  function renderTable(packages) {
-    const tableBody = document.getElementById("invoicesTableBody");
-    tableBody.innerHTML = '';
-    if (!packages.length) {
-      tableBody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No packages match your search.</td></tr>';
-      return;
-    }
-    packages.forEach(pkg => {
-      const statusColor = pkg.statusColor || "#007bff";
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${pkg.id}</td>
-        <td>${pkg.sender || "-"}</td>
-        <td>${pkg.receiver || "-"}</td>
-        <td><span class="status" style="background:${statusColor}">${pkg.status || "Pending"}</span></td>
-        <td>${pkg.shipmentDate || "-"}</td>
-        <td>
-          <a href="invoice.html?id=${pkg.id}" target="_blank">
-            <button>View</button>
-          </a>
-          <button class="delete-btn" onclick="deletePackage('${pkg.id}')">Delete</button>
-        </td>
-      `;
-      tableBody.appendChild(tr);
-    });
-  }
-
-  function searchInvoices() {
-    const query = document.getElementById("searchInput").value.toLowerCase();
-    const filtered = allPackages.filter(pkg =>
-      pkg.id.toLowerCase().includes(query) ||
-      (pkg.sender && pkg.sender.toLowerCase().includes(query)) ||
-      (pkg.receiver && pkg.receiver.toLowerCase().includes(query))
-    );
-    renderTable(filtered);
-  }
-
-  function clearSearch() {
-    document.getElementById("searchInput").value = '';
-    renderTable(allPackages);
-  }
-
-  function sortBy(field) {
-    allPackages.sort((a, b) => {
-      if (field === 'shipmentDate') {
-        return (a.shipmentDate || '').localeCompare(b.shipmentDate || '');
-      } else if (field === 'status') {
-        return (a.status || '').localeCompare(b.status || '');
-      }
-      return 0;
-    });
-    renderTable(allPackages);
-  }
-
-  async function deletePackage(id) {
-    if (!confirm(`Are you sure you want to delete package ${id}? This action cannot be undone.`)) return;
-    try {
-      await remove(ref(db, `packages/${id}`));
-      allPackages = allPackages.filter(pkg => pkg.id !== id);
-      renderTable(allPackages);
-      alert(`Package ${id} deleted successfully.`);
-    } catch (err) {
-      alert(`Error deleting package: ${err.message}`);
-    }
-  }
-
-  window.onload = loadInvoices;
+window.onload = loadInvoices;
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById("searchInput").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") searchInvoices();
+  });
+});
 </script>
 </head>
 <body>
 <h1>All Shipment Invoices</h1>
 
-<!-- Search Input + Buttons -->
 <div class="search-container">
-  <input type="text" id="searchInput" placeholder="Search by Package ID, Sender, or Receiver" oninput="searchInvoices()">
-  <button class="search-btn" onclick="searchInvoices()">🔍 Search</button>
-  <button class="clear-btn" onclick="clearSearch()">× Clear</button>
+  <div style="position:relative; flex:2;">
+    <input type="text" id="searchInput" placeholder="Search by Package ID, Sender, or Receiver" oninput="searchInvoices()">
+    <button id="clearBtn" class="clear-btn" onclick="clearSearch()">×</button>
+  </div>
+  <input type="date" id="fromDate">
+  <input type="date" id="toDate">
+  <button onclick="searchInvoices()">🔍 Search</button>
 </div>
 
 <table>
