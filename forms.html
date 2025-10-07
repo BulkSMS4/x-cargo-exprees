@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>💼 X-Cargo Express - Your Forms</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body {font-family:"Segoe UI",sans-serif;background:#f0f2f7;color:#333;padding:20px;margin:0;}
+h2{text-align:center;color:#007bff;margin-bottom:20px;}
+.form-card{background:#fff;padding:20px;margin-bottom:20px;border-radius:12px;box-shadow:0 6px 15px rgba(0,0,0,0.1);}
+.form-card h3{margin:0 0 10px 0;color:#007bff;}
+button{padding:8px 14px;border-radius:8px;margin:5px 5px 0 0;font-weight:bold;font-size:14px;cursor:pointer;border:none;transition:0.3s;}
+.view-btn{background:#17a2b8;color:#fff;}
+.view-btn:hover{background:#117a8b;}
+.edit-btn{background:#ffc107;color:#fff;}
+.edit-btn:hover{background:#cc9a06;}
+.delete-btn{background:#dc3545;color:#fff;}
+.delete-btn:hover{background:#a71d2a;}
+</style>
+</head>
+<body>
+
+<h2>📝 Your Created Forms</h2>
+<div id="formsContainer"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+import { getDatabase, ref, get, child, remove } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey:"AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
+  authDomain:"x-cargo-exprees.firebaseapp.com",
+  databaseURL:"https://x-cargo-exprees-default-rtdb.firebaseio.com",
+  projectId:"x-cargo-exprees",
+  storageBucket:"x-cargo-exprees.appspot.com",
+  messagingSenderId:"1082201867958",
+  appId:"1:1082201867958:web:d6600fbc82085b0b62c817"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const container = document.getElementById("formsContainer");
+
+async function loadForms() {
+  const dbRef = ref(db);
+  const snapshot = await get(child(dbRef,"packages"));
+  if(!snapshot.exists()){ container.innerHTML="<p>No forms found.</p>"; return;}
+  const forms = Object.values(snapshot.val());
+  displayForms(forms);
+}
+
+function displayForms(forms){
+  container.innerHTML="";
+  forms.forEach(f=>{
+    const card = document.createElement("div");
+    card.className="form-card";
+    card.innerHTML=`
+      <h3>${f.trackingId||"-"}</h3>
+      <p><strong>Sender:</strong> ${f.sender||"-"} | <strong>Receiver:</strong> ${f.receiver||"-"}</p>
+      <div>
+        <button class="view-btn">View</button>
+        <button class="edit-btn">Edit</button>
+        <button class="delete-btn">Delete</button>
+      </div>
+    `;
+
+    card.querySelector(".view-btn").addEventListener("click", ()=>{
+      // Open track.html with tracking query
+      window.location.href=`track.html?tracking=${f.trackingId}`;
+    });
+
+    card.querySelector(".edit-btn").addEventListener("click", ()=>{
+      // Open build.html with edit query
+      window.location.href=`build.html?edit=${f.trackingId}`;
+    });
+
+    card.querySelector(".delete-btn").addEventListener("click", async ()=>{
+      if(confirm(`Delete form ${f.trackingId}?`)){
+        await remove(ref(db,"packages/"+f.trackingId));
+        loadForms();
+      }
+    });
+
+    container.appendChild(card);
+  });
+}
+
+loadForms();
+</script>
+</body>
+</html>
