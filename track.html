@@ -14,7 +14,7 @@ button{background:#007bff;color:#fff;border:none;padding:12px;border-radius:6px;
 button:hover{background:#0056b3;}
 .receipt{display:none;background:#fff;padding:25px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.1);max-width:700px;margin:30px auto;position:relative;}
 .header{text-align:center;border-bottom:2px solid #007bff;padding-bottom:10px;margin-bottom:15px;}
-.header img{width:80px;height:auto;display:block;margin:0 auto 8px;}
+.header img{width:60px;height:auto;display:block;margin:0 auto 8px;}
 .header h2{margin:5px 0;}
 .header p{margin:0;font-size:13px;color:#666;}
 table{width:100%;border-collapse:collapse;margin-top:15px;}
@@ -25,9 +25,67 @@ table th{background:#f1f1f1;text-align:left;}
 .warning-box{text-align:center;font-weight:bold;margin-top:10px;}
 .pay-button{display:block;text-align:center;padding:10px 15px;border-radius:6px;margin:10px auto;color:#fff;text-decoration:none;}
 .images{text-align:center;margin-top:15px;}
-.images img{max-width:220px;margin:8px;border-radius:6px;}
+.images img{max-width:220px;margin:8px;border-radius:6px;border:1px solid #ccc;}
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
+
+const firebaseConfig = {
+apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
+authDomain: "x-cargo-exprees.firebaseapp.com",
+databaseURL: "https://x-cargo-exprees-default-rtdb.firebaseio.com",
+projectId: "x-cargo-exprees",
+storageBucket: "x-cargo-exprees.appspot.com",
+messagingSenderId: "1082201867958",
+appId: "1:1082201867958:web:d6600fbc82085b0b62c817"
+};
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+document.getElementById("fetchBtn").addEventListener("click", async ()=>{
+  const trackingId = document.getElementById("trackingId").value.trim();
+  if(!trackingId){alert("Enter Tracking ID"); return;}
+  const dbRef = ref(db);
+  const snapshot = await get(child(dbRef,"packages/"+trackingId));
+  if(!snapshot.exists()){alert("❌ Package not found"); return;}
+  const data = snapshot.val();
+  document.getElementById("receipt").style.display="block";
+
+  document.getElementById("rTracking").textContent=data.trackingId||"";
+  document.getElementById("rSender").textContent=data.sender||"";
+  document.getElementById("rReceiver").textContent=data.receiver||"";
+  document.getElementById("rAddress").textContent=data.address||"";
+  document.getElementById("rShip").textContent=data.shipmentDate||"";
+  document.getElementById("rExpected").textContent=data.expectedDate||"";
+  document.getElementById("rWeight").textContent=data.weight||"";
+  document.getElementById("rQuantity").textContent=data.quantity||"";
+  document.getElementById("rDesc").textContent=data.description||"";
+
+  // Status
+  document.getElementById("statusBox").innerHTML=`<span class="status-badge" style="background:${data.statusColor||'#007bff'}">${data.status||'Pending'}</span>`;
+
+  // Warning
+  document.getElementById("warningBox").innerHTML=(data.showWarning?`<div class="warning-box" style="color:${data.warningColor||'#ff0000'}">${data.warningText||''}</div>`:'');
+
+  // Payment Button
+  if(data.payURL && data.payText){
+    const payBtn = document.createElement("a");
+    payBtn.href=data.payURL;
+    payBtn.textContent=data.payText;
+    payBtn.className="pay-button";
+    payBtn.style.backgroundColor=data.payColor||"#28a745";
+    document.getElementById("payBox").innerHTML="";
+    document.getElementById("payBox").appendChild(payBtn);
+  }else{
+    document.getElementById("payBox").innerHTML="";
+  }
+
+  // Package images
+  const imageSection=document.getElementById("imageSection"); imageSection.innerHTML="";
+  if(data.packageImages){Object.values(data.packageImages).forEach(url=>{ imageSection.innerHTML+=`<img src="${url}" alt="Package Image">`;}); }
+});
+</script>
 </head>
 <body>
 
@@ -64,67 +122,6 @@ table th{background:#f1f1f1;text-align:left;}
 <div id="warningBox"></div>
 <div id="payBox"></div>
 <div class="images" id="imageSection"></div>
-</div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
-
-const firebaseConfig = {
-apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
-authDomain: "x-cargo-exprees.firebaseapp.com",
-databaseURL: "https://x-cargo-exprees-default-rtdb.firebaseio.com",
-projectId: "x-cargo-exprees",
-storageBucket: "x-cargo-exprees.appspot.com",
-messagingSenderId: "1082201867958",
-appId: "1:1082201867958:web:d6600fbc82085b0b62c817"
-};
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-document.getElementById("fetchBtn").addEventListener("click", async ()=>{
-  const trackingId = document.getElementById("trackingId").value.trim();
-  if(!trackingId){alert("Enter Tracking ID"); return;}
-  const dbRef = ref(db);
-  const snapshot = await get(child(dbRef,"packages/"+trackingId));
-  if(!snapshot.exists()){alert("❌ Package not found"); return;}
-  const data = snapshot.val();
-  document.getElementById("receipt").style.display="block";
-
-  document.getElementById("rTracking").textContent=data.trackingId||"";
-  document.getElementById("rSender").textContent=data.sender||"";
-  document.getElementById("rReceiver").textContent=data.receiver||"";
-  document.getElementById("rAddress").textContent=data.address||"";
-  document.getElementById("rShip").textContent=data.shipmentDate||"";
-  document.getElementById("rExpected").textContent=data.expectedDate||"";
-  document.getElementById("rWeight").textContent=data.weight||"";
-  document.getElementById("rQuantity").textContent=data.quantity||"";
-  document.getElementById("rDesc").textContent=data.description||"";
-  document.getElementById("headerLogo").src=data.logoURL||"";
-
-  // Status
-  document.getElementById("statusBox").innerHTML=`<span class="status-badge" style="background:${data.statusColor||'#007bff'}">${data.status||'Pending'}</span>`;
-
-  // Warning
-  document.getElementById("warningBox").innerHTML=(data.showWarning?`<div class="warning-box" style="color:${data.warningColor||'#ff0000'}">${data.warningText||''}</div>`:'');
-  
-  // Payment Button
-  if(data.showPay && data.payURL){
-    const payBtn = document.createElement("a");
-    payBtn.href=data.payURL;
-    payBtn.textContent=data.payText||"Pay Now";
-    payBtn.className="pay-button";
-    payBtn.style.backgroundColor=data.payColor||"#28a745";
-    document.getElementById("payBox").innerHTML="";
-    document.getElementById("payBox").appendChild(payBtn);
-  }else{
-    document.getElementById("payBox").innerHTML="";
-  }
-
-  // Package images
-  const imageSection=document.getElementById("imageSection"); imageSection.innerHTML="";
-  if(data.packageImages){Object.values(data.packageImages).forEach(url=>{ imageSection.innerHTML+=`<img src="${url}" alt="Package Image">`;}); }
-});
-</script>
 </body>
 </html>
