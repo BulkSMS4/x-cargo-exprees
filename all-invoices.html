@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>💼 X-Cargo Express - All Invoices</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body {
+  font-family: "Segoe UI", sans-serif;
+  background: #f0f2f7;
+  color: #333;
+  padding: 20px;
+  margin: 0;
+}
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #007bff;
+}
+#invoicesContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+.invoice-card {
+  background: #fff;
+  padding: 20px;
+  width: 300px;
+  border-radius: 12px;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+  position: relative;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.invoice-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+.invoice-card h3 {
+  margin: 0 0 10px 0;
+  color: #007bff;
+}
+.status-badge {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 20px;
+  color: #fff;
+  font-weight: bold;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+.images img {
+  max-width: 100%;
+  border-radius: 6px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+}
+.warning-box {
+  font-weight: bold;
+  color: red;
+  margin-top: 10px;
+}
+.pay-button {
+  display: block;
+  text-align: center;
+  padding: 10px;
+  margin-top: 10px;
+  color: #fff;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: bold;
+}
+.buttons {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.buttons button {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #fff;
+}
+.view-btn { background: #17a2b8; }
+.edit-btn { background: #ffc107; color: #000; }
+.delete-btn { background: #dc3545; }
+.view-btn:hover { opacity: 0.85; }
+.edit-btn:hover { opacity: 0.85; }
+.delete-btn:hover { opacity: 0.85; }
+</style>
+</head>
+<body>
+
+<h2>💼 All Package Invoices</h2>
+<div id="invoicesContainer">Loading invoices...</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+import { getDatabase, ref, get, child, remove } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
+  authDomain: "x-cargo-exprees.firebaseapp.com",
+  databaseURL: "https://x-cargo-exprees-default-rtdb.firebaseio.com",
+  projectId: "x-cargo-exprees",
+  storageBucket: "x-cargo-exprees.appspot.com",
+  messagingSenderId: "1082201867958",
+  appId: "1:1082201867958:web:d6600fbc82085b0b62c817"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+const container = document.getElementById("invoicesContainer");
+
+async function loadAllInvoices(){
+  const snapshot = await get(child(ref(db), "packages"));
+  if(!snapshot.exists()){container.innerHTML="<p>No invoices found.</p>"; return;}
+  const packages = Object.values(snapshot.val());
+  container.innerHTML="";
+
+  packages.forEach(pkg=>{
+    const card = document.createElement("div");
+    card.className="invoice-card";
+
+    card.innerHTML=`
+      <h3>Tracking ID: ${pkg.trackingId||''}</h3>
+      <div class="status"><span class="status-badge" style="background:${pkg.statusColor||'#007bff'}">${pkg.status||'Pending'}</span></div>
+      <div><strong>Sender:</strong> ${pkg.sender||''}</div>
+      <div><strong>Receiver:</strong> ${pkg.receiver||''}</div>
+      <div><strong>Shipment Date:</strong> ${pkg.shipmentDate||''}</div>
+      <div><strong>Expected Delivery:</strong> ${pkg.expectedDate||''}</div>
+      <div class="warning-box">${pkg.showWarning?pkg.warningText||'':''}</div>
+      <div class="images">${pkg.packageImages?Object.values(pkg.packageImages).map(url=>`<img src="${url}">`).join(''):''}</div>
+      ${pkg.payURL && pkg.payText?`<a href="${pkg.payURL}" class="pay-button" style="background-color:${pkg.payColor||'#28a745'}">${pkg.payText}</a>`:''}
+      <div class="buttons">
+        <button class="view-btn">View</button>
+        <button class="edit-btn">Edit</button>
+        <button class="delete-btn">Delete</button>
+      </div>
+    `;
+
+    // View invoice
+    card.querySelector(".view-btn").addEventListener("click", ()=>{
+      window.open(`invoice.html?id=${pkg.trackingId}`, "_blank");
+    });
+
+    // Edit package
+    card.querySelector(".edit-btn").addEventListener("click", ()=>{
+      window.location.href = `edit-create.html?id=${pkg.trackingId}`;
+    });
+
+    // Delete package
+    card.querySelector(".delete-btn").addEventListener("click", async ()=>{
+      if(confirm(`Delete package ${pkg.trackingId}?`)){
+        await remove(ref(db,"packages/"+pkg.trackingId));
+        loadAllInvoices();
+      }
+    });
+
+    container.appendChild(card);
+  });
+}
+
+loadAllInvoices();
+</script>
+
+</body>
+</html>
