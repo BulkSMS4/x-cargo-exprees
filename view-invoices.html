@@ -2,33 +2,154 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>X-Cargo Express – All Invoices</title>
+<title>💼 X-Cargo Express - View All Invoices</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-  body {font-family: Inter, "Segoe UI", Arial; background: #f4f6fb; color: #222; padding: 20px; max-width: 1000px; margin: auto;}
-  h1 {color: #004080; text-align: center; margin-bottom: 20px;}
-
-  .search-container {display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; position: relative;}
-  .search-wrapper {position: relative; flex: 2;}
-  .search-wrapper input[type="text"] {width: 100%; padding: 10px 36px 10px 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px;}
-  .search-wrapper .clear-btn {position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: transparent; border: none; font-size: 18px; cursor: pointer; color: #999; display: none;}
-  .search-wrapper .clear-btn:hover { color: #333; }
-  .search-container button {padding: 10px 16px; border-radius: 8px; border: none; background: #004080; color: #fff; font-weight: bold; cursor: pointer;}
-
-  table {width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 6px 18px rgba(0,0,0,.08);}
-  th, td {padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee;}
-  th {background: #004080; color: #fff; font-weight: 600; cursor: pointer;}
-  tr:hover {background: #f1f9ff;}
-  button {padding: 6px 12px; margin-right: 5px; background: #004080; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;}
-  button:hover {background: #003366;}
-  .delete-btn {background: #d9534f;}
-  .delete-btn:hover {background: #c12e2a;}
-  .status {padding: 4px 8px; border-radius: 12px; color: #fff; font-weight: 600; display: inline-block;}
-  mark { background: yellow; color: black; }
+body {
+  font-family: "Segoe UI", sans-serif;
+  background: #f0f2f7;
+  color: #333;
+  padding: 20px;
+  margin: 0;
+}
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #007bff;
+}
+#searchContainer {
+  max-width: 800px;
+  margin: 0 auto 30px auto;
+  display: flex;
+  gap: 10px;
+}
+#searchInput {
+  flex: 1;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+#searchBtn, #clearBtn {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  background: #007bff;
+  color: #fff;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s;
+}
+#searchBtn:hover, #clearBtn:hover {
+  background: #0056b3;
+}
+.invoice-card {
+  background: #fff;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 12px;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+}
+.invoice-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+.invoice-card.highlight {
+  border: 2px solid #007bff;
+  box-shadow: 0 8px 25px rgba(0,123,255,0.3);
+}
+.invoice-card h3 {
+  margin: 0 0 10px 0;
+  color: #007bff;
+}
+.status-badge {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 20px;
+  color: #fff;
+  font-weight: bold;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+.warning-box {
+  margin-top: 10px;
+  font-weight: bold;
+  font-size: 14px;
+}
+.pay-button {
+  display: inline-block;
+  padding: 10px 18px;
+  border-radius: 8px;
+  color: #fff;
+  text-decoration: none;
+  margin-top: 10px;
+  font-weight: bold;
+  transition: 0.3s;
+}
+.pay-button:hover {
+  opacity: 0.85;
+}
+.images img {
+  max-width: 120px;
+  margin: 5px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+.stamps img {
+  width: 80px;
+  margin: 5px;
+  border-radius: 6px;
+}
+.delete-btn, .view-btn, .copy-btn {
+  display: inline-block;
+  padding: 8px 14px;
+  border-radius: 8px;
+  text-decoration: none;
+  margin: 5px 5px 0 0;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.3s;
+}
+.delete-btn { background: #dc3545; color: #fff; }
+.delete-btn:hover { background: #a71d2a; }
+.view-btn { background: #17a2b8; color: #fff; }
+.view-btn:hover { background: #117a8b; }
+.copy-btn { background: #28a745; color: #fff; }
+.copy-btn:hover { background: #1c6e3b; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+table td, table th {
+  padding: 8px;
+  border: 1px solid #e0e0e0;
+  font-size: 14px;
+}
+table th {
+  background: #f8f9fa;
+  text-align: left;
+}
 </style>
+</head>
+<body>
+
+<h2>💼 All Package Invoices</h2>
+
+<div id="searchContainer">
+<input type="text" id="searchInput" placeholder="Search Tracking ID...">
+<button id="searchBtn">🔍 Search</button>
+<button id="clearBtn">❌ Clear</button>
+</div>
+
+<div id="invoicesContainer"></div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-import { getDatabase, ref, get, remove, onChildAdded } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
+import { getDatabase, ref, get, child, remove } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
@@ -39,161 +160,97 @@ const firebaseConfig = {
   messagingSenderId: "1082201867958",
   appId: "1:1082201867958:web:d6600fbc82085b0b62c817"
 };
-
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-let allPackages = [];
-let knownPackageIds = new Set();
-let alertedPackages = new Set(); // track which packages have already triggered alert
 
-const alertAudio = new Audio("https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"); // ringtone alert
+const invoicesContainer = document.getElementById("invoicesContainer");
+let allPackages = [];
 
 async function loadInvoices() {
-  const snap = await get(ref(db, 'packages'));
-  if (!snap.exists()) {
-    document.getElementById("invoicesTableBody").innerHTML = '<tr><td colspan="7" style="text-align:center;">No packages found.</td></tr>';
-    return;
-  }
-
-  allPackages = Object.entries(snap.val()).map(([id, pkg]) => {
-    knownPackageIds.add(id);
-    return { id, ...pkg };
-  });
-  renderTable(allPackages);
-  listenForNewPackages();
+  const dbRef = ref(db);
+  const snapshot = await get(child(dbRef,"packages"));
+  if(!snapshot.exists()){invoicesContainer.innerHTML="<p>No invoices found.</p>"; return;}
+  allPackages = Object.values(snapshot.val());
+  displayInvoices(allPackages);
 }
 
-function renderTable(packages, highlight="") {
-  const tableBody = document.getElementById("invoicesTableBody");
-  tableBody.innerHTML = '';
-  if (!packages.length) {
-    tableBody.innerHTML = '<tr><td colspan="7" style="text-align:center;">❌ No matching tracking number or package found.</td></tr>';
-    return;
-  }
+function displayInvoices(packages){
+  invoicesContainer.innerHTML="";
+  packages.forEach(pkg=>{
+    const card = document.createElement("div");
+    card.className = "invoice-card";
+    card.dataset.tracking = pkg.trackingId || "";
 
-  const regex = highlight ? new RegExp(`(${highlight.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, "gi") : null;
-
-  packages.forEach(pkg => {
-    const statusColor = pkg.statusColor || "#007bff";
-    const tr = document.createElement("tr");
-
-    const highlightText = (text) => text && regex ? text.replace(regex, '<mark>$1</mark>') : (text || "-");
-
-    tr.innerHTML = `
-      <td>${highlightText(pkg.id)}</td>
-      <td>${highlightText(pkg.sender)}</td>
-      <td>${highlightText(pkg.receiver)}</td>
-      <td><span class="status" style="background:${statusColor}">${highlightText(pkg.status)}</span></td>
-      <td>${highlightText(pkg.shipmentDate)}</td>
-      <td>
-        <a href="invoice.html?id=${pkg.id}" target="_blank"><button>View</button></a>
-        <button class="delete-btn" onclick="deletePackage('${pkg.id}')">Delete</button>
-      </td>
+    card.innerHTML = `
+      <h3>Tracking ID: ${pkg.trackingId||''}</h3>
+      <div class="status"><span class="status-badge" style="background:${pkg.statusColor||'#007bff'}">${pkg.status||'Pending'}</span></div>
+      <table>
+        <tr><th>Sender</th><td>${pkg.sender||''}</td></tr>
+        <tr><th>Receiver</th><td>${pkg.receiver||''}</td></tr>
+        <tr><th>Address</th><td>${pkg.address||''}</td></tr>
+        <tr><th>Shipment Date</th><td>${pkg.shipmentDate||''}</td></tr>
+        <tr><th>Expected Delivery</th><td>${pkg.expectedDate||''}</td></tr>
+        <tr><th>Weight</th><td>${pkg.weight||''}</td></tr>
+        <tr><th>Quantity</th><td>${pkg.quantity||''}</td></tr>
+        <tr><th>Description</th><td>${pkg.description||''}</td></tr>
+      </table>
+      <div class="warning-box">${pkg.showWarning?`⚠️ <span style="color:${pkg.warningColor||'#ff0000'}">${pkg.warningText||''}</span>`:''}</div>
+      <div class="pay-button-container">
+        ${pkg.showPay && pkg.payURL?`<a href="${pkg.payURL}" class="pay-button" style="background-color:${pkg.payColor||'#28a745'}" target="_self">${pkg.payText||'Pay Now'}</a>`:''}
+      </div>
+      <div class="images">
+        ${pkg.packageImages?Object.values(pkg.packageImages).map(url=>`<img src="${url}" alt="Package Image">`).join(''):''}
+      </div>
+      <div class="stamps">
+        ${pkg.stamps?pkg.stamps.map(url=>`<img src="${url}" alt="Stamp">`).join(''):''}
+      </div>
+      <div style="margin-top:10px;">
+        <button class="view-btn">View</button>
+        <button class="copy-btn">Copy Tracking</button>
+        <button class="delete-btn">Delete</button>
+      </div>
     `;
-    tableBody.appendChild(tr);
+
+    card.querySelector(".delete-btn").addEventListener("click", async ()=>{
+      if(confirm(`Delete package ${pkg.trackingId}?`)){
+        await remove(ref(db,"packages/"+pkg.trackingId));
+        loadInvoices();
+      }
+    });
+
+    card.querySelector(".view-btn").addEventListener("click", ()=>{
+      window.location.href = `track.html?tracking=${pkg.trackingId}`;
+    });
+
+    card.querySelector(".copy-btn").addEventListener("click", ()=>{
+      navigator.clipboard.writeText(pkg.trackingId).then(()=>alert(`Tracking ID ${pkg.trackingId} copied!`));
+    });
+
+    invoicesContainer.appendChild(card);
   });
 }
 
-function searchInvoices() {
-  const textQuery = document.getElementById("searchInput").value.toLowerCase();
-  document.getElementById("clearBtn").style.display = textQuery ? "block" : "none";
-
-  const filtered = allPackages.filter(pkg =>
-    pkg.id.toLowerCase().includes(textQuery) ||
-    (pkg.sender && pkg.sender.toLowerCase().includes(textQuery)) ||
-    (pkg.receiver && pkg.receiver.toLowerCase().includes(textQuery))
-  );
-
-  renderTable(filtered, textQuery);
-}
-
-function clearSearch() {
-  document.getElementById("searchInput").value = '';
-  document.getElementById("clearBtn").style.display = "none";
-  renderTable(allPackages);
-  document.getElementById("searchInput").focus();
-}
-
-function sortBy(field) {
-  allPackages.sort((a, b) => {
-    if (field === 'shipmentDate') return (a.shipmentDate || '').localeCompare(b.shipmentDate || '');
-    if (field === 'status') return (a.status || '').localeCompare(b.status || '');
-    return 0;
-  });
-  renderTable(allPackages);
-}
-
-async function deletePackage(id) {
-  if (!confirm(`Are you sure you want to delete package ${id}? This action cannot be undone.`)) return;
-  try {
-    await remove(ref(db, `packages/${id}`));
-    allPackages = allPackages.filter(pkg => pkg.id !== id);
-    knownPackageIds.delete(id);
-    alertedPackages.delete(id);
-    renderTable(allPackages);
-    alert(`Package ${id} deleted successfully.`);
-  } catch (err) {
-    alert(`Error deleting package: ${err.message}`);
-  }
-}
-
-function listenForNewPackages() {
-  const packagesRef = ref(db, 'packages');
-  onChildAdded(packagesRef, (snap) => {
-    const pkg = snap.val();
-    const id = snap.key;
-    if (!knownPackageIds.has(id)) {
-      knownPackageIds.add(id);
-      allPackages.push({ id, ...pkg });
-      renderTable(allPackages);
-    }
-    // play alert only once per package
-    if (!alertedPackages.has(id)) {
-      alertedPackages.add(id);
-      alertAudio.play().catch(()=>{});
-      console.log("New package alert: ", id);
+document.getElementById("searchBtn").addEventListener("click", ()=>{
+  const query = document.getElementById("searchInput").value.trim().toLowerCase();
+  let found = false;
+  document.querySelectorAll(".invoice-card").forEach(card=>{
+    if(card.dataset.tracking.toLowerCase().includes(query) && query!==""){
+      card.classList.add("highlight");
+      found = true;
+    } else {
+      card.classList.remove("highlight");
     }
   });
-}
-
-window.onload = loadInvoices;
-document.addEventListener('DOMContentLoaded', () => {
-  const searchInput = document.getElementById("searchInput");
-  const searchBtn = document.getElementById("searchBtn");
-  const clearBtn = document.getElementById("clearBtn");
-
-  searchInput.addEventListener("input", searchInvoices);
-  searchInput.addEventListener("keydown", (e) => { if (e.key === "Enter") searchInvoices(); });
-  searchBtn.addEventListener("click", searchInvoices);
-  clearBtn.addEventListener("click", clearSearch);
+  if(!found && query!==""){ alert("❌ No package found with that Tracking ID"); }
 });
+
+document.getElementById("clearBtn").addEventListener("click", ()=>{
+  document.getElementById("searchInput").value="";
+  document.querySelectorAll(".invoice-card").forEach(card=>card.classList.remove("highlight"));
+});
+
+loadInvoices();
 </script>
-</head>
-<body>
-<h1>All Shipment Invoices</h1>
 
-<div class="search-container">
-  <div class="search-wrapper">
-    <input type="text" id="searchInput" placeholder="Search by Package ID, Sender, or Receiver">
-    <button id="clearBtn" class="clear-btn">×</button>
-  </div>
-  <button id="searchBtn">🔍 Search</button>
-</div>
-
-<table>
-  <thead>
-    <tr>
-      <th>Package ID</th>
-      <th>Sender</th>
-      <th>Receiver</th>
-      <th onclick="sortBy('status')">Status ⬍</th>
-      <th onclick="sortBy('shipmentDate')">Shipment Date ⬍</th>
-      <th>Action</th>
-    </tr>
-  </thead>
-  <tbody id="invoicesTableBody">
-    <tr><td colspan="7" style="text-align:center;">Loading invoices...</td></tr>
-  </tbody>
-</table>
 </body>
 </html>
