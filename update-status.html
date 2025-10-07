@@ -31,11 +31,6 @@ table th{background:#f1f1f1;text-align:left;}
 .actions .pdf{background:#ffc107;}
 .actions .print{background:#17a2b8;}
 .actions .img{background:#28a745;}
-.picker-container{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;justify-content:center;}
-.picker-container img{width:100px;cursor:pointer;border:2px solid transparent;border-radius:6px;transition:0.2s;}
-.picker-container img.selected{border-color:#007bff;}
-.signature-canvas{border:1px solid #ccc;margin-top:10px;cursor:crosshair;}
-.draggable-stamp{position:absolute;width:100px;cursor:move;z-index:1000;}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -47,6 +42,7 @@ table th{background:#f1f1f1;text-align:left;}
 <form id="statusForm">
 <label>Enter Tracking ID</label>
 <input type="text" id="trackingId" placeholder="e.g. XCE123456" required>
+
 <button type="button" id="fetchBtn">🔍 Search Package</button>
 
 <label>Change Status</label>
@@ -72,18 +68,10 @@ table th{background:#f1f1f1;text-align:left;}
 <h3>💰 Payment Option</h3>
 <label><input type="checkbox" id="addPay"> Add Pay Button</label>
 <input type="text" id="payURL" placeholder="Enter payment URL" disabled>
-
-<h3>🖋 Add Signature</h3>
-<canvas id="signatureCanvas" class="signature-canvas" width="400" height="150"></canvas>
-<label>Pick Signature Color</label>
-<input type="color" id="signatureColor" value="#000000">
-
-<h3>🏷 Add Stamp</h3>
-<input type="file" id="uploadStamp" accept="image/*">
-<div class="picker-container" id="stampPicker">
-  <img src="https://i.postimg.cc/3x1sZsLz/approved.png" alt="Approved" class="stamp">
-  <img src="https://i.postimg.cc/d3vY7cQm/rejected.png" alt="Rejected" class="stamp">
-</div>
+<label>Payment Button Text</label>
+<input type="text" id="payText" placeholder="e.g. Pay Now" disabled>
+<label>Payment Button Color</label>
+<input type="color" id="payColor" value="#28a745" disabled>
 
 <button type="submit" id="updateBtn" disabled>✅ Update Status</button>
 </form>
@@ -113,18 +101,17 @@ table th{background:#f1f1f1;text-align:left;}
 <div id="warningBox"></div>
 <div id="payBox" style="text-align:center;"></div>
 <div class="images" id="imageSection"></div>
-<div id="stampsContainer" style="position:relative; min-height:50px;"></div>
-<div id="selectedSignature" style="text-align:center; margin-top:10px;"></div>
 
 <div class="actions">
 <button class="print" onclick="window.print()">🖨 Print</button>
 <button class="pdf" id="downloadPDF">⬇ PDF</button>
 <button class="img" id="saveImage">🖼 Save Image</button>
 </div>
+</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
+import { getDatabase, ref, get, child, update } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
 
 const firebaseConfig = {
 apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
@@ -138,104 +125,97 @@ appId: "1:1082201867958:web:d6600fbc82085b0b62c817"
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// Elements
 const fetchBtn=document.getElementById("fetchBtn");
 const updateBtn=document.getElementById("updateBtn");
-const payCheckbox=document.getElementById("addPay");
-const payInput=document.getElementById("payURL");
-const statusInput=document.getElementById("status");
-const statusColorInput=document.getElementById("statusColor");
-const showWarningCheckbox=document.getElementById("showWarning");
-const warningTextInput=document.getElementById("warningText");
-const warningColorInput=document.getElementById("warningColor");
-const signatureCanvas=document.getElementById("signatureCanvas");
-const ctx=signatureCanvas.getContext("2d");
 
-payCheckbox.addEventListener("change",()=>{payInput.disabled=!payCheckbox.checked; renderPreview();});
+// Enable/Disable payment fields
+document.getElementById("addPay").addEventListener("change",(e)=>{
+  const enable = e.target.checked;
+  document.getElementById("payURL").disabled=!enable;
+  document.getElementById("payText").disabled=!enable;
+  document.getElementById("payColor").disabled=!enable;
+});
 
-// Signature drawing
-let drawing=false;
-signatureCanvas.addEventListener("mousedown",e=>{drawing=true;ctx.beginPath();ctx.moveTo(e.offsetX,e.offsetY);});
-signatureCanvas.addEventListener("mousemove",e=>{if(drawing){ctx.lineTo(e.offsetX,e.offsetY);ctx.strokeStyle=document.getElementById("signatureColor").value;ctx.lineWidth=2;ctx.stroke(); renderPreview();}});
-signatureCanvas.addEventListener("mouseup",()=>drawing=false);
-signatureCanvas.addEventListener("mouseout",()=>drawing=false);
-
-// Stamp picker & upload
-const stampsContainer=document.getElementById("stampsContainer");
-function addDraggableStamp(url){
-  const img=document.createElement("img");
-  img.src=url; img.className="draggable-stamp"; img.style.left="10px"; img.style.top="10px";
-  stampsContainer.appendChild(img);
-  let offsetX,offsetY,isDragging=false;
-  img.addEventListener("mousedown",e=>{isDragging=true; offsetX=e.offsetX; offsetY=e.offsetY;});
-  document.addEventListener("mousemove",e=>{if(isDragging){const rect=stampsContainer.getBoundingClientRect(); img.style.left=(e.clientX-rect.left-offsetX)+"px"; img.style.top=(e.clientY-rect.top-offsetY)+"px";}});
-  document.addEventListener("mouseup",()=>{isDragging=false;});
-}
-document.querySelectorAll(".stamp").forEach(s=>s.addEventListener("click",()=>addDraggableStamp(s.src)));
-document.getElementById("uploadStamp").addEventListener("change",e=>{const file=e.target.files[0];if(file){addDraggableStamp(URL.createObjectURL(file));}});
-
-// Render preview
-function renderPreview(){
-  document.getElementById("statusBox").innerHTML=`<span class="status-badge" style="background:${statusColorInput.value}">${statusInput.value}</span>`;
-  document.getElementById("warningBox").innerHTML=showWarningCheckbox.checked?`<div class="warning-box" style="color:${warningColorInput.value}">${warningTextInput.value}</div>`:"";
-  document.getElementById("payBox").innerHTML=(payCheckbox.checked && payInput.value)?`<a class="pay-button" href="${payInput.value}" target="_self">💰 Pay Here</a>`:"";
-  document.getElementById("selectedSignature").innerHTML=`<img src="${signatureCanvas.toDataURL()}" width="200">`;
-}
-
-// Fetch package
-fetchBtn.addEventListener("click",async()=>{
-  const id=document.getElementById("trackingId").value.trim();
-  if(!id){alert("Enter Tracking ID"); return;}
-  const snap=await get(ref(db,"packages/"+id));
-  if(!snap.exists()){alert("Package not found"); return;}
-  const data=snap.val();
+// Fetch package info
+fetchBtn.addEventListener("click", async ()=>{
+  const trackingId = document.getElementById("trackingId").value.trim();
+  if(!trackingId){alert("Enter Tracking ID"); return;}
+  const dbRef = ref(db);
+  const snapshot = await get(child(dbRef,"packages/"+trackingId));
+  if(!snapshot.exists()){alert("❌ Package not found"); return;}
+  const data = snapshot.val();
   updateBtn.disabled=false;
   document.getElementById("receipt").style.display="block";
+
   document.getElementById("rTracking").textContent=data.trackingId||"";
   document.getElementById("rSender").textContent=data.sender||"";
   document.getElementById("rReceiver").textContent=data.receiver||"";
   document.getElementById("rAddress").textContent=data.address||"";
   document.getElementById("rShip").textContent=data.shipmentDate||"";
-  document.getElementById("rExpected").textContent=data.expectedDate||"";
+  document.getElementById("rExpected").textContent=data.expectedDelivery||"";
   document.getElementById("rWeight").textContent=data.weight||"";
   document.getElementById("rQuantity").textContent=data.quantity||"";
   document.getElementById("rDesc").textContent=data.description||"";
-  document.getElementById("headerLogo").src=data.logoURL||"";
-  statusInput.value=data.status||"Pending";
-  statusColorInput.value=data.statusColor||"#007bff";
-  showWarningCheckbox.checked=data.showWarning||false;
-  warningTextInput.value=data.warningText||"";
-  warningColorInput.value=data.warningColor||"#ff0000";
-  payCheckbox.checked=data.showPay||false;
-  payInput.value=data.payURL||"";
-  payInput.disabled=!payCheckbox.checked;
-  renderPreview();
+
+  // Status box
+  const statusBox=document.getElementById("statusBox");
+  statusBox.textContent=document.getElementById("status").value;
+  statusBox.style.backgroundColor=document.getElementById("statusColor").value;
+  statusBox.className="status-badge";
+
+  // Warning
+  const warningBox=document.getElementById("warningBox");
+  if(document.getElementById("showWarning").checked){
+    warningBox.textContent=document.getElementById("warningText").value;
+    warningBox.style.color=document.getElementById("warningColor").value;
+    warningBox.className="warning-box";
+  } else {
+    warningBox.textContent="";
+  }
+
+  // Payment Button
+  const payBox=document.getElementById("payBox");
+  if(document.getElementById("addPay").checked){
+    payBox.innerHTML=`<a href="${document.getElementById("payURL").value}" class="pay-button" style="background-color:${document.getElementById("payColor").value}">${document.getElementById("payText").value}</a>`;
+  } else {
+    payBox.innerHTML="";
+  }
 });
 
-// Update Firebase
-document.getElementById("statusForm").addEventListener("submit",async e=>{
+// Update status in Firebase
+updateBtn.addEventListener("click", async (e)=>{
   e.preventDefault();
-  const id=document.getElementById("trackingId").value.trim();
-  if(!id){alert("Enter Tracking ID"); return;}
-  const stamps=[];
-  document.querySelectorAll(".draggable-stamp").forEach(s=>stamps.push({src:s.src,left:s.style.left,top:s.style.top}));
-  await update(ref(db,"packages/"+id),{
-    status:statusInput.value,
-    statusColor:statusColorInput.value,
-    showWarning:showWarningCheckbox.checked,
-    warningText:warningTextInput.value,
-    warningColor:warningColorInput.value,
-    showPay:payCheckbox.checked,
-    payURL:payInput.value,
-    signature:signatureCanvas.toDataURL(),
-    stamps:stamps
-  });
+  const trackingId=document.getElementById("trackingId").value.trim();
+  if(!trackingId){alert("Enter Tracking ID"); return;}
+  const updates={
+    status: document.getElementById("status").value,
+    updatedAt: new Date().toISOString()
+  };
+  await update(ref(db,"packages/"+trackingId), updates);
   alert("✅ Status updated successfully!");
 });
 
-// Live updates
-[statusInput,statusColorInput,showWarningCheckbox,warningTextInput,warningColorInput,payInput].forEach(el=>el.addEventListener("input",renderPreview));
-document.getElementById("signatureColor").addEventListener("input",renderPreview);
+// PDF and Image download
+document.getElementById("downloadPDF").addEventListener("click",()=>{
+  html2canvas(document.getElementById("receipt")).then(canvas=>{
+    const imgData=canvas.toDataURL("image/png");
+    const pdf=new jspdf.jsPDF();
+    const imgProps=pdf.getImageProperties(imgData);
+    const pdfWidth=pdf.internal.pageSize.getWidth();
+    const pdfHeight=(imgProps.height*pdfWidth)/imgProps.width;
+    pdf.addImage(imgData,"PNG",0,0,pdfWidth,pdfHeight);
+    pdf.save("X-Cargo-Receipt.pdf");
+  });
+});
+document.getElementById("saveImage").addEventListener("click",()=>{
+  html2canvas(document.getElementById("receipt")).then(canvas=>{
+    const link=document.createElement("a");
+    link.href=canvas.toDataURL("image/png");
+    link.download="X-Cargo-Receipt.png";
+    link.click();
+  });
+});
 </script>
+
 </body>
 </html>
