@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>X-Cargo Express – Notifications</title>
+<style>
+  body {font-family: Inter, "Segoe UI", Arial; background: #f4f6fb; color: #222; margin: 0; padding: 20px;}
+  h1 {text-align:center; color:#004080; margin-bottom:20px;}
+
+  #notificationsList {max-width: 800px; margin: 0 auto; padding: 0; list-style: none;}
+  #notificationsList li {background:#fff; border-radius: 8px; margin-bottom:10px; padding:12px 16px; box-shadow:0 2px 8px rgba(0,0,0,.15); display:flex; justify-content: space-between; align-items: center;}
+  #notificationsList li.new {border-left: 4px solid #28a745; animation: flash 1s ease;}
+  @keyframes flash { 0%,100% {background:#d4edda;} 50% {background:#fff;} }
+
+  .notif-content {flex:1;}
+  .notif-actions button {margin-left:10px; padding:6px 10px; border:none; border-radius:6px; font-weight:bold; cursor:pointer;}
+  .notif-actions button.dismiss {background:#004080; color:#fff;}
+  .notif-actions button.dismiss:hover {background:#003366;}
+
+  .tone-selector {margin: 20px 0; text-align: center;}
+  .tone-selector select {padding:8px 12px; border-radius:6px; font-weight:bold;}
+</style>
+</head>
+<body>
+
+<h1>📣 Admin Notifications</h1>
+
+<div class="tone-selector">
+  <label for="toneSelect">Select Notification Tone: </label>
+  <select id="toneSelect">
+    <option value="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg">Alarm Clock</option>
+    <option value="https://actions.google.com/sounds/v1/alarms/beep_short.ogg">Beep Short</option>
+    <option value="https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg">Digital Watch</option>
+    <option value="https://actions.google.com/sounds/v1/alarms/bugle_tune.ogg">Bugle Tune</option>
+  </select>
+</div>
+
+<ul id="notificationsList">
+  <li style="text-align:center; color:#888;">Waiting for new packages...</li>
+</ul>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+import { getDatabase, ref, onChildAdded } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
+
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
+  authDomain: "x-cargo-exprees.firebaseapp.com",
+  databaseURL: "https://x-cargo-exprees-default-rtdb.firebaseio.com",
+  projectId: "x-cargo-exprees",
+  storageBucket: "x-cargo-exprees.appspot.com",
+  messagingSenderId: "1082201867958",
+  appId: "1:1082201867958:web:d6600fbc82085b0b62c817"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const notificationsList = document.getElementById("notificationsList");
+const toneSelect = document.getElementById("toneSelect");
+let knownPackageIds = new Set();
+let audio = new Audio(toneSelect.value);
+
+// Change tone dynamically
+toneSelect.addEventListener("change", () => {
+  audio.src = toneSelect.value;
+});
+
+// Listen for new packages
+const packagesRef = ref(db, 'packages');
+onChildAdded(packagesRef, (snap) => {
+  const pkg = snap.val();
+  const id = snap.key;
+
+  if (!knownPackageIds.has(id)) {
+    knownPackageIds.add(id);
+
+    // Remove "waiting" placeholder if present
+    const placeholder = notificationsList.querySelector('li');
+    if (placeholder && placeholder.innerText.includes('Waiting')) placeholder.remove();
+
+    // Create notification element
+    const li = document.createElement('li');
+    li.classList.add('new');
+    li.innerHTML = `
+      <div class="notif-content">
+        <strong>New Package:</strong> ${id}<br>
+        Sender: ${pkg.sender || "-"}, Receiver: ${pkg.receiver || "-"}, Status: ${pkg.status || "Pending"}
+      </div>
+      <div class="notif-actions">
+        <button class="dismiss">Dismiss</button>
+      </div>
+    `;
+    notificationsList.prepend(li);
+
+    // Play ringtone
+    audio.currentTime = 0;
+    audio.play().catch(()=>{});
+
+    // Dismiss button
+    li.querySelector('.dismiss').addEventListener('click', () => {
+      li.remove();
+      if (notificationsList.children.length === 0) {
+        const waitingLi = document.createElement('li');
+        waitingLi.style.textAlign = "center";
+        waitingLi.style.color = "#888";
+        waitingLi.innerText = "Waiting for new packages...";
+        notificationsList.appendChild(waitingLi);
+      }
+    });
+  }
+});
+</script>
+</body>
+</html>
