@@ -1,116 +1,140 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>X-Cargo Express – Notifications</title>
-<style>
-  body {font-family: Inter, "Segoe UI", Arial; background: #f4f6fb; color: #222; margin: 0; padding: 20px;}
-  h1 {text-align:center; color:#004080; margin-bottom:20px;}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Notifications</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #000;
+      color: lime;
+      padding: 20px;
+    }
 
-  #notificationsList {max-width: 800px; margin: 0 auto; padding: 0; list-style: none;}
-  #notificationsList li {background:#fff; border-radius: 8px; margin-bottom:10px; padding:12px 16px; box-shadow:0 2px 8px rgba(0,0,0,.15); display:flex; justify-content: space-between; align-items: center;}
-  #notificationsList li.new {border-left: 4px solid #28a745; animation: flash 1s ease;}
-  @keyframes flash { 0%,100% {background:#d4edda;} 50% {background:#fff;} }
+    h1 {
+      text-align: center;
+      color: limegreen;
+      margin-bottom: 20px;
+    }
 
-  .notif-content {flex:1;}
-  .notif-actions button {margin-left:10px; padding:6px 10px; border:none; border-radius:6px; font-weight:bold; cursor:pointer;}
-  .notif-actions button.dismiss {background:#004080; color:#fff;}
-  .notif-actions button.dismiss:hover {background:#003366;}
+    .notification-popup {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #111;
+      color: lime;
+      border: 2px solid lime;
+      padding: 15px;
+      border-radius: 12px;
+      display: none;
+      z-index: 9999;
+      width: 300px;
+      box-shadow: 0 0 15px rgba(0,255,0,0.5);
+    }
 
-  .tone-selector {margin: 20px 0; text-align: center;}
-  .tone-selector select {padding:8px 12px; border-radius:6px; font-weight:bold;}
-</style>
+    .notification-popup h4 {
+      margin: 0 0 5px 0;
+    }
+
+    .tone-selector {
+      margin-top: 20px;
+      color: #fff;
+    }
+
+    select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      background: #111;
+      color: lime;
+      border: 1px solid lime;
+      font-size: 16px;
+    }
+  </style>
 </head>
 <body>
 
-<h1>📣 Admin Notifications</h1>
+  <h1>🔔 Admin Notifications</h1>
 
-<div class="tone-selector">
-  <label for="toneSelect">Select Notification Tone: </label>
-  <select id="toneSelect">
-    <option value="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg">Alarm Clock</option>
-    <option value="https://actions.google.com/sounds/v1/alarms/beep_short.ogg">Beep Short</option>
-    <option value="https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg">Digital Watch</option>
-    <option value="https://actions.google.com/sounds/v1/alarms/bugle_tune.ogg">Bugle Tune</option>
-  </select>
-</div>
+  <div class="tone-selector">
+    <label for="toneSelect">Choose Notification Tone:</label>
+    <select id="toneSelect">
+      <!-- 100+ tones will be added here -->
+    </select>
+  </div>
 
-<ul id="notificationsList">
-  <li style="text-align:center; color:#888;">Waiting for new packages...</li>
-</ul>
+  <div id="notificationPopup" class="notification-popup">
+    <h4>New Package Received!</h4>
+    <p id="notificationMessage"></p>
+  </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-import { getDatabase, ref, onChildAdded } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
+  <audio id="notificationAudio" preload="auto"></audio>
 
-// Firebase config
-const firebaseConfig = {
-  apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
-  authDomain: "x-cargo-exprees.firebaseapp.com",
-  databaseURL: "https://x-cargo-exprees-default-rtdb.firebaseio.com",
-  projectId: "x-cargo-exprees",
-  storageBucket: "x-cargo-exprees.appspot.com",
-  messagingSenderId: "1082201867958",
-  appId: "1:1082201867958:web:d6600fbc82085b0b62c817"
-};
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-const notificationsList = document.getElementById("notificationsList");
-const toneSelect = document.getElementById("toneSelect");
-let knownPackageIds = new Set();
-let audio = new Audio(toneSelect.value);
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
+      authDomain: "x-cargo-exprees.firebaseapp.com",
+      databaseURL: "https://x-cargo-exprees-default-rtdb.firebaseio.com",
+      projectId: "x-cargo-exprees",
+      storageBucket: "x-cargo-exprees.appspot.com",
+      messagingSenderId: "1082201867958",
+      appId: "1:1082201867958:web:d6600fbc82085b0b62c817"
+    };
 
-// Change tone dynamically
-toneSelect.addEventListener("change", () => {
-  audio.src = toneSelect.value;
-});
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-// Listen for new packages
-const packagesRef = ref(db, 'packages');
-onChildAdded(packagesRef, (snap) => {
-  const pkg = snap.val();
-  const id = snap.key;
+    const notificationPopup = document.getElementById('notificationPopup');
+    const notificationMessage = document.getElementById('notificationMessage');
+    const notificationAudio = document.getElementById('notificationAudio');
+    const toneSelect = document.getElementById('toneSelect');
 
-  if (!knownPackageIds.has(id)) {
-    knownPackageIds.add(id);
+    let previousPackages = {};
 
-    // Remove "waiting" placeholder if present
-    const placeholder = notificationsList.querySelector('li');
-    if (placeholder && placeholder.innerText.includes('Waiting')) placeholder.remove();
+    // Generate 100+ tone options
+    for (let i = 1; i <= 100; i++) {
+      const option = document.createElement('option');
+      option.value = `tones/tone${i}.mp3`; // Place your audio files in /tones folder
+      option.textContent = `Tone ${i}`;
+      toneSelect.appendChild(option);
+    }
 
-    // Create notification element
-    const li = document.createElement('li');
-    li.classList.add('new');
-    li.innerHTML = `
-      <div class="notif-content">
-        <strong>New Package:</strong> ${id}<br>
-        Sender: ${pkg.sender || "-"}, Receiver: ${pkg.receiver || "-"}, Status: ${pkg.status || "Pending"}
-      </div>
-      <div class="notif-actions">
-        <button class="dismiss">Dismiss</button>
-      </div>
-    `;
-    notificationsList.prepend(li);
-
-    // Play ringtone
-    audio.currentTime = 0;
-    audio.play().catch(()=>{});
-
-    // Dismiss button
-    li.querySelector('.dismiss').addEventListener('click', () => {
-      li.remove();
-      if (notificationsList.children.length === 0) {
-        const waitingLi = document.createElement('li');
-        waitingLi.style.textAlign = "center";
-        waitingLi.style.color = "#888";
-        waitingLi.innerText = "Waiting for new packages...";
-        notificationsList.appendChild(waitingLi);
-      }
+    // Play tone when changed
+    toneSelect.addEventListener('change', () => {
+      notificationAudio.src = toneSelect.value;
+      notificationAudio.play();
     });
-  }
-});
-</script>
+
+    // Listen for new packages
+    db.ref('packages').on('value', snapshot => {
+      const data = snapshot.val() || {};
+
+      for (const id in data) {
+        if (!previousPackages[id]) {
+          // New package detected
+          showNotification(`Package ID: ${id} from ${data[id].sender || 'Unknown'}`);
+        }
+      }
+
+      previousPackages = data;
+    });
+
+    function showNotification(message) {
+      notificationMessage.textContent = message;
+      notificationPopup.style.display = 'block';
+      notificationAudio.src = toneSelect.value;
+      notificationAudio.play();
+
+      // Auto hide after 5 seconds
+      setTimeout(() => {
+        notificationPopup.style.display = 'none';
+      }, 5000);
+    }
+  </script>
 </body>
 </html>
