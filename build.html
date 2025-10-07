@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>🛠️ X-Cargo Express - Form Builder</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body {font-family:"Segoe UI",sans-serif;background:#f5f7fb;color:#333;padding:25px;}
+h2{text-align:center;margin-bottom:25px;color:#007bff;}
+form{max-width:700px;margin:auto;background:#fff;padding:25px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+label{display:block;margin-top:10px;font-weight:500;}
+input,select,textarea{width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;margin-top:5px;font-size:15px;}
+button{background:#007bff;color:#fff;border:none;padding:12px;border-radius:6px;width:100%;margin-top:20px;font-size:16px;cursor:pointer;transition:0.3s;}
+button:hover{background:#0056b3;}
+.preview{margin-top:25px;background:#f9f9f9;padding:15px;border-radius:12px;box-shadow:0 1px 6px rgba(0,0,0,0.1);}
+img.preview-img{max-width:200px;margin:5px;border-radius:6px;}
+.signature-canvas{border:1px solid #ccc;margin-top:10px;cursor:crosshair;}
+.picker-container{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;justify-content:center;}
+.picker-container img{width:100px;cursor:pointer;border:2px solid transparent;border-radius:6px;transition:0.2s;}
+.picker-container img.selected{border-color:#007bff;}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+
+<h2>🛠️ Form Builder</h2>
+
+<form id="formBuilder">
+<label>Form Title</label>
+<input type="text" id="formTitle" placeholder="Enter form title" required>
+
+<label>Meta Description</label>
+<textarea id="metaDesc" placeholder="Enter SEO description"></textarea>
+
+<label>OG Image URL</label>
+<input type="text" id="ogImage" placeholder="Enter OG image URL">
+
+<h3>Images</h3>
+<label>Avatar (File or URL)</label>
+<input type="file" id="avatarFile">
+<input type="text" id="avatarURL" placeholder="Or paste image URL">
+<img id="avatarPreview" class="preview-img">
+
+<label>Banner Image</label>
+<input type="file" id="bannerFile">
+<input type="text" id="bannerURL" placeholder="Or paste banner URL">
+<img id="bannerPreview" class="preview-img">
+
+<label>Logo Image</label>
+<input type="file" id="logoFile">
+<input type="text" id="logoURL" placeholder="Or paste logo URL">
+<img id="logoPreview" class="preview-img">
+
+<label>Background Image</label>
+<input type="file" id="bgFile">
+<input type="text" id="bgURL" placeholder="Or paste background URL">
+<img id="bgPreview" class="preview-img">
+
+<h3>⚠️ Warning Message</h3>
+<label><input type="checkbox" id="showWarning"> Show Warning</label>
+<textarea id="warningText" placeholder="⚠️ Failure to verify may result in account lock!"></textarea>
+<label>Warning Color</label>
+<input type="color" id="warningColor" value="#ff0000">
+
+<h3>💰 Payment Option</h3>
+<label><input type="checkbox" id="addPay"> Show Pay Button</label>
+<input type="text" id="payText" placeholder="Pay Now">
+<input type="text" id="payURL" placeholder="Payment link">
+<input type="color" id="payColor" value="#28a745">
+
+<h3>Form Status</h3>
+<select id="status">
+<option>Pending</option>
+<option>Processing</option>
+<option>In Transit</option>
+<option>On Hold</option>
+<option>Suspended</option>
+<option>Delivered</option>
+<option>Not Delivered Yet</option>
+</select>
+<label>Status Color</label>
+<input type="color" id="statusColor" value="#007bff">
+
+<h3>Signature</h3>
+<canvas id="signatureCanvas" class="signature-canvas" width="400" height="150"></canvas>
+<label>Signature Color</label>
+<input type="color" id="signatureColor" value="#000000">
+
+<h3>Stamps</h3>
+<input type="file" id="stampFile" accept="image/*">
+<div class="picker-container" id="stampPicker">
+  <img src="https://i.postimg.cc/3x1sZsLz/approved.png" alt="Approved" class="stamp">
+  <img src="https://i.postimg.cc/d3vY7cQm/rejected.png" alt="Rejected" class="stamp">
+</div>
+
+<button type="submit" id="generateBtn">Generate Form</button>
+</form>
+
+<div class="preview" id="formPreview">
+<h3>Live Preview</h3>
+<img id="liveAvatar" class="preview-img">
+<img id="liveBanner" class="preview-img">
+<img id="liveLogo" class="preview-img">
+<img id="liveBG" class="preview-img">
+<div id="liveWarning"></div>
+<div id="livePay"></div>
+<div id="liveStatus"></div>
+<div id="liveSignature"></div>
+<div id="liveStamps"></div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+import { getDatabase, ref, set, get, child, update } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
+
+const firebaseConfig = {
+apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
+authDomain: "x-cargo-exprees.firebaseapp.com",
+databaseURL: "https://x-cargo-exprees-default-rtdb.firebaseio.com",
+projectId: "x-cargo-exprees",
+storageBucket: "x-cargo-exprees.appspot.com",
+messagingSenderId: "1082201867958",
+appId: "1:10822086…817"
+};
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+const urlParams = new URLSearchParams(window.location.search);
+const editId = urlParams.get('edit');
+
+// DOM Elements
+const avatarFile = document.getElementById("avatarFile");
+const avatarURL = document.getElementById("avatarURL");
+const avatarPreview = document.getElementById("avatarPreview");
+const bannerFile = document.getElementById("bannerFile");
+const bannerURL = document.getElementById("bannerURL");
+const bannerPreview = document.getElementById("bannerPreview");
+const logoFile = document.getElementById("logoFile");
+const logoURL = document.getElementById("logoURL");
+const logoPreview = document.getElementById("logoPreview");
+const bgFile = document.getElementById("bgFile");
+const bgURL = document.getElementById("bgURL");
+const bgPreview = document.getElementById("bgPreview");
+
+const showWarning = document.getElementById("showWarning");
+const warningText = document.getElementById("warningText");
+const warningColor = document.getElementById("warningColor");
+
+const addPay = document.getElementById("addPay");
+const payText = document.getElementById("payText");
+const payURL = document.getElementById("payURL");
+const payColor = document.getElementById("payColor");
+
+const status = document.getElementById("status");
+const statusColor = document.getElementById("statusColor");
+
+const signatureCanvas = document.getElementById("signatureCanvas");
+const signatureColor = document.getElementById("signatureColor");
+const sigCtx = signatureCanvas.getContext("2d");
+let drawing=false;
+
+signatureCanvas.addEventListener("mousedown",e=>{drawing=true;sigCtx.beginPath();sigCtx.moveTo(e.offsetX,e.offsetY);});
+signatureCanvas.addEventListener("mousemove",e=>{if(drawing){sigCtx.lineTo(e.offsetX,e.offsetY);sigCtx.strokeStyle=signatureColor.value;sigCtx.lineWidth=2;sigCtx.stroke();}});
+signatureCanvas.addEventListener("mouseup",()=>drawing=false);
+signatureCanvas.addEventListener("mouseout",()=>drawing=false);
+
+// Stamps
+const stampsContainer = document.getElementById("liveStamps");
+const stampPicker = document.getElementById("stampPicker");
+
+function addStamp(url){
+  const img=document.createElement("img");
+  img.src=url;
+  img.className="preview-img";
+  stampsContainer.appendChild(img);
+}
+
+// Picker stamps
+document.querySelectorAll(".stamp").forEach(stamp=>stamp.addEventListener("click",()=>addStamp(stamp.src)));
+document.getElementById("stampFile").addEventListener("change",e=>{
+  const file=e.target.files[0];
+  if(file){const url=URL.createObjectURL(file); addStamp(url);}
+});
+
+// Live preview functions
+avatarFile.addEventListener("change",()=>{avatarPreview.src=URL.createObjectURL(avatarFile.files[0]);});
+avatarURL.addEventListener("input",()=>{avatarPreview.src=avatarURL.value;});
+bannerFile.addEventListener("change",()=>{bannerPreview.src=URL.createObjectURL(bannerFile.files[0]);});
+bannerURL.addEventListener("input",()=>{bannerPreview.src=bannerURL.value;});
+logoFile.addEventListener("change",()=>{logoPreview.src=URL.createObjectURL(logoFile.files[0]);});
+logoURL.addEventListener("input",()=>{logoPreview.src=logoURL.value;});
+bgFile.addEventListener("change",()=>{bgPreview.src=URL.createObjectURL(bgFile.files[0]);});
+bgURL.addEventListener("input",()=>{bgPreview.src=bgURL.value;});
+
+showWarning.addEventListener("change",updatePreview);
+warningText.addEventListener("input",updatePreview);
+warningColor.addEventListener("input",updatePreview);
+addPay.addEventListener("change",updatePreview);
+payText.addEventListener("input",updatePreview);
+payURL.addEventListener("input",updatePreview);
+payColor.addEventListener("input",updatePreview);
+status.addEventListener("change",updatePreview);
+statusColor.addEventListener("input",updatePreview);
+
+function updatePreview(){
+  document.getElementById("liveAvatar").src=avatarPreview.src||"";
+  document.getElementById("liveBanner").src=bannerPreview.src||"";
+  document.getElementById("liveLogo").src=logoPreview.src||"";
+  document.getElementById("liveBG").src=bgPreview.src||"";
+  document.getElementById("liveWarning").innerHTML=showWarning.checked?`<div style="color:${warningColor.value};font-weight:bold;">${warningText.value}</div>`:"";
+  document.getElementById("livePay").innerHTML=addPay.checked?`<a href="${payURL.value}" style="background:${payColor.value};color:#fff;padding:6px 12px;border-radius:6px;text-decoration:none;">${payText.value}</a>`:"";
+  document.getElementById("liveStatus").innerHTML=`<span style="background:${statusColor.value};color:#fff;padding:5px 12px;border-radius:12px;">${status.value}</span>`;
+}
+
+// Load existing form for editing
+if(editId){
+  const dbRef = ref(db);
+  get(child(dbRef,"packages/"+editId)).then(snapshot=>{
+    if(snapshot.exists()){
+      const data = snapshot.val();
+      formTitle.value = data.formTitle || "";
+      metaDesc.value = data.metaDesc || "";
+      ogImage.value = data.ogImage || "";
+      avatarURL.value = data.avatarURL || ""; avatarPreview.src = data.avatarURL || "";
+      bannerURL.value = data.bannerURL || ""; bannerPreview.src = data.bannerURL || "";
+      logoURL.value = data.logoURL || ""; logoPreview.src = data.logoURL || "";
+      bgURL.value = data.bgURL || ""; bgPreview.src = data.bgURL || "";
+      showWarning.checked = data.showWarning || false;
+      warningText.value = data.warningText || "";
+      warningColor.value = data.warningColor || "#ff0000";
+      addPay.checked = data.showPay || false;
+      payText.value = data.payText || "";
+      payURL.value = data.payURL || "";
+      payColor.value = data.payColor || "#28a745";
+      status.value = data.status || "Pending";
+      statusColor.value = data.statusColor || "#007bff";
+      updatePreview();
+    }
+  });
+}
+
+// Submit form
+document.getElementById("formBuilder").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const id = editId || "FORM_"+Date.now();
+  const data = {
+    formTitle: formTitle.value,
+    metaDesc: metaDesc.value,
+    ogImage: ogImage.value,
+    avatarURL: avatarPreview.src,
+    bannerURL: bannerPreview.src,
+    logoURL: logoPreview.src,
+    bgURL: bgPreview.src,
+    showWarning: showWarning.checked,
+    warningText: warningText.value,
+    warningColor: warningColor.value,
+    showPay: addPay.checked,
+    payText: payText.value,
+    payURL: payURL.value,
+    payColor: payColor.value,
+    status: status.value,
+    statusColor: statusColor.value,
+    createdAt: new Date().toISOString()
+  };
+  await set(ref(db,"packages/"+id),data);
+  alert("✅ Form saved successfully!");
+  window.location.href = "forms.html";
+});
+</script>
+</body>
+</html>
