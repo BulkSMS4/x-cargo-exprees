@@ -102,7 +102,7 @@ h2 {
   margin: 5px;
   border-radius: 6px;
 }
-.delete-btn, .view-btn, .copy-btn {
+.delete-btn, .view-btn, .copy-btn, .edit-btn {
   display: inline-block;
   padding: 8px 14px;
   border-radius: 8px;
@@ -117,6 +117,8 @@ h2 {
 .delete-btn:hover { background: #a71d2a; }
 .view-btn { background: #17a2b8; color: #fff; }
 .view-btn:hover { background: #117a8b; }
+.edit-btn { background: #ffc107; color: #fff; }
+.edit-btn:hover { background: #cc9a06; }
 .copy-btn { background: #28a745; color: #fff; }
 .copy-btn:hover { background: #1c6e3b; }
 table {
@@ -140,9 +142,9 @@ table th {
 <h2>💼 All Package Invoices</h2>
 
 <div id="searchContainer">
-<input type="text" id="searchInput" placeholder="Search Tracking ID...">
-<button id="searchBtn">🔍 Search</button>
-<button id="clearBtn">❌ Clear</button>
+  <input type="text" id="searchInput" placeholder="Search Tracking ID...">
+  <button id="searchBtn">🔍 Search</button>
+  <button id="clearBtn">❌ Clear</button>
 </div>
 
 <div id="invoicesContainer"></div>
@@ -206,11 +208,13 @@ function displayInvoices(packages){
       </div>
       <div style="margin-top:10px;">
         <button class="view-btn">View</button>
+        <button class="edit-btn">Edit</button>
         <button class="copy-btn">Copy Tracking</button>
         <button class="delete-btn">Delete</button>
       </div>
     `;
 
+    // DELETE
     card.querySelector(".delete-btn").addEventListener("click", async ()=>{
       if(confirm(`Delete package ${pkg.trackingId}?`)){
         await remove(ref(db,"packages/"+pkg.trackingId));
@@ -218,10 +222,17 @@ function displayInvoices(packages){
       }
     });
 
+    // VIEW
     card.querySelector(".view-btn").addEventListener("click", ()=>{
-      window.location.href = `track.html?tracking=${pkg.trackingId}`;
+      window.location.href = `track.html?id=${pkg.trackingId}`;
     });
 
+    // EDIT
+    card.querySelector(".edit-btn").addEventListener("click", ()=>{
+      window.location.href = `build.html?edit=${pkg.trackingId}`;
+    });
+
+    // COPY
     card.querySelector(".copy-btn").addEventListener("click", ()=>{
       navigator.clipboard.writeText(pkg.trackingId).then(()=>alert(`Tracking ID ${pkg.trackingId} copied!`));
     });
@@ -230,6 +241,7 @@ function displayInvoices(packages){
   });
 }
 
+// SEARCH
 document.getElementById("searchBtn").addEventListener("click", ()=>{
   const query = document.getElementById("searchInput").value.trim().toLowerCase();
   let found = false;
@@ -244,6 +256,7 @@ document.getElementById("searchBtn").addEventListener("click", ()=>{
   if(!found && query!==""){ alert("❌ No package found with that Tracking ID"); }
 });
 
+// CLEAR SEARCH
 document.getElementById("clearBtn").addEventListener("click", ()=>{
   document.getElementById("searchInput").value="";
   document.querySelectorAll(".invoice-card").forEach(card=>card.classList.remove("highlight"));
