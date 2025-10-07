@@ -7,11 +7,47 @@
 <style>
   body {font-family: Inter, "Segoe UI", Arial; background: #f4f6fb; color: #222; padding: 20px; max-width: 1000px; margin: auto;}
   h1 {color: #004080; text-align: center; margin-bottom: 20px;}
-  input[type="text"] {width: 100%; padding: 10px 12px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px;}
-  table {width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 6px 18px rgba(0,0,0,.08);}
+  
+  .search-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    align-items: center;
+  }
+
+  input[type="text"] {
+    flex: 1;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+  }
+
+  .search-btn, .clear-btn {
+    padding: 10px 16px;
+    background: #004080;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .search-btn:hover { background: #003366; }
+  .clear-btn { background: #d9534f; }
+  .clear-btn:hover { background: #c12e2a; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 6px 18px rgba(0,0,0,.08);
+  }
   th, td {padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee;}
   th {background: #004080; color: #fff; font-weight: 600; cursor: pointer;}
   tr:hover {background: #f1f9ff;}
+
   button {padding: 6px 12px; margin-right: 5px; background: #004080; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;}
   button:hover {background: #003366;}
   .delete-btn {background: #d9534f;}
@@ -90,6 +126,11 @@
     renderTable(filtered);
   }
 
+  function clearSearch() {
+    document.getElementById("searchInput").value = '';
+    renderTable(allPackages);
+  }
+
   function sortBy(field) {
     allPackages.sort((a, b) => {
       if (field === 'shipmentDate') {
@@ -120,7 +161,12 @@
 <body>
 <h1>All Shipment Invoices</h1>
 
-<input type="text" id="searchInput" placeholder="Search by Package ID, Sender, or Receiver" oninput="searchInvoices()">
+<!-- Search Input + Buttons -->
+<div class="search-container">
+  <input type="text" id="searchInput" placeholder="Search by Package ID, Sender, or Receiver" oninput="searchInvoices()">
+  <button class="search-btn" onclick="searchInvoices()">🔍 Search</button>
+  <button class="clear-btn" onclick="clearSearch()">× Clear</button>
+</div>
 
 <table>
   <thead>
