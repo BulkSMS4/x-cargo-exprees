@@ -3,154 +3,178 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>X-Cargo Express – Invoice</title>
+<title>X-Cargo Express – All Invoices</title>
 <style>
   body{font-family:Inter,"Segoe UI",Arial;background:#f4f6fb;color:#222;padding:20px;max-width:940px;margin:auto;}
   h1{color:#004080;text-align:center;margin-bottom:10px;}
-  #invoice{background:#fff;padding:20px;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,.08);margin-top:18px;}
+  .invoice{background:#fff;padding:20px;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,.08);margin:18px 0;}
   .header{display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #004080;padding-bottom:10px;margin-bottom:15px;}
-  .header img{width:120px;height:auto;}
+  .header img{width:80px;height:auto;} /* smaller logo */
   .company-info{text-align:right;font-size:14px;line-height:1.5;}
   .company-info strong{color:#004080;}
   .status{text-align:center;margin:14px 0;}
   .status-badge{display:inline-block;padding:8px 16px;border-radius:20px;color:#fff;font-weight:700;}
   .images{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:15px;}
-  .images img{width:190px;height:130px;object-fit:cover;border-radius:8px;border:1px solid #eee;}
+  .images img{width:150px;height:150px;object-fit:cover;border-radius:8px;border:1px solid #eee;cursor:pointer;transition:0.3s;}
+  .images img:hover{transform:scale(1.05);}
   .field{margin-bottom:8px;}
   .field strong{color:#004080;}
-  .controls{display:flex;gap:10px;justify-content:center;margin-top:18px;}
-  .controls button{padding:10px 16px;border:none;border-radius:6px;background:#004080;color:#fff;cursor:pointer;font-weight:600;}
-  .controls button:hover{background:#003366;}
   .warning{margin:10px 0;padding:10px;border-radius:8px;font-weight:700;}
+  .controls{display:flex;gap:10px;justify-content:center;margin-top:10px;}
+  .controls button{padding:8px 14px;border:none;border-radius:6px;background:#004080;color:#fff;cursor:pointer;font-weight:600;}
+  .controls button:hover{background:#003366;}
   @media(max-width:720px){
     .header{flex-direction:column;text-align:center;}
     .company-info{text-align:center;margin-top:10px;}
   }
+
+  /* Lightbox Styles */
+  #lightboxOverlay{
+    display:none;
+    position:fixed;top:0;left:0;width:100%;height:100%;
+    background:rgba(0,0,0,0.8);justify-content:center;align-items:center;
+    z-index:9999;
+  }
+  #lightboxOverlay img{
+    max-width:90%;max-height:90%;border-radius:8px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.5);
+  }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script>
-async function loadInvoice(){
-  const params=new URLSearchParams(location.search);
-  const id=params.get('id');
-  if(!id){document.getElementById('invoice').innerHTML="<b>No ID provided.</b>";return;}
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
 
-  const firebaseConfig={
-    apiKey:"AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
-    authDomain:"x-cargo-exprees.firebaseapp.com",
-    databaseURL:"https://x-cargo-exprees-default-rtdb.firebaseio.com",
-    projectId:"x-cargo-exprees",
-    storageBucket:"x-cargo-exprees.appspot.com",
-    messagingSenderId:"1082201867958",
-    appId:"1:1082201867958:web:d6600fbc82085b0b62c817"
-  };
-  const {initializeApp}=await import("https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js");
-  const {getDatabase,ref,get,child}=await import("https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js");
-  const app=initializeApp(firebaseConfig);
-  const db=getDatabase(app);
+const firebaseConfig = {
+  apiKey:"AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
+  authDomain:"x-cargo-exprees.firebaseapp.com",
+  databaseURL:"https://x-cargo-exprees-default-rtdb.firebaseio.com",
+  projectId:"x-cargo-exprees",
+  storageBucket:"x-cargo-exprees.appspot.com",
+  messagingSenderId:"1082201867958",
+  appId:"1:1082201867958:web:d6600fbc82085b0b62c817"
+};
 
-  const snap=await get(child(ref(db),`packages/${id}`));
-  if(!snap.exists()){document.getElementById('invoice').innerHTML="❌ Not found.";return;}
-  const data=snap.val();
-
-  let html="";
-  html+=`<div class="header">`;
-  html+=`<div class="logo">`;
-  if(data.logoURL) html+=`<img src="${data.logoURL}" alt="Logo">`;
-  html+=`</div>`;
-  html+=`<div class="company-info">
-      <strong>X-Cargo Express</strong><br>
-      123 Express Avenue, Florida, USA<br>
-      support@xcargoexpress.com · +1-800-555-XCEX<br>
-      <small>Created: ${escapeHtml(data.createdAt||"-")}<br>Tracking: ${escapeHtml(data.trackingId||id)}</small>
-    </div>`;
-  html+=`</div>`;
-
-  html+=`<h2 style="text-align:center;color:#004080;">Shipment Invoice</h2>`;
-  const sc=data.statusColor||"#007bff";
-  html+=`<div class="status"><span class="status-badge" style="background:${sc}">${data.status||"Pending"}</span></div>`;
-
-  // Sender
-  html+=`<h3 style="color:#004080">Sender Details</h3>`;
-  html+=`<div class="field"><strong>Name:</strong> ${escapeHtml(data.sender||"-")}</div>`;
-  html+=`<div class="field"><strong>Email:</strong> ${escapeHtml(data.senderEmail||"-")}</div>`;
-  html+=`<div class="field"><strong>Phone:</strong> ${escapeHtml(data.senderPhone||"-")}</div>`;
-  html+=`<div class="field"><strong>Location:</strong> ${escapeHtml(data.senderLocation||"-")}</div>`;
-
-  // Receiver
-  html+=`<h3 style="color:#004080;margin-top:10px;">Receiver Details</h3>`;
-  html+=`<div class="field"><strong>Name:</strong> ${escapeHtml(data.receiver||"-")}</div>`;
-  html+=`<div class="field"><strong>Email:</strong> ${escapeHtml(data.receiverEmail||"-")}</div>`;
-  html+=`<div class="field"><strong>Phone:</strong> ${escapeHtml(data.receiverPhone||"-")}</div>`;
-  html+=`<div class="field"><strong>Location:</strong> ${escapeHtml(data.receiverLocation||"-")}</div>`;
-
-  // Package Info
-  html+=`<h3 style="color:#004080;margin-top:10px;">Package Information</h3>`;
-  html+=`<div class="field"><strong>Shipment Date:</strong> ${escapeHtml(data.shipmentDate||"-")}</div>`;
-  html+=`<div class="field"><strong>Expected Delivery:</strong> ${escapeHtml(data.expectedDate||"-")}</div>`;
-  html+=`<div class="field"><strong>Weight:</strong> ${escapeHtml(data.weight||"-")}</div>`;
-  html+=`<div class="field"><strong>Quantity:</strong> ${escapeHtml(data.quantity||"-")}</div>`;
-  html+=`<div class="field"><strong>Description:</strong> ${escapeHtml(data.description||"-")}</div>`;
-
-  if(data.showWarning&&data.warningText){
-    html+=`<div class="warning" style="background:${data.warningBg||'#fff8f8'}; color:${data.warningColor||'#ff0000'};">⚠️ ${escapeHtml(data.warningText)}</div>`;
-  }
-
-  if(data.imageURLs&&data.imageURLs.length){
-    html+=`<div class="images">`;
-    data.imageURLs.forEach(url=>{
-      html+=`<img src="${url}" alt="Package image">`;
-    });
-    html+=`</div>`;
-  }
-
-  document.getElementById("invoice").innerHTML=html;
-}
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
 function escapeHtml(s){
   if(s===null||s===undefined)return"";
   return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 }
 
-function printInvoice(){
-  const content=document.getElementById("invoice").innerHTML;
-  const w=window.open("","_blank");
-  w.document.write(`<html><head><title>Print</title></head><body>${content}</body></html>`);
-  w.document.close();w.focus();w.print();w.close();
+function printInvoice(el){
+  const w = window.open("", "_blank");
+  w.document.write(`<html><head><title>Print</title></head><body>${el.innerHTML}</body></html>`);
+  w.document.close(); w.focus(); w.print(); w.close();
 }
 
-async function downloadPDF(){
-  const el=document.getElementById("invoice");
-  const canvas=await html2canvas(el,{scale:2});
-  const imgData=canvas.toDataURL("image/png");
-  const {jsPDF}=window.jspdf;
-  const pdf=new jsPDF("p","mm","a4");
-  const pdfWidth=pdf.internal.pageSize.getWidth();
-  const pdfHeight=(canvas.height*pdfWidth)/canvas.width;
+async function downloadPDF(el){
+  const canvas = await html2canvas(el, {scale:2});
+  const imgData = canvas.toDataURL("image/png");
+  const {jsPDF} = window.jspdf;
+  const pdf = new jsPDF("p","mm","a4");
+  const pdfWidth = pdf.internal.pageSize.getWidth();
+  const pdfHeight = (canvas.height*pdfWidth)/canvas.width;
   pdf.addImage(imgData,"PNG",0,0,pdfWidth,pdfHeight);
   pdf.save("invoice.pdf");
 }
 
-async function saveToGallery(){
-  const el=document.getElementById("invoice");
-  const canvas=await html2canvas(el,{scale:2});
-  const link=document.createElement("a");
-  link.download="invoice.png";
-  link.href=canvas.toDataURL("image/png");
+async function saveToGallery(el){
+  const canvas = await html2canvas(el, {scale:2});
+  const link = document.createElement("a");
+  link.download = "invoice.png";
+  link.href = canvas.toDataURL("image/png");
   link.click();
 }
+
+function setupLightbox(){
+  const overlay=document.getElementById("lightboxOverlay");
+  document.querySelectorAll(".images img").forEach(img=>{
+    img.addEventListener("click",()=>{
+      overlay.style.display="flex";
+      overlay.querySelector("img").src=img.src;
+    });
+  });
+  overlay.addEventListener("click",()=>{overlay.style.display="none";});
+}
+
+async function loadAllInvoices(){
+  const snap = await get(ref(db, "packages/"));
+  const container = document.getElementById("invoices");
+  container.innerHTML="";
+  if(!snap.exists()){container.innerHTML="<b>No invoices found.</b>"; return;}
+  const data = snap.val();
+
+  Object.values(data).forEach((pkg, index)=>{
+    let html="";
+    html+=`<div class="invoice" id="invoice-${index}">`;
+    html+=`<div class="header">`;
+    html+=`<div class="logo">`;
+    if(pkg.logoURL) html+=`<img src="${pkg.logoURL}" alt="Logo">`;
+    html+=`</div>`;
+    html+=`<div class="company-info">
+      <strong>X-Cargo Express</strong><br>
+      123 Express Avenue, Florida, USA<br>
+      support@xcargoexpress.com · +1-800-555-XCEX<br>
+      <small>Created: ${escapeHtml(pkg.createdAt||"-")}<br>Tracking: ${escapeHtml(pkg.trackingId||"-")}</small>
+    </div>`;
+    html+=`</div>`;
+
+    html+=`<h2 style="text-align:center;color:#004080;">Shipment Invoice</h2>`;
+    const sc=pkg.statusColor||"#007bff";
+    html+=`<div class="status"><span class="status-badge" style="background:${sc}">${pkg.status||"Pending"}</span></div>`;
+
+    html+=`<h3 style="color:#004080">Sender Details</h3>`;
+    html+=`<div class="field"><strong>Name:</strong> ${escapeHtml(pkg.sender||"-")}</div>`;
+    html+=`<div class="field"><strong>Email:</strong> ${escapeHtml(pkg.senderEmail||"-")}</div>`;
+    html+=`<div class="field"><strong>Phone:</strong> ${escapeHtml(pkg.senderPhone||"-")}</div>`;
+    html+=`<div class="field"><strong>Location:</strong> ${escapeHtml(pkg.senderLocation||"-")}</div>`;
+
+    html+=`<h3 style="color:#004080;margin-top:10px;">Receiver Details</h3>`;
+    html+=`<div class="field"><strong>Name:</strong> ${escapeHtml(pkg.receiver||"-")}</div>`;
+    html+=`<div class="field"><strong>Email:</strong> ${escapeHtml(pkg.receiverEmail||"-")}</div>`;
+    html+=`<div class="field"><strong>Phone:</strong> ${escapeHtml(pkg.receiverPhone||"-")}</div>`;
+    html+=`<div class="field"><strong>Location:</strong> ${escapeHtml(pkg.receiverLocation||"-")}</div>`;
+
+    html+=`<h3 style="color:#004080;margin-top:10px;">Package Information</h3>`;
+    html+=`<div class="field"><strong>Shipment Date:</strong> ${escapeHtml(pkg.shipmentDate||"-")}</div>`;
+    html+=`<div class="field"><strong>Expected Delivery:</strong> ${escapeHtml(pkg.expectedDate||"-")}</div>`;
+    html+=`<div class="field"><strong>Weight:</strong> ${escapeHtml(pkg.weight||"-")}</div>`;
+    html+=`<div class="field"><strong>Quantity:</strong> ${escapeHtml(pkg.quantity||"-")}</div>`;
+    html+=`<div class="field"><strong>Description:</strong> ${escapeHtml(pkg.description||"-")}</div>`;
+
+    // Images
+    if(pkg.imageURLs && pkg.imageURLs.length){
+      html+=`<div class="images">`;
+      pkg.imageURLs.forEach(url=>{
+        html+=`<img src="${url}" alt="Package image">`;
+      });
+      html+=`</div>`;
+    }
+
+    html+=`<div class="controls">
+      <button onclick="printInvoice(document.getElementById('invoice-${index}'))">🖨 Print</button>
+      <button onclick="downloadPDF(document.getElementById('invoice-${index}'))">📄 Download PDF</button>
+      <button onclick="saveToGallery(document.getElementById('invoice-${index}'))">🖼 Save to Gallery</button>
+    </div>`;
+
+    html+=`</div>`; // close invoice
+    container.innerHTML += html;
+  });
+
+  setupLightbox(); // initialize lightbox after loading invoices
+}
+
+window.onload = loadAllInvoices;
 </script>
 </head>
-<body onload="loadInvoice()">
+<body>
+<h1>All Shipment Invoices</h1>
+<div id="invoices">Loading invoices...</div>
 
-<h1>Shipment Invoice</h1>
-<div id="invoice">Loading...</div>
-
-<div class="controls">
-  <button onclick="printInvoice()">🖨 Print</button>
-  <button onclick="downloadPDF()">📄 Download PDF</button>
-  <button onclick="saveToGallery()">🖼 Save to Gallery</button>
-</div>
-
+<!-- Lightbox overlay -->
+<div id="lightboxOverlay"><img src="" alt="Enlarged Image"></div>
 </body>
 </html>
