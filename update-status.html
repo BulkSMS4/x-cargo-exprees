@@ -23,6 +23,7 @@ table th{background:#f1f1f1;text-align:left;}
 .status-box{text-align:center;margin-top:10px;}
 .status-badge{display:inline-block;padding:6px 14px;border-radius:20px;color:#fff;font-weight:bold;}
 .warning-box{text-align:center;font-weight:bold;margin-top:10px;}
+.pay-button{display:block;background:#28a745;color:#fff;padding:10px 15px;border:none;border-radius:6px;text-align:center;margin:10px auto;cursor:pointer;text-decoration:none;}
 .images{text-align:center;margin-top:15px;}
 .images img{max-width:220px;margin:8px;border-radius:6px;}
 .actions{text-align:center;margin-top:15px;}
@@ -69,6 +70,10 @@ table th{background:#f1f1f1;text-align:left;}
 <label>Warning Text Color</label>
 <input type="color" id="warningColor" value="#ff0000">
 
+<h3>💰 Payment Option</h3>
+<label><input type="checkbox" id="addPay"> Add Pay Button</label>
+<input type="text" id="payURL" placeholder="Enter payment URL" disabled>
+
 <h3>🖋 Add Signature</h3>
 <canvas id="signatureCanvas" class="signature-canvas" width="400" height="150"></canvas>
 <label>Pick Signature Color</label>
@@ -107,6 +112,7 @@ table th{background:#f1f1f1;text-align:left;}
 </table>
 
 <div id="warningBox"></div>
+<div id="payBox" style="text-align:center;"></div>
 <div class="images" id="imageSection"></div>
 <div id="stampsContainer" style="position:relative; min-height:50px;"></div>
 <div id="selectedSignature" style="text-align:center; margin-top:10px;"></div>
@@ -137,6 +143,11 @@ const db = getDatabase(app);
 const fetchBtn=document.getElementById("fetchBtn");
 const updateBtn=document.getElementById("updateBtn");
 
+// Enable/Disable payment URL input
+document.getElementById("addPay").addEventListener("change", (e)=>{
+  document.getElementById("payURL").disabled = !e.target.checked;
+});
+
 // Signature Canvas
 const canvas=document.getElementById("signatureCanvas");
 const ctx=canvas.getContext("2d");
@@ -157,7 +168,6 @@ function addDraggableStamp(url){
   document.addEventListener("mousemove",e=>{if(!isDragging)return; const rect=stampsContainer.getBoundingClientRect(); img.style.left=(e.clientX-rect.left-offsetX)+"px"; img.style.top=(e.clientY-rect.top-offsetY)+"px";});
   document.addEventListener("mouseup",()=>{isDragging=false;});
 }
-
 document.querySelectorAll(".stamp").forEach(stamp=>{
   stamp.addEventListener("click",()=>{addDraggableStamp(stamp.src);});
 });
@@ -166,72 +176,52 @@ document.getElementById("uploadStamp").addEventListener("change",e=>{
 });
 
 // Fetch package info
-fetchBtn.addEventListener("click",async()=>{
-  const trackingId=document.getElementById("trackingId").value.trim();
-  if(!trackingId)return alert("Enter Tracking ID");
-  const dbRef=ref(db);
-  const snapshot=await get(child(dbRef,"packages/"+trackingId));
-  if(!snapshot.exists())return alert("❌ Package not found");
-  const data=snapshot.val();
-  updateBtn.disabled=false; document.getElementById("receipt").style.display="block";
-  document.getElementById("rTracking").textContent=data.trackingId;
-  document.getElementById("rSender").textContent=data.sender;
-  document.getElementById("rReceiver").textContent=data.receiver;
-  document.getElementById("rAddress").textContent=data.address;
-  document.getElementById("rShip").textContent=data.shipmentDate;
-  document.getElementById("rExpected").textContent=data.expectedDate;
-  document.getElementById("rWeight").textContent=data.weight;
-  document.getElementById("rQuantity").textContent=data.quantity;
-  document.getElementById("rDesc").textContent=data.description;
+fetchBtn.addEventListener("click", async ()=>{
+  const trackingId = document.getElementById("trackingId").value.trim();
+  if(!trackingId){alert("Enter Tracking ID"); return;}
+  const dbRef = ref(db);
+  const snapshot = await get(child(dbRef,"packages/"+trackingId));
+  if(!snapshot.exists()){alert("❌ Package not found"); return;}
+  const data = snapshot.val();
+  updateBtn.disabled=false;
+  document.getElementById("receipt").style.display="block";
+
+  document.getElementById("rTracking").textContent=data.trackingId||"";
+  document.getElementById("rSender").textContent=data.sender||"";
+  document.getElementById("rReceiver").textContent=data.receiver||"";
+  document.getElementById("rAddress").textContent=data.address||"";
+  document.getElementById("rShip").textContent=data.shipmentDate||"";
+  document.getElementById("rExpected").textContent=data.expectedDate||"";
+  document.getElementById("rWeight").textContent=data.weight||"";
+  document.getElementById("rQuantity").textContent=data.quantity||"";
+  document.getElementById("rDesc").textContent=data.description||"";
   document.getElementById("headerLogo").src=data.logoURL||"";
+
   const imageSection=document.getElementById("imageSection"); imageSection.innerHTML="";
   if(data.packageImages){Object.values(data.packageImages).forEach(url=>{ imageSection.innerHTML+=`<img src="${url}" alt="Package Image">`;}); }
+
   document.getElementById("status").value=data.status||"Pending";
   document.getElementById("statusColor").value=data.statusColor||"#007bff";
   document.getElementById("warningText").value=data.warningText||"";
   document.getElementById("warningColor").value=data.warningColor||"#ff0000";
+
   document.getElementById("showWarning").checked=data.showWarning||false;
+  document.getElementById("addPay").checked=data.showPay||false;
+  document.getElementById("payURL").value=data.payURL||"";
+  document.getElementById("payURL").disabled = !document.getElementById("addPay").checked;
+
   renderPreview();
 });
 
+// Render preview including warning and pay button
 function renderPreview(){
   const status=document.getElementById("status").value;
   const color=document.getElementById("statusColor").value;
   const warning=document.getElementById("warningText").value;
   const warningColor=document.getElementById("warningColor").value;
   const showWarning=document.getElementById("showWarning").checked;
+  const showPay=document.getElementById("addPay").checked;
+  const payURL=document.getElementById("payURL").value;
+
   document.getElementById("statusBox").innerHTML=`<span class="status-badge" style="background:${color}">${status}</span>`;
-  document.getElementById("warningBox").innerHTML=showWarning?`<div class="warning-box" style="color:${warningColor}">${warning}</div>`:"";
-  document.getElementById("selectedSignature").innerHTML=`<img src="${canvas.toDataURL()}" width="200">`;
-}
-
-// Update package
-document.getElementById("statusForm").addEventListener("submit",async e=>{
-  e.preventDefault();
-  const trackingId=document.getElementById("trackingId").value.trim();
-  if(!trackingId)return alert("Enter Tracking ID");
-  const newStatus=document.getElementById("status").value;
-  const statusColor=document.getElementById("statusColor").value;
-  const warningText=document.getElementById("warningText").value;
-  const warningColor=document.getElementById("warningColor").value;
-  const showWarning=document.getElementById("showWarning").checked;
-  const signatureData=canvas.toDataURL();
-  const stamps=[];
-  document.querySelectorAll("#stampsContainer img").forEach(s=>stamps.push({src:s.src,left:s.style.left,top:s.style.top}));
-  await update(ref(db,"packages/"+trackingId),{
-    status:newStatus,statusColor,warningText,warningColor,showWarning,signature:signatureData,stamps:stamps
-  });
-  alert("✅ Package updated!");
-  renderPreview();
-});
-
-// PDF Download with stamps & signature
-document.getElementById("downloadPDF").addEventListener("click", async ()=>{
-  const { jsPDF } = window.jspdf;
-  const element=document.getElementById("receipt");
-  const clone=element.cloneNode(true);
-  clone.style.position="relative";
-  clone.querySelectorAll(".draggable-stamp").forEach(img=>{
-    img.style.position="absolute";
-  });
-  document.body.append
+  document.getElementById("warningBox").innerHTML=showWarning?`<div class="warning-box" style="color
