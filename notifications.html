@@ -1,140 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Notifications</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #000;
-      color: lime;
-      padding: 20px;
-    }
-
-    h1 {
-      text-align: center;
-      color: limegreen;
-      margin-bottom: 20px;
-    }
-
-    .notification-popup {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #111;
-      color: lime;
-      border: 2px solid lime;
-      padding: 15px;
-      border-radius: 12px;
-      display: none;
-      z-index: 9999;
-      width: 300px;
-      box-shadow: 0 0 15px rgba(0,255,0,0.5);
-    }
-
-    .notification-popup h4 {
-      margin: 0 0 5px 0;
-    }
-
-    .tone-selector {
-      margin-top: 20px;
-      color: #fff;
-    }
-
-    select {
-      width: 100%;
-      padding: 10px;
-      border-radius: 8px;
-      background: #111;
-      color: lime;
-      border: 1px solid lime;
-      font-size: 16px;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notifications Settings</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #111; color: lime; padding: 20px; }
+  h1 { text-align: center; color: #0f0; margin-bottom: 20px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+  th, td { padding: 10px; text-align: left; border-bottom: 1px solid #333; }
+  th { background: #222; }
+  tr:hover { background: #222; }
+  button { padding: 6px 10px; margin-right: 5px; border: none; border-radius: 4px; cursor: pointer; }
+  .play-btn { background: lime; color: black; }
+  .select-btn { background: orange; color: black; }
+</style>
 </head>
 <body>
 
-  <h1>🔔 Admin Notifications</h1>
+<h1>Notification Sound Settings</h1>
+<p>Select the sound to play when a new tracking number is created.</p>
 
-  <div class="tone-selector">
-    <label for="toneSelect">Choose Notification Tone:</label>
-    <select id="toneSelect">
-      <!-- 100+ tones will be added here -->
-    </select>
-  </div>
+<table>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Sound Name</th>
+      <th>Play</th>
+      <th>Select</th>
+    </tr>
+  </thead>
+  <tbody id="soundsTable">
+    <!-- Sounds will be populated here -->
+  </tbody>
+</table>
 
-  <div id="notificationPopup" class="notification-popup">
-    <h4>New Package Received!</h4>
-    <p id="notificationMessage"></p>
-  </div>
+<script>
+const sounds = [];
+for (let i = 1; i <= 100; i++) {
+  // Using placeholder URLs, replace with actual mp3 URLs from Pixabay, Mixkit, etc.
+  sounds.push({
+    name: `Notification Sound ${i}`,
+    url: `https://cdn.pixabay.com/download/audio/2023/03/30/audio_${1000 + i}.mp3?filename=notification-${i}.mp3`
+  });
+}
 
-  <audio id="notificationAudio" preload="auto"></audio>
+const soundsTable = document.getElementById('soundsTable');
+let selectedSound = null;
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+// Populate table
+sounds.forEach((sound, index) => {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td>${index + 1}</td>
+    <td>${sound.name}</td>
+    <td><button class="play-btn" onclick="playSound('${sound.url}')">▶️ Play</button></td>
+    <td><button class="select-btn" onclick="selectSound('${sound.url}', '${sound.name}')">✅ Select</button></td>
+  `;
+  soundsTable.appendChild(tr);
+});
 
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
-      authDomain: "x-cargo-exprees.firebaseapp.com",
-      databaseURL: "https://x-cargo-exprees-default-rtdb.firebaseio.com",
-      projectId: "x-cargo-exprees",
-      storageBucket: "x-cargo-exprees.appspot.com",
-      messagingSenderId: "1082201867958",
-      appId: "1:1082201867958:web:d6600fbc82085b0b62c817"
-    };
+function playSound(url) {
+  const audio = new Audio(url);
+  audio.play();
+}
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+function selectSound(url, name) {
+  selectedSound = url;
+  alert(`Selected Sound: ${name}`);
+  // Optional: Store in localStorage to persist selection
+  localStorage.setItem('selectedNotificationSound', url);
+}
 
-    const notificationPopup = document.getElementById('notificationPopup');
-    const notificationMessage = document.getElementById('notificationMessage');
-    const notificationAudio = document.getElementById('notificationAudio');
-    const toneSelect = document.getElementById('toneSelect');
+// Simulate new tracking number creation
+function newTrackingNumberCreated() {
+  if (selectedSound) {
+    const audio = new Audio(selectedSound);
+    audio.play();
+    alert("New tracking number created! Sound played.");
+  } else {
+    alert("New tracking number created! No sound selected.");
+  }
+}
 
-    let previousPackages = {};
+// Example: trigger new tracking number after 5s
+// setTimeout(newTrackingNumberCreated, 5000);
+</script>
 
-    // Generate 100+ tone options
-    for (let i = 1; i <= 100; i++) {
-      const option = document.createElement('option');
-      option.value = `tones/tone${i}.mp3`; // Place your audio files in /tones folder
-      option.textContent = `Tone ${i}`;
-      toneSelect.appendChild(option);
-    }
-
-    // Play tone when changed
-    toneSelect.addEventListener('change', () => {
-      notificationAudio.src = toneSelect.value;
-      notificationAudio.play();
-    });
-
-    // Listen for new packages
-    db.ref('packages').on('value', snapshot => {
-      const data = snapshot.val() || {};
-
-      for (const id in data) {
-        if (!previousPackages[id]) {
-          // New package detected
-          showNotification(`Package ID: ${id} from ${data[id].sender || 'Unknown'}`);
-        }
-      }
-
-      previousPackages = data;
-    });
-
-    function showNotification(message) {
-      notificationMessage.textContent = message;
-      notificationPopup.style.display = 'block';
-      notificationAudio.src = toneSelect.value;
-      notificationAudio.play();
-
-      // Auto hide after 5 seconds
-      setTimeout(() => {
-        notificationPopup.style.display = 'none';
-      }, 5000);
-    }
-  </script>
 </body>
 </html>
