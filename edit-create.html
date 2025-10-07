@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>✏️ Edit Package - X-Cargo Express</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body {font-family:"Segoe UI",sans-serif;background:#f5f7fb;color:#333;padding:25px;}
+h2{text-align:center;margin-bottom:25px;color:#007bff;}
+form{max-width:700px;margin:auto;background:#fff;padding:25px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+label{display:block;margin-top:10px;font-weight:500;}
+input,select,textarea{width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;margin-top:5px;font-size:15px;}
+button{background:#007bff;color:#fff;border:none;padding:12px;border-radius:6px;width:100%;margin-top:20px;font-size:16px;cursor:pointer;transition:0.3s;}
+button:hover{background:#0056b3;}
+#imagePreview{margin-top:15px;display:flex;flex-wrap:wrap;}
+#imagePreview div{position:relative;margin:5px;}
+#imagePreview img{max-width:120px;border-radius:8px;border:1px solid #ccc;}
+#imagePreview span{position:absolute;top:0;right:0;background:#dc3545;color:#fff;border-radius:50%;cursor:pointer;padding:2px 6px;}
+</style>
+</head>
+<body>
+
+<h2>✏️ Edit Package</h2>
+
+<form id="editForm">
+<label>Tracking ID</label>
+<input type="text" id="trackingId" placeholder="e.g. XCE123456" required>
+
+<label>Sender Name</label>
+<input type="text" id="sender" placeholder="Sender name">
+
+<label>Sender Email</label>
+<input type="email" id="senderEmail" placeholder="Sender email">
+
+<label>Sender Phone</label>
+<input type="text" id="senderPhone" placeholder="Sender phone">
+
+<label>Sender Location</label>
+<input type="text" id="senderLocation" placeholder="Sender location">
+
+<label>Receiver Name</label>
+<input type="text" id="receiver" placeholder="Receiver name">
+
+<label>Receiver Email</label>
+<input type="email" id="receiverEmail" placeholder="Receiver email">
+
+<label>Receiver Phone</label>
+<input type="text" id="receiverPhone" placeholder="Receiver phone">
+
+<label>Receiver Location</label>
+<input type="text" id="receiverLocation" placeholder="Receiver location">
+
+<label>Address</label>
+<input type="text" id="address" placeholder="Delivery address">
+
+<label>Shipment Date</label>
+<input type="date" id="shipmentDate">
+
+<label>Expected Delivery</label>
+<input type="date" id="expectedDate">
+
+<label>Weight</label>
+<input type="text" id="weight" placeholder="e.g. 2kg">
+
+<label>Quantity</label>
+<input type="number" id="quantity" placeholder="Number of items">
+
+<label>Description</label>
+<textarea id="description" placeholder="Package description"></textarea>
+
+<label>Status</label>
+<select id="status">
+<option>Pending</option>
+<option>Processing</option>
+<option>In Transit</option>
+<option>On Hold</option>
+<option>Suspended</option>
+<option>Delivered</option>
+<option>Not Delivered Yet</option>
+</select>
+
+<label>Status Color</label>
+<input type="color" id="statusColor" value="#007bff">
+
+<label>Package Images</label>
+<input type="file" id="packageImages" multiple accept="image/*">
+<div id="imagePreview"></div>
+
+<!-- Payment button custom fields -->
+<h3>Payment Button (Optional)</h3>
+<label>Payment URL</label>
+<input type="url" id="payURL" placeholder="https://...">
+
+<label>Button Text</label>
+<input type="text" id="payText" placeholder="Pay Now">
+
+<label>Button Color</label>
+<input type="color" id="payColor" value="#28a745">
+
+<button type="submit">💾 Save Changes</button>
+</form>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+import { getDatabase, ref, get, child, update } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
+import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-storage.js";
+
+const firebaseConfig = {
+apiKey: "AIzaSyBLYDpP68NlfYGE1O9DafgrmFBUlgpoYeI",
+authDomain: "x-cargo-exprees.firebaseapp.com",
+databaseURL: "https://x-cargo-exprees-default-rtdb.firebaseio.com",
+projectId: "x-cargo-exprees",
+storageBucket: "x-cargo-exprees.appspot.com",
+messagingSenderId: "1082201867958",
+appId: "1:1082201867958:web:d6600fbc82085b0b62c817"
+};
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const storage = getStorage(app);
+
+const params = new URLSearchParams(window.location.search);
+const trackId = params.get("tracking");
+if(!trackId){ alert("No tracking ID provided!"); }
+
+const editForm = document.getElementById("editForm");
+const imageInput = document.getElementById("packageImages");
+const imagePreview = document.getElementById("imagePreview");
+
+let existingImages = {};
+let newImages = [];
+
+// Load existing package
+async function loadPackage(){
+  const snap = await get(child(ref(db),"packages/"+trackId));
+  if(!snap.exists()){ alert("Package not found"); return; }
+  const data = snap.val();
+
+  document.getElementById("trackingId").value = data.trackingId || "";
+  document.getElementById("sender").value = data.sender || "";
+  document.getElementById("senderEmail").value = data.senderEmail || "";
+  document.getElementById("senderPhone").value = data.senderPhone || "";
+  document.getElementById("senderLocation").value = data.senderLocation || "";
+  document.getElementById("receiver").value = data.receiver || "";
+  document.getElementById("receiverEmail").value = data.receiverEmail || "";
+  document.getElementById("receiverPhone").value = data.receiverPhone || "";
+  document.getElementById("receiverLocation").value = data.receiverLocation || "";
+  document.getElementById("address").value = data.address || "";
+  document.getElementById("shipmentDate").value = data.shipmentDate || "";
+  document.getElementById("expectedDate").value = data.expectedDate || "";
+  document.getElementById("weight").value = data.weight || "";
+  document.getElementById("quantity").value = data.quantity || "";
+  document.getElementById("description").value = data.description || "";
+  document.getElementById("status").value = data.status || "Pending";
+  document.getElementById("statusColor").value = data.statusColor || "#007bff";
+
+  document.getElementById("payURL").value = data.payURL || "";
+  document.getElementById("payText").value = data.payText || "";
+  document.getElementById("payColor").value = data.payColor || "#28a745";
+
+  if(data.packageImages){ existingImages = data.packageImages; }
+  renderImages();
+}
+
+function renderImages(){
+  imagePreview.innerHTML = "";
+  Object.entries(existingImages).forEach(([key,url])=>{
+    const div = document.createElement("div");
+    const img = document.createElement("img"); img.src=url;
+    const span = document.createElement("span"); span.textContent="×";
+    span.onclick = ()=>{ delete existingImages[key]; renderImages(); };
+    div.appendChild(img); div.appendChild(span); imagePreview.appendChild(div);
+  });
+  newImages.forEach(file=>{
+    const div = document.createElement("div");
+    const img = document.createElement("img"); img.src=URL.createObjectURL(file);
+    const span = document.createElement("span"); span.textContent="×";
+    span.onclick = ()=>{ newImages = newImages.filter(f=>f!==file); renderImages(); };
+    div.appendChild(img); div.appendChild(span); imagePreview.appendChild(div);
+  });
+}
+
+imageInput.addEventListener("change", e=>{
+  newImages = Array.from(e.target.files);
+  renderImages();
+});
+
+// Save
+editForm.addEventListener("submit", async e=>{
+  e.preventDefault();
+  const updates = {
+    trackingId: document.getElementById("trackingId").value,
+    sender: document.getElementById("sender").value,
+    senderEmail: document.getElementById("senderEmail").value,
+    senderPhone: document.getElementById("senderPhone").value,
+    senderLocation: document.getElementById("senderLocation").value,
+    receiver: document.getElementById("receiver").value,
+    receiverEmail: document.getElementById("receiverEmail").value,
+    receiverPhone: document.getElementById("receiverPhone").value,
+    receiverLocation: document.getElementById("receiverLocation").value,
+    address: document.getElementById("address").value,
+    shipmentDate: document.getElementById("shipmentDate").value,
+    expectedDate: document.getElementById("expectedDate").value,
+    weight: document.getElementById("weight").value,
+    quantity: document.getElementById("quantity").value,
+    description: document.getElementById("description").value,
+    status: document.getElementById("status").value,
+    statusColor: document.getElementById("statusColor").value,
+    payURL: document.getElementById("payURL").value,
+    payText: document.getElementById("payText").value,
+    payColor: document.getElementById("payColor").value
+  };
+
+  // Upload new images
+  for(const file of newImages){
+    const storageRef = sRef(storage, `packages/${trackId}/${file.name}`);
+    await uploadBytes(storageRef, file);
+    const url = await getDownloadURL(storageRef);
+    const key = file.name;
+    existingImages[key] = url;
+  }
+
+  updates.packageImages = existingImages;
+
+  await update(ref(db,"packages/"+trackId), updates);
+  alert("✅ Package updated successfully!");
+  window.location.href = "forms.html";
+});
+
+loadPackage();
+</script>
+
+</body>
+</html>
