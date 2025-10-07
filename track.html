@@ -26,8 +26,6 @@ table th{background:#f1f1f1;text-align:left;}
 .pay-button{display:block;text-align:center;padding:10px 15px;border-radius:6px;margin:10px auto;color:#fff;text-decoration:none;}
 .images{text-align:center;margin-top:15px;}
 .images img{max-width:220px;margin:8px;border-radius:6px;}
-#stampsContainer{position:relative; min-height:50px;}
-#selectedSignature{text-align:center;margin-top:10px;}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
@@ -66,8 +64,7 @@ table th{background:#f1f1f1;text-align:left;}
 <div id="warningBox"></div>
 <div id="payBox"></div>
 <div class="images" id="imageSection"></div>
-<div id="stampsContainer"></div>
-<div id="selectedSignature"></div>
+</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
@@ -127,16 +124,6 @@ document.getElementById("fetchBtn").addEventListener("click", async ()=>{
   // Package images
   const imageSection=document.getElementById("imageSection"); imageSection.innerHTML="";
   if(data.packageImages){Object.values(data.packageImages).forEach(url=>{ imageSection.innerHTML+=`<img src="${url}" alt="Package Image">`;}); }
-
-  // Stamps
-  const stampsContainer=document.getElementById("stampsContainer");
-  stampsContainer.innerHTML="";
-  if(data.stamps){data.stamps.forEach(url=>{ const img=document.createElement("img"); img.src=url; img.className="draggable-stamp"; img.style.position="relative"; img.style.width="100px"; stampsContainer.appendChild(img);}); }
-
-  // Signature
-  const sigContainer=document.getElementById("selectedSignature");
-  sigContainer.innerHTML="";
-  if(data.signatureURL){const sigImg=document.createElement("img"); sigImg.src=data.signatureURL; sigImg.style.maxWidth="300px"; sigContainer.appendChild(sigImg);}
 });
 </script>
 </body>
