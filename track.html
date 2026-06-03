@@ -69,34 +69,34 @@ window.addEventListener("DOMContentLoaded", () => {
 
       const data = snapshot.val();
 
-      document.getElementById("receipt").style.display = "block";
+document.getElementById("receipt").style.display = "block";
 
-      document.getElementById("rTracking").textContent =
-        data.trackingId || trackingId;
+document.getElementById("rTracking").textContent =
+  data.trackingId || trackingId;
 
-      document.getElementById("rSender").textContent =
-        data.senderName || "";
+document.getElementById("rSender").textContent =
+  data.senderName || "";
 
-      document.getElementById("rReceiver").textContent =
-        data.receiverName || "";
+document.getElementById("rReceiver").textContent =
+  data.receiverName || "";
 
-      document.getElementById("rAddress").textContent =
-        data.address || "";
+document.getElementById("rAddress").textContent =
+  data.address || "";
 
-      document.getElementById("rShip").textContent =
-        data.shipmentDate || "";
+document.getElementById("rShip").textContent =
+  data.shipmentDate || "";
 
-      document.getElementById("rExpected").textContent =
-        data.expectedDate || "";
+document.getElementById("rExpected").textContent =
+  data.expectedDate || "";
 
-      document.getElementById("rWeight").textContent =
-        data.weight || "";
+document.getElementById("rWeight").textContent =
+  data.weight || "";
 
-      document.getElementById("rQuantity").textContent =
-        data.quantity || "";
+document.getElementById("rQuantity").textContent =
+  data.quantity || "";
 
-      document.getElementById("rDesc").textContent =
-        data.description || "";
+document.getElementById("rDesc").textContent =
+  data.description || "";
 
       // Logo
       const logo = document.getElementById("headerLogo");
