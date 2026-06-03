@@ -452,36 +452,55 @@
     const addressCombined = buildAddressString();
 
     const initialData = {
-      trackingId,
-      title: document.getElementById('title').value.trim(),
-      senderName: document.getElementById('senderName').value.trim(),
-      senderEmail: document.getElementById('senderEmail').value.trim(),
-      senderPhone: document.getElementById('senderPhone').value.trim(),
-      senderLocation: document.getElementById('senderLocation').value.trim(),
-      receiverName: document.getElementById('receiverName').value.trim(),
-      receiverEmail: document.getElementById('receiverEmail').value.trim(),
-      receiverPhone: document.getElementById('receiverPhone').value.trim(),
-      receiverLocation: document.getElementById('receiverLocation').value.trim(),
-      address: addressCombined,
-      street: document.getElementById('streetAddress').value.trim(),
-      city: document.getElementById('city').value.trim(),
-      state: document.getElementById('state').value.trim(),
-      postalCode: document.getElementById('postalCode').value.trim(),
-      country: document.getElementById('country').value.trim(),
-      shipmentDate: document.getElementById('shipmentDate').value,
-      expectedDate: document.getElementById('expectedDate').value,
-      weight: document.getElementById('weight').value.trim(),
-      quantity: document.getElementById('quantity').value,
-      description: document.getElementById('description').value.trim(),
-      status: document.getElementById('status').value,
-      statusColor: document.getElementById('statusColor').value,
-      showWarning: document.getElementById('showWarning').checked,
-      warningText: document.getElementById('warningText').value.trim(),
-      warningColor: document.getElementById('warningColor').value,
-      logoURL: '',
-      imageURLs: [],
-      createdAt: new Date().toISOString()
-    };
+  trackingId,
+
+  title: document.getElementById('title').value.trim(),
+
+  // Sender Information
+  senderName: document.getElementById('senderName').value.trim(),
+  sender: document.getElementById('senderName').value.trim(),
+  senderEmail: document.getElementById('senderEmail').value.trim(),
+  senderPhone: document.getElementById('senderPhone').value.trim(),
+  senderLocation: document.getElementById('senderLocation').value.trim(),
+
+  // Receiver Information
+  receiverName: document.getElementById('receiverName').value.trim(),
+  receiver: document.getElementById('receiverName').value.trim(),
+  receiverEmail: document.getElementById('receiverEmail').value.trim(),
+  receiverPhone: document.getElementById('receiverPhone').value.trim(),
+  receiverLocation: document.getElementById('receiverLocation').value.trim(),
+
+  // Address Information
+  address: addressCombined,
+  street: document.getElementById('streetAddress').value.trim(),
+  city: document.getElementById('city').value.trim(),
+  state: document.getElementById('state').value.trim(),
+  postalCode: document.getElementById('postalCode').value.trim(),
+  country: document.getElementById('country').value.trim(),
+
+  // Shipment Details
+  shipmentDate: document.getElementById('shipmentDate').value,
+  expectedDate: document.getElementById('expectedDate').value,
+  weight: document.getElementById('weight').value.trim(),
+  quantity: document.getElementById('quantity').value,
+  description: document.getElementById('description').value.trim(),
+
+  // Status
+  status: document.getElementById('status').value,
+  statusColor: document.getElementById('statusColor').value,
+
+  // Warning Message
+  showWarning: document.getElementById('showWarning').checked,
+  warningText: document.getElementById('warningText').value.trim(),
+  warningColor: document.getElementById('warningColor').value,
+
+  // Images
+  logoURL: '',
+  imageURLs: [],
+
+  // Timestamp
+  createdAt: new Date().toISOString()
+};
 
     // prepare previews
     const logoFile = document.getElementById('logoFile').files[0] || null;
